@@ -17,11 +17,13 @@ body {
 }
 
 th {
-  border-bottom: 2px solid #1C5666 !important;
+  border-bottom: 2px solid #EABE3F !important;
   text-align: center !important;
+  /* background-color: #f8edcb !important; */
 }
 
 table > tbody > tr > td {
   vertical-align: middle !important;
   text-align: center !important;
+  /* background-color: #fff3d1 !important; */
 }
