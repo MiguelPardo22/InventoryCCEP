@@ -5,6 +5,7 @@ import './index.css'
 
 //Bootsrap
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.js";
 
 //FontAwesome
 import "@fortawesome/fontawesome-free/css/all.css";

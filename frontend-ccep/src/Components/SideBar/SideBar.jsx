@@ -7,7 +7,7 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
         <div className="logo-details">
           <i className="fa-solid fa-paw icon"></i>
-          <div className="logo_name">CCEP</div>
+          {/* <div className="logo_name">CCEP</div> */}
           <i className="bx bx-menu" id="btn" onClick={toggleSidebar}></i>
         </div>
         <div className="nav-list">

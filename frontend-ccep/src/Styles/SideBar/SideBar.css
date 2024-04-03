@@ -1,7 +1,7 @@
 .sidebar {
     position: fixed;
     left: 0;
-    top: 0;
+    top: 20;
     height: 100%;
     width: 78px;
     background: #EABE3F;
@@ -122,8 +122,8 @@
     color: #ffffff;
   }
   .sidebar .bx-search:hover {
-    background: #ffffed;
-    color: #413E38;
+    background: #413E38;
+    color: #ffffff;
   }
   
   .sidebar li.profile {
