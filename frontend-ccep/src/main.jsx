@@ -3,8 +3,20 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 
+//Bootsrap
+import "bootstrap/dist/css/bootstrap.min.css";
+
+//FontAwesome
+import "@fortawesome/fontawesome-free/css/all.css";
+
+//BoxIcons
+import 'boxicons/css/boxicons.min.css';
+
+//Router
+import { RouteProvider } from './Router/useRouter.jsx'
+
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  <RouteProvider>
     <App />
-  </React.StrictMode>,
+  </RouteProvider>,
 )
