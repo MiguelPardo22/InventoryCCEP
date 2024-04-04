@@ -1,24 +1,24 @@
 import React, { useContext, useEffect, useState } from "react";
-import ServiceCategory from "../Services/ServiceCategory";
+import ServiceSubCategory from "../Services/ServiceSubCategory";
 import { WarningButton } from "../Components/GeneralComponents/WarningButton";
 import { DangerButton } from "../Components/GeneralComponents/DangerButton";
 import { PrimaryButton } from "../Components/GeneralComponents/PrimaryButton";
 import { GeneralContext } from "../Context/GeneralContext";
 import { Modal } from "../Components/GeneralComponents/Modal";
-import { CategoryForm } from "../Components/Categories/CategoryForm";
+import { SubCategoryForm } from "../Components/SubCategories/SubCategoriesForm";
 import Swal from "sweetalert2";
 
-function Categories() {
-  const [categories, setCategories] = useState([]);
-  const [categoryToEdit, setCategoryToEdit] = useState(null);
-  const [loadingCategory, setLoadingCategory] = useState(false);
+function SubCategories() {
+  const [subCategories, setSubCategories] = useState([]);
+  const [subCategoryToEdit, setSubCategoryToEdit] = useState(null);
+  const [loadingCategory, setLoadingSubCategory] = useState(false);
   const { setOpenModal, openModal, ok, swalCard } = useContext(GeneralContext);
 
-  //Llamado al service para listar Categorias
-  const categoriesList = () => {
-    ServiceCategory.getAllCategories()
+  //Llamado al service para listar SubCategorias
+  const subCategoriesList = () => {
+    ServiceSubCategory.getAll()
       .then((response) => {
-        setCategories(response.data.data);
+        setSubCategories(response.data.data);
       })
       .catch((error) => {
         console.log(error);
@@ -27,30 +27,29 @@ function Categories() {
 
   //Listar categorias una vez renderizada la pagina
   useEffect(() => {
-    categoriesList();
+    subCategoriesList();
   }, []);
 
-  //Funcion para indicarle al formulario que se quiere crear una categoria
-  const createCategory = () => {
+  //Funcion para indicarle al formulario que se quiere crear una subcategoria
+  const createSubCategory = () => {
     // Al abrir el formulario para crear una nueva categoría
     setOpenModal(true);
-    setCategoryToEdit(null); // Resetea la categoría seleccionada para evitar edición
+    setSubCategoryToEdit(null); // Resetea la categoría seleccionada para evitar edición
   };
 
   //Funcion para indicarle al formulario que se quiere editar una subcategoria
-  const editCategory = async (id) => {
+  const editSubCategory = (id) => {
     try {
-      setLoadingCategory(true);
-      const response = await ServiceCategory.byId(id);
-      const categoryToEdit = response.data.data;
-      if (categoryToEdit) {
+      setLoadingSubCategory(true);
+      const subCategoryToEdit = subCategories.find((SubCategory) => SubCategory.id === id);
+      if (subCategoryToEdit) {
         setOpenModal(true);
-        setCategoryToEdit(categoryToEdit);
+        setSubCategoryToEdit(subCategoryToEdit);
       }
     } catch (error) {
-      console.error("Error fetching category:", error);
+      console.error("Error fetching SubCategory:", error);
     } finally {
-      setLoadingCategory(false);
+      setLoadingSubCategory(false);
     }
   };
 
@@ -64,13 +63,13 @@ function Categories() {
       cancelButtonText: '<i class="fa-solid fa-ban"></i> Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        ServiceCategory.delete(id)
+        ServiceSubCategory.delete(id)
           .then((response) => {
             const { success, message } = response.data;
 
             if (success) {
               ok(message, "success");
-              categoriesList();
+              subCategoriesList();
             } else {
               if (response.data.code == 400) {
                 swalCard("SubCategoria Relacionada", message, "error");
@@ -91,39 +90,41 @@ function Categories() {
     <div>
       <div className="container">
         <br />
-        <h2 className="text-center">Categorias</h2>
+        <h2 className="text-center">SubCategorias</h2>
         <br />
         <div className="text-center">
-          <PrimaryButton execute={createCategory} icon="fa-solid fa-plus" />
+          <PrimaryButton execute={createSubCategory} icon="fa-solid fa-plus" />
         </div>
         <br />
         <div className="table-responsive">
           <table className="table caption-top">
-            <caption>Lista de Categorias</caption>
+            <caption>Lista de SubCategorias</caption>
             <thead>
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Nombre</th>
+                <th scope="col">Categoria</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Editar</th>
                 <th scope="col">Eliminar</th>
               </tr>
             </thead>
             <tbody>
-              {categories.map((category, i) => (
-                <tr key={category.id}>
+              {subCategories.map((SubCategory, i) => (
+                <tr key={SubCategory.id}>
                   <td>{i + 1}</td>
-                  <td>{category.name}</td>
-                  <td>{category.state}</td>
+                  <td>{SubCategory.name}</td>
+                  <td>{SubCategory.category_id.name}</td>
+                  <td>{SubCategory.state}</td>
                   <td>
                     <WarningButton
                       icon="fa-solid fa-pen-to-square"
-                      execute={() => editCategory(category.id)}
+                      execute={() => editSubCategory(SubCategory.id)}
                     />
                   </td>
                   <td>
                     <DangerButton
-                      execute={() => deleteCategory(category.id, category.name)}
+                      execute={() => deleteCategory(SubCategory.id, SubCategory.name)}
                       icon="fa-solid fa-trash-can"
                     />
                   </td>
@@ -136,11 +137,11 @@ function Categories() {
 
       {/* Formulario de Categorias */}
       {openModal && (
-        <Modal tittle={categoryToEdit ? "Editar Categoría" : "Crear Categoría"}>
-          <CategoryForm
+        <Modal tittle={subCategoryToEdit ? "Editar SubCategoría" : "Crear SubCategoría"}>
+          <SubCategoryForm
             /* Indicarle al formulario si es para editar o crear */
-            categoriesList={categoriesList}
-            editCategory={categoryToEdit}
+            subCategoriesList={subCategoriesList}
+            editSubCategory={subCategoryToEdit}
           />
         </Modal>
       )}
@@ -148,4 +149,4 @@ function Categories() {
   );
 }
 
-export { Categories };
+export { SubCategories };

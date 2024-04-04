@@ -8,7 +8,7 @@ import { Index } from "../Views/Index";
 import { DashBoard } from "../Views/DashBoard";
 import { StartPage } from "../Views/StarPage";
 import { Categories } from "../Views/Categories";
-// import { SubCategories } from "../Views/SubCategories";
+import { SubCategories } from "../Views/SubCategories";
 
 
 const RouteContext = React.createContext();
@@ -31,10 +31,10 @@ function RouteProvider(props) {
           path: "categories",
           element: <Categories />
         },
-    //     {
-    //       path: "subcategories",
-    //       element: <SubCategories />
-    //     }
+        {
+          path: "subcategories",
+          element: <SubCategories />
+        }
       ]
     },
   ]);

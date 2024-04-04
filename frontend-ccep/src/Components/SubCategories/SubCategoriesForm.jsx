@@ -1,15 +1,20 @@
 import React, { useContext, useEffect, useState } from "react";
-import "../../Styles/Categories/CategoryForm.css";
+import "../../Styles/SubCategories/SubCategoryForm.css";
+import ServiceSubCategory from "../../Services/ServiceSubCategory";
 import ServiceCategory from "../../Services/ServiceCategory";
 import { GeneralContext } from "../../Context/GeneralContext";
 
-function CategoryForm({ categoriesList, editCategory }) {
+function SubCategoryForm({ subCategoriesList, editSubCategory }) {
   const [name, setName] = useState("");
+  const [category_id, setCategory_id] = useState("");
   const [state, setState] = useState("Activo");
   const [isEditMode, setIsEditMode] = useState(false);
 
   const [nameError, setNameError] = useState("");
+  const [categoryError, setCategoryError] = useState("");
   const [stateError, setStateError] = useState("");
+
+  const [categories, setCategories] = useState([]);
 
   const { closeModal, ok, swalCard } = useContext(GeneralContext);
 
@@ -17,29 +22,61 @@ function CategoryForm({ categoriesList, editCategory }) {
     setState(e.target.value);
   };
 
+  const onCategoryIdChange = (e) => {
+    setCategory_id(e.target.value);
+  };
+
+  //Llamado al service para listar Categorias una vez terminada la operacion de editar o crear
+  const categoriesList = () => {
+    ServiceCategory.getAllCategories()
+      .then((response) => {
+        setCategories(response.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   useEffect(() => {
-    // Si se proporciona una categoría para editar, establecer el modo de edición y llenar los campos.
-    if (editCategory) {
+    categoriesList();
+  }, []);
+
+  useEffect(() => {
+    // Si se proporciona una SubCategoría para editar, establecer el modo de edición y llenar los campos.
+    if (editSubCategory) {
       setIsEditMode(true);
-      setName(editCategory.name);
-      setState(editCategory.state);
+      setName(editSubCategory.name);
+      setCategory_id(editSubCategory.category_id.id);
+      setState(editSubCategory.state);
     } else {
-      // Si no se proporciona una categoría para editar, resetear el formulario.
+      // Si no se proporciona una SubCategoría para editar, resetear el formulario.
       setName("");
+      setCategory_id(1);
       setState("Activo");
       setIsEditMode(false);
     }
-  }, [editCategory]);
+  }, [editSubCategory]);
 
-  //Metodo para editar o crear categorias
+  //Metodo para crear o editar subcategorias
   const saveOrUpdate = async (e) => {
     e.preventDefault();
-    
+
+    //Campos del json para enviar al servidor
+    const updatedSubCategory = { name, category_id, state };
+
+    //Validacion de campos
     if (name.trim() === "") {
       setNameError("Este campo es requerido");
       return;
     } else {
       setNameError("");
+    }
+
+    if (category_id.trim === "") {
+      setCategoryError("Este campo es requerido");
+      return;
+    } else {
+      setCategoryError("");
     }
 
     if (state.trim() === "") {
@@ -49,33 +86,30 @@ function CategoryForm({ categoriesList, editCategory }) {
       setStateError("");
     }
 
-    //Campos del json para enviar al servidor
-    const updatedCategory = { name, state };
-
+    //Indicar que se quiere editar
     try {
-      //Validar si se quiere editar o crear
       if (isEditMode) {
-        const response = await ServiceCategory.update(
-          editCategory.id,
-          updatedCategory
+        const response = await ServiceSubCategory.update(
+          editSubCategory.id,
+          updatedSubCategory
         );
         ok(response.data.message, "success");
 
         if (response.data.code == 400) {
-          swalCard("Categoria Existente", response.data.message, "error");
+          swalCard("SubCategoria Existente", response.data.message, "error");
         }
-
       } else {
-        const response = await ServiceCategory.add(updatedCategory);
+        //Indicar que se quiere crear
+        const response = await ServiceSubCategory.add(updatedSubCategory);
         ok(response.data.message, "success");
 
         if (response.data.code == 400) {
-          swalCard("Categoria Existente", response.data.message, "error");
+          swalCard("SubCategoria Existente", response.data.message, "error");
         }
       }
 
       closeModal();
-      categoriesList();
+      subCategoriesList();
     } catch (error) {
       console.error(error.message);
       ok(error.message, "error");
@@ -97,6 +131,24 @@ function CategoryForm({ categoriesList, editCategory }) {
         />
         {nameError && <span className="error-message">{nameError}</span>}
       </div>
+      <div className="form-group">
+        <label>Categoria:</label>
+        <select
+          id="category_id"
+          name="category_id"
+          value={category_id}
+          onChange={onCategoryIdChange}
+          className={`form-control ${categoryError && "error"}`}
+        >
+          <option value="">--Seleccione un Categoria--</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+        {categoryError && <span className="error-message">{categoryError}</span>}
+      </div>
       {/* Mostrar cada vez que se quiera editar */}
       {isEditMode && (
         <div className="form-group">
@@ -106,7 +158,7 @@ function CategoryForm({ categoriesList, editCategory }) {
             name="state"
             value={state}
             onChange={onStatusChange}
-            className="form-control"
+            className={`form-control ${stateError && "error"}`}
           >
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
@@ -126,4 +178,4 @@ function CategoryForm({ categoriesList, editCategory }) {
   );
 }
 
-export { CategoryForm };
+export { SubCategoryForm };

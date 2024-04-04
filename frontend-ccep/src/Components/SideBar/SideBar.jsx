@@ -23,14 +23,14 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
             <SideBarLink
               to="categories"
               text="Categorias"
-              icon="bx bx-box bx-burst-hover"
+              icon="bx bx-box"
             />
           </li>
           <li>
             <SideBarLink
               to="subcategories"
               text="SubCategorias"
-              icon="bx bx-folder bx-burst-hover"
+              icon="bx bx-folder"
             />
           </li>
           <li className="profile">
