@@ -11,8 +11,8 @@ import com.api.backendCCEP.Model.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    // Consulta personalizada para obtener SubCategories con el nombre de la
-	// categoría
+    // Consulta personalizada para obtener la lista de categorias
+	// ordenadas asendente por el id
 	@Query(value = "SELECT * FROM categories c ORDER BY c.id ASC", nativeQuery = true)
 	List<Category> categories();
 

@@ -37,5 +37,12 @@
   }
   
   #nav a.active {
-    background: #ffffed;
+    background: #413E38;
+    color: #ffffff;
+  }
+  #nav a.active i {
+    color: #ffffff;
+  }
+  #nav a.active .links_name{
+    color: #ffffff;
   }

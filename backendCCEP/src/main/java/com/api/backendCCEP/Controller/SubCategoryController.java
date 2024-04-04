@@ -105,7 +105,7 @@ public class SubCategoryController {
 
 			if (isNullOrEmpty(fieldsToValidate)) {
 				response.setSuccess(false);
-				response.setMessage("El nombre, el estado y la categoria no pueden estar vacíos");
+				response.setMessage("El nombre y la categoria no pueden estar vacíos");
 				response.setData(null);
 				response.setCode(400);
 			} else if (existingCategory == null) {
