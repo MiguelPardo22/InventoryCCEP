@@ -72,7 +72,7 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
       setNameError("");
     }
 
-    if (category_id.trim === "") {
+    if (category_id.toString().trim() === "") {
       setCategoryError("Este campo es requerido");
       return;
     } else {

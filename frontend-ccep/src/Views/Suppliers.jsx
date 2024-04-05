@@ -1,24 +1,24 @@
 import React, { useContext, useEffect, useState } from "react";
-import ServiceCategory from "../Services/ServiceCategory";
+import { PrimaryButton } from "../Components/GeneralComponents/PrimaryButton";
 import { WarningButton } from "../Components/GeneralComponents/WarningButton";
 import { DangerButton } from "../Components/GeneralComponents/DangerButton";
-import { PrimaryButton } from "../Components/GeneralComponents/PrimaryButton";
 import { GeneralContext } from "../Context/GeneralContext";
+import { SupplierForm } from "../Components/Suppliers/SupplierForm";
 import { Modal } from "../Components/GeneralComponents/Modal";
-import { CategoryForm } from "../Components/Categories/CategoryForm";
+import ServiceSupplier from "../Services/ServiceSupplier";
 import Swal from "sweetalert2";
 
-function Categories() {
-  const [categories, setCategories] = useState([]);
-  const [categoryToEdit, setCategoryToEdit] = useState(null);
-  const [loadingCategory, setLoadingCategory] = useState(false);
+function Suppliers() {
+  const [suppliers, setSuppliers] = useState([]);
+  const [supplierToEdit, setSupplierToEdit] = useState(null);
+  const [loadingSupplier, setLoadingSupplier] = useState(false);
   const { setOpenModal, openModal, ok, swalCard } = useContext(GeneralContext);
 
-  //Llamado al service para listar Categorias
-  const categoriesList = () => {
-    ServiceCategory.getAllCategories()
+  //LLamado al service para listar los proveedores
+  const suppliersList = () => {
+    ServiceSupplier.getAllSuppliers()
       .then((response) => {
-        setCategories(response.data.data);
+        setSuppliers(response.data.data);
       })
       .catch((error) => {
         console.log(error);
@@ -27,35 +27,35 @@ function Categories() {
 
   //Listar categorias una vez renderizada la pagina
   useEffect(() => {
-    categoriesList();
+    suppliersList();
   }, []);
 
-  //Funcion para indicarle al formulario que se quiere crear una categoria
-  const createCategory = () => {
+  //Funcion para indicarle al formulario si se quiere crear un proveedor
+  const createSupplier = () => {
     // Al abrir el formulario para crear una nueva categoría
     setOpenModal(true);
-    setCategoryToEdit(null); // Resetea la categoría seleccionada para evitar edición
+    setSupplierToEdit(null); // Resetea el estado de supplierToEdit seleccionado para evitar edición
   };
 
-  //Funcion para indicarle al formulario que se quiere editar una categoria
-  const editCategory = async (id) => {
+  //Funcion para indicarle al formulario que se quiere editar un proveedor
+  const editSupplier = async (id) => {
     try {
-      setLoadingCategory(true);
-      const response = await ServiceCategory.byId(id);
-      const categoryToEdit = response.data.data;
-      if (categoryToEdit) {
+      setLoadingSupplier(true);
+      const response = await ServiceSupplier.byId(id);
+      const supplierToEdit = response.data.data;
+      if (supplierToEdit) {
         setOpenModal(true);
-        setCategoryToEdit(categoryToEdit);
+        setSupplierToEdit(supplierToEdit);
       }
     } catch (error) {
-      console.error("Error fetching category:", error);
+      console.log("Error Cargando los datos: ", error);
     } finally {
-      setLoadingCategory(false);
+      setLoadingSupplier(false);
     }
   };
 
-  //Logica para eliminar una Categoria
-  const deleteCategory = (id, name) => {
+  //Logica para eliminar un Proveedor
+  const deleteSupplier = (id, name) => {
     Swal.fire({
       title: "¿Está seguro de eliminar " + name + "?",
       icon: "question",
@@ -64,18 +64,18 @@ function Categories() {
       cancelButtonText: '<i class="fa-solid fa-ban"></i> Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        ServiceCategory.delete(id)
+        ServiceSupplier.delete(id)
           .then((response) => {
             const { success, message } = response.data;
 
             if (success) {
               ok(message, "success");
-              categoriesList();
+              suppliersList();
             } else {
               if (response.data.code == 400) {
-                swalCard("SubCategoria Relacionada", message, "error");
-              } else {
-                swalCard("Error al eliminar la categoría", message, "error");
+                //   swalCard("SubCategoria Relacionada", message, "error");
+                // } else {
+                swalCard("Error al eliminar el proveedor", message, "error");
               }
             }
           })
@@ -91,39 +91,45 @@ function Categories() {
     <div>
       <div className="container">
         <br />
-        <h2 className="text-center">Categorias</h2>
+        <h2 className="text-center">Proveedores</h2>
         <br />
         <div className="text-center">
-          <PrimaryButton execute={createCategory} icon="fa-solid fa-plus" />
+          <PrimaryButton execute={createSupplier} icon="fa-solid fa-plus" />
         </div>
         <br />
         <div className="table-responsive">
           <table className="table caption-top">
-            <caption>Lista de Categorias</caption>
+            <caption>Lista de Proveedores</caption>
             <thead>
               <tr>
                 <th scope="col">#</th>
+                <th scope="col">Nit</th>
                 <th scope="col">Nombre</th>
+                <th scope="col">Telefono</th>
+                <th scope="col">Mail</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Editar</th>
                 <th scope="col">Eliminar</th>
               </tr>
             </thead>
             <tbody>
-              {categories.map((category, i) => (
-                <tr key={category.id}>
+              {suppliers.map((supplier, i) => (
+                <tr key={supplier.id}>
                   <td>{i + 1}</td>
-                  <td>{category.name}</td>
-                  <td>{category.state}</td>
+                  <td>{supplier.nit}</td>
+                  <td>{supplier.name}</td>
+                  <td>{supplier.phone}</td>
+                  <td>{supplier.mail}</td>
+                  <td>{supplier.state}</td>
                   <td>
                     <WarningButton
                       icon="fa-solid fa-pen-to-square"
-                      execute={() => editCategory(category.id)}
+                      execute={() => editSupplier(supplier.id)}
                     />
                   </td>
                   <td>
                     <DangerButton
-                      execute={() => deleteCategory(category.id, category.name)}
+                      execute={() => deleteSupplier(supplier.id, supplier.name)}
                       icon="fa-solid fa-trash-can"
                     />
                   </td>
@@ -133,14 +139,13 @@ function Categories() {
           </table>
         </div>
       </div>
-
       {/* Formulario de Categorias */}
       {openModal && (
-        <Modal tittle={categoryToEdit ? "Editar Categoría" : "Crear Categoría"}>
-          <CategoryForm
+        <Modal tittle={supplierToEdit ? "Editar Proveedor" : "Crear Proveedor"}>
+          <SupplierForm
             /* Indicarle al formulario si es para editar o crear */
-            categoriesList={categoriesList}
-            editCategory={categoryToEdit}
+            suppliersList={suppliersList}
+            editSupplier={supplierToEdit}
           />
         </Modal>
       )}
@@ -148,4 +153,4 @@ function Categories() {
   );
 }
 
-export { Categories };
+export { Suppliers };

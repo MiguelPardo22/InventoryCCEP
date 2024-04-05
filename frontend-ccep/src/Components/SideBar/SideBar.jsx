@@ -33,6 +33,13 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
               icon="bx bx-folder"
             />
           </li>
+          <li>
+            <SideBarLink
+              to="suppliers"
+              text="Proveedores"
+              icon="bx bxs-truck"
+            />
+          </li>
           <li className="profile">
             <div className="profile-details">
               <img src="profile.jpg" alt="profileImg" />

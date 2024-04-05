@@ -4,13 +4,18 @@ import ServiceCategory from "../../Services/ServiceCategory";
 import { GeneralContext } from "../../Context/GeneralContext";
 
 function CategoryForm({ categoriesList, editCategory }) {
+  //Campos del json y del formulario
   const [name, setName] = useState("");
   const [state, setState] = useState("Activo");
+
+  //Estado para saber si se esta editando o no
   const [isEditMode, setIsEditMode] = useState(false);
 
+  //Texto para mostrar errores de validaciones
   const [nameError, setNameError] = useState("");
   const [stateError, setStateError] = useState("");
 
+  //Contexto General
   const { closeModal, ok, swalCard } = useContext(GeneralContext);
 
   const onStatusChange = (e) => {

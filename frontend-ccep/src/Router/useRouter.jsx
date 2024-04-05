@@ -9,6 +9,7 @@ import { DashBoard } from "../Views/DashBoard";
 import { StartPage } from "../Views/StarPage";
 import { Categories } from "../Views/Categories";
 import { SubCategories } from "../Views/SubCategories";
+import { Suppliers } from "../Views/Suppliers";
 
 
 const RouteContext = React.createContext();
@@ -34,7 +35,11 @@ function RouteProvider(props) {
         {
           path: "subcategories",
           element: <SubCategories />
-        }
+        },
+        {
+          path: "suppliers",
+          element: <Suppliers />
+        },
       ]
     },
   ]);

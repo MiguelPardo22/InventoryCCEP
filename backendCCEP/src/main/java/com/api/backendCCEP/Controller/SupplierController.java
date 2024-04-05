@@ -70,6 +70,16 @@ public class SupplierController {
         return supplierExists;
     }
 
+    // Verficar la longitud del telefono y del nit
+    public boolean checkPhoneAndNitLength(long phone, long nit) {
+
+        if (Long.toString(phone).length() != 10 || Long.toString(nit).length() != 10) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     // Validar Campos, nombre y estado
     private boolean isNullOrEmpty(Object[] array) {
         if (array == null) {
@@ -133,6 +143,11 @@ public class SupplierController {
             } else if (verifyExistingSupplier(fieldsToValidate)) {
                 response.setSuccess(false);
                 response.setMessage("Ya hay un proveedor registrado con la misma informacion");
+                response.setData(null);
+                response.setCode(400); // Código de respuesta 400 para indicar una solicitud incorrecta
+            } else if (checkPhoneAndNitLength(supplier.getPhone(), supplier.getNit())) {
+                response.setSuccess(false);
+                response.setMessage("El telefono y el nit deben tener 10 digitos");
                 response.setData(null);
                 response.setCode(400); // Código de respuesta 400 para indicar una solicitud incorrecta
             } else {
@@ -243,6 +258,7 @@ public class SupplierController {
         return response;
     }
 
+    // Eliminar Proveedores
     @DeleteMapping("/suppliers/delete/{id}")
     public ApiResponse<String> deleteSupplier(@PathVariable Long id) {
 
@@ -257,7 +273,7 @@ public class SupplierController {
                 // List<SubCategory> subCategories = existingSupplier.getSubCategories();
 
                 // if (subCategories.isEmpty()) {
-                // iSuppliers.delete(existingSupplier);
+                iSuppliers.delete(existingSupplier);
 
                 response.setSuccess(true);
                 response.setMessage("Proveedor eliminado exitosamente");
