@@ -1,7 +1,7 @@
 package com.api.backendCCEP.Repository;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,6 +15,6 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 	// categoría
 	@Query(value = "SELECT sc.id, sc.name, c.name as categoryName, sc.category_id, sc.state FROM subcategories"
 			+ " sc JOIN categories c on sc.category_id = c.id ORDER BY sc.id ASC", nativeQuery = true)
-	List<SubCategory> subCategories();
+	Page<SubCategory> findAllSubCategoriesWithPagination(Pageable pageable);
 
 }

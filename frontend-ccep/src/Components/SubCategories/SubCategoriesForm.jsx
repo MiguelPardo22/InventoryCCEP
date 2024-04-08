@@ -28,7 +28,7 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
 
   //Llamado al service para listar Categorias una vez terminada la operacion de editar o crear
   const categoriesList = () => {
-    ServiceCategory.getAllCategories()
+    ServiceCategory.getCategoriesNotPaginated()
       .then((response) => {
         setCategories(response.data.data);
       })

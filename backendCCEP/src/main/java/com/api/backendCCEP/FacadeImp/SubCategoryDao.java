@@ -1,7 +1,7 @@
 package com.api.backendCCEP.FacadeImp;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.api.backendCCEP.Facade.ISubCategory;
@@ -20,8 +20,8 @@ public class SubCategoryDao implements ISubCategory {
 
 	// Usar la instancia del repositorio y obtener el metodo subCategories
 	@Override
-	public List<SubCategory> listSubCategories() {
-		return subCategoryRepository.subCategories();
+	public Page<SubCategory> listSubCategories(Pageable pageable) {
+		return subCategoryRepository.findAllSubCategoriesWithPagination(pageable);
 	}
 
 	// Llamar el metodo findById del repository

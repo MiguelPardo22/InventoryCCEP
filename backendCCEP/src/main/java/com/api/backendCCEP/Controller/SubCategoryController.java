@@ -2,6 +2,9 @@ package com.api.backendCCEP.Controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,12 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.api.backendCCEP.Facade.ICategory;
 import com.api.backendCCEP.Facade.ISubCategory;
 import com.api.backendCCEP.Model.Category;
 import com.api.backendCCEP.Model.SubCategory;
+import com.api.backendCCEP.Repository.SubCategoryRepository;
 import com.api.backendCCEP.Util.ApiResponse;
 
 @RestController
@@ -24,15 +29,17 @@ public class SubCategoryController {
 	// Instancias
 	private ISubCategory iSubCategory;
 	private ICategory iCategory;
+	private SubCategoryRepository subCategoryRepository;
 
-	public SubCategoryController(ISubCategory iSubCategory, ICategory iCategory) {
+	public SubCategoryController(ISubCategory iSubCategory, ICategory iCategory, SubCategoryRepository subCategoryRepository) {
 		this.iSubCategory = iSubCategory;
 		this.iCategory = iCategory;
+		this.subCategoryRepository = subCategoryRepository;
 	}
 
 	// Revisar subcategorias existentes
 	public boolean verifyExistingCategories(SubCategory subCategory) {
-		List<SubCategory> existingSubCategories = iSubCategory.listSubCategories();
+		List<SubCategory> existingSubCategories = subCategoryRepository.findAll();
 		boolean subCategoryExists = existingSubCategories.stream()
 				.anyMatch(existingSubCategory -> existingSubCategory.getName().equals(subCategory.getName()));
 		return subCategoryExists;
@@ -40,7 +47,7 @@ public class SubCategoryController {
 
 	// Verificar si existe la subacategoria con el mismo nombre excluyendo esta
 	public boolean verifyExistingCategoriesById(long id, SubCategory subCategory) {
-		List<SubCategory> existingSubCategories = iSubCategory.listSubCategories();
+		List<SubCategory> existingSubCategories = subCategoryRepository.findAll();
 		boolean categoryExists = existingSubCategories.stream()
 				.anyMatch(existingSubCategory -> existingSubCategory.getName().equals(subCategory.getName())
 						&& !(existingSubCategory.getId() == id));
@@ -64,14 +71,17 @@ public class SubCategoryController {
 		return false; // Si ninguno de los objetos en el array es nulo o vacío, devolvemos false
 	}
 
-	// Listar SubCategorias
+	// Listar SubCategorias con paginacion
 	@GetMapping({ "/subcategories" })
-	public ApiResponse<List<SubCategory>> getCategoriesList() {
+	public ApiResponse<Page<SubCategory>> getCategoriesList(@RequestParam(defaultValue = "0") int page,
+    	    @RequestParam(defaultValue = "5") int size) {
 
-		ApiResponse<List<SubCategory>> response = new ApiResponse<>();
+		ApiResponse<Page<SubCategory>> response = new ApiResponse<>();
 
 		try {
-			List<SubCategory> subcategories = iSubCategory.listSubCategories();
+			Pageable pageable = PageRequest.of(page, size);
+			
+			Page<SubCategory> subcategories = iSubCategory.listSubCategories(pageable);
 
 			response.setSuccess(true);
 			response.setMessage("Consulta exitosa");

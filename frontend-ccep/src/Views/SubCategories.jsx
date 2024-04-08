@@ -7,28 +7,38 @@ import { GeneralContext } from "../Context/GeneralContext";
 import { Modal } from "../Components/GeneralComponents/Modal";
 import { SubCategoryForm } from "../Components/SubCategories/SubCategoriesForm";
 import Swal from "sweetalert2";
+import { Pagination } from "../Components/GeneralComponents/Pagination";
 
 function SubCategories() {
   const [subCategories, setSubCategories] = useState([]);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(0);
   const [subCategoryToEdit, setSubCategoryToEdit] = useState(null);
   const [loadingCategory, setLoadingSubCategory] = useState(false);
   const { setOpenModal, openModal, ok, swalCard } = useContext(GeneralContext);
 
   //Llamado al service para listar SubCategorias
-  const subCategoriesList = () => {
-    ServiceSubCategory.getAll()
+  const subCategoriesList = (page, size) => {
+    ServiceSubCategory.getAll(page, size)
       .then((response) => {
-        setSubCategories(response.data.data);
+        setSubCategories(response.data.data.content);
+        setTotalPages(response.data.data.totalPages);
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
+  //Actualizar el estado de la pagina = Page
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber - 1);
+  };
+
   //Listar categorias una vez renderizada la pagina
   useEffect(() => {
-    subCategoriesList();
-  }, []);
+    subCategoriesList(page, size);
+  }, [page, size]);
 
   //Funcion para indicarle al formulario que se quiere crear una subcategoria
   const createSubCategory = () => {
@@ -41,7 +51,9 @@ function SubCategories() {
   const editSubCategory = (id) => {
     try {
       setLoadingSubCategory(true);
-      const subCategoryToEdit = subCategories.find((SubCategory) => SubCategory.id === id);
+      const subCategoryToEdit = subCategories.find(
+        (SubCategory) => SubCategory.id === id
+      );
       if (subCategoryToEdit) {
         setOpenModal(true);
         setSubCategoryToEdit(subCategoryToEdit);
@@ -112,7 +124,7 @@ function SubCategories() {
             <tbody>
               {subCategories.map((SubCategory, i) => (
                 <tr key={SubCategory.id}>
-                  <td>{i + 1}</td>
+                  <td>{page * size + i + 1}</td>
                   <td>{SubCategory.name}</td>
                   <td>{SubCategory.category_id.name}</td>
                   <td>{SubCategory.state}</td>
@@ -124,7 +136,9 @@ function SubCategories() {
                   </td>
                   <td>
                     <DangerButton
-                      execute={() => deleteCategory(SubCategory.id, SubCategory.name)}
+                      execute={() =>
+                        deleteCategory(SubCategory.id, SubCategory.name)
+                      }
                       icon="fa-solid fa-trash-can"
                     />
                   </td>
@@ -132,15 +146,24 @@ function SubCategories() {
               ))}
             </tbody>
           </table>
+          <Pagination
+            totalPages={totalPages}
+            currentPage={page + 1}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
 
       {/* Formulario de Categorias */}
       {openModal && (
-        <Modal tittle={subCategoryToEdit ? "Editar SubCategoría" : "Crear SubCategoría"}>
+        <Modal
+          tittle={
+            subCategoryToEdit ? "Editar SubCategoría" : "Crear SubCategoría"
+          }
+        >
           <SubCategoryForm
             /* Indicarle al formulario si es para editar o crear */
-            subCategoriesList={subCategoriesList}
+            subCategoriesList={() => subCategoriesList(page, size)}
             editSubCategory={subCategoryToEdit}
           />
         </Modal>

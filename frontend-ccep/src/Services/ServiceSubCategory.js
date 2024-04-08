@@ -3,8 +3,8 @@ import axios from "axios";
 const baseUrl = "http://localhost:8080/admin";
 
 class ServiceSubCategory {
-  getAll() {
-    return axios.get(baseUrl + "/subcategories");
+  getAll(page, size) {
+    return axios.get(baseUrl + "/subcategories" + `?page=${page}&size=${size}`);
   }
 
   add(subCategory) {

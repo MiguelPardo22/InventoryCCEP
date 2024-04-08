@@ -6,29 +6,39 @@ import { PrimaryButton } from "../Components/GeneralComponents/PrimaryButton";
 import { GeneralContext } from "../Context/GeneralContext";
 import { Modal } from "../Components/GeneralComponents/Modal";
 import { CategoryForm } from "../Components/Categories/CategoryForm";
+import { Pagination } from "../Components/GeneralComponents/Pagination";
 import Swal from "sweetalert2";
 
 function Categories() {
   const [categories, setCategories] = useState([]);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(0);
   const [categoryToEdit, setCategoryToEdit] = useState(null);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const { setOpenModal, openModal, ok, swalCard } = useContext(GeneralContext);
 
   //Llamado al service para listar Categorias
-  const categoriesList = () => {
-    ServiceCategory.getAllCategories()
+  const categoriesList = (page, size) => {
+    ServiceCategory.getCategoriesPagination(page, size)
       .then((response) => {
-        setCategories(response.data.data);
+        setCategories(response.data.data.content);
+        setTotalPages(response.data.data.totalPages);
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  //Listar categorias una vez renderizada la pagina
+  //Actualizar el estado de la pagina = Page
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber - 1);
+  };
+
+  //Listar categorias cada vez que haya un cambio en las paginas y el tamaño
   useEffect(() => {
-    categoriesList();
-  }, []);
+    categoriesList(page, size);
+  }, [page, size]);
 
   //Funcion para indicarle al formulario que se quiere crear una categoria
   const createCategory = () => {
@@ -112,7 +122,7 @@ function Categories() {
             <tbody>
               {categories.map((category, i) => (
                 <tr key={category.id}>
-                  <td>{i + 1}</td>
+                  <td>{page * size + i + 1}</td>
                   <td>{category.name}</td>
                   <td>{category.state}</td>
                   <td>
@@ -131,6 +141,11 @@ function Categories() {
               ))}
             </tbody>
           </table>
+          <Pagination
+            totalPages={totalPages}
+            currentPage={page + 1}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
 
@@ -139,7 +154,7 @@ function Categories() {
         <Modal tittle={categoryToEdit ? "Editar Categoría" : "Crear Categoría"}>
           <CategoryForm
             /* Indicarle al formulario si es para editar o crear */
-            categoriesList={categoriesList}
+            categoriesList={() => categoriesList(page, size)}
             editCategory={categoryToEdit}
           />
         </Modal>
