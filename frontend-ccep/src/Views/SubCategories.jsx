@@ -6,8 +6,8 @@ import { PrimaryButton } from "../Components/GeneralComponents/PrimaryButton";
 import { GeneralContext } from "../Context/GeneralContext";
 import { Modal } from "../Components/GeneralComponents/Modal";
 import { SubCategoryForm } from "../Components/SubCategories/SubCategoriesForm";
-import Swal from "sweetalert2";
 import { Pagination } from "../Components/GeneralComponents/Pagination";
+import Swal from "sweetalert2";
 
 function SubCategories() {
   const [subCategories, setSubCategories] = useState([]);

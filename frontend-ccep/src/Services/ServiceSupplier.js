@@ -3,8 +3,12 @@ import axios from "axios";
 const baseUrl = "http://localhost:8080/admin";
 
 class ServiceSupplier {
-  getAllSuppliers() {
-    return axios.get(baseUrl + "/suppliers");
+  getAllSuppliersPaginated(page, size) {
+    return axios.get(baseUrl + "/suppliers?page=" + page + "&size=" + size);
+  }
+
+  getAllSuppliersNotPaginated() {
+    return axios.get(baseUrl + "/suppliersnotpaginated");
   }
 
   add(supplier) {

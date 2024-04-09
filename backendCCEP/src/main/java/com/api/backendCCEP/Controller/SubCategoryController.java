@@ -73,7 +73,7 @@ public class SubCategoryController {
 
 	// Listar SubCategorias con paginacion
 	@GetMapping({ "/subcategories" })
-	public ApiResponse<Page<SubCategory>> getCategoriesList(@RequestParam(defaultValue = "0") int page,
+	public ApiResponse<Page<SubCategory>> getSubCategoriesListPaginated(@RequestParam(defaultValue = "0") int page,
     	    @RequestParam(defaultValue = "5") int size) {
 
 		ApiResponse<Page<SubCategory>> response = new ApiResponse<>();
@@ -82,6 +82,32 @@ public class SubCategoryController {
 			Pageable pageable = PageRequest.of(page, size);
 			
 			Page<SubCategory> subcategories = iSubCategory.listSubCategories(pageable);
+
+			response.setSuccess(true);
+			response.setMessage("Consulta exitosa");
+			response.setData(subcategories);
+			response.setCode(200);
+
+		} catch (Exception e) {
+
+			response.setSuccess(false);
+			response.setMessage("Error en la consulta " + e);
+			response.setData(null);
+			response.setCode(500);
+
+		}
+
+		return response;
+	}
+
+	// Listar SubCategorias
+	@GetMapping({ "/subcategoriesnotpaginated" })
+	public ApiResponse<List<SubCategory>> getSubCategoriesListNotPaginated() {
+
+		ApiResponse<List<SubCategory>> response = new ApiResponse<>();
+
+		try {
+			List<SubCategory> subcategories = subCategoryRepository.findAll();
 
 			response.setSuccess(true);
 			response.setMessage("Consulta exitosa");

@@ -1,7 +1,7 @@
 package com.api.backendCCEP.FacadeImp;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.api.backendCCEP.Facade.ISuppliers;
@@ -20,8 +20,8 @@ public class SupplierDao implements ISuppliers{
 
     //Llamado a la consulta personalizada ubicada en el repository
     @Override
-    public List<Supplier> listSuppliers() {
-        return supplierRepository.suppliers();
+    public Page<Supplier> listSuppliers(Pageable pageable) {
+        return supplierRepository.findAllSuppliersWithPagination(pageable);
     }
 
     //Llamado al metodo findById del repository

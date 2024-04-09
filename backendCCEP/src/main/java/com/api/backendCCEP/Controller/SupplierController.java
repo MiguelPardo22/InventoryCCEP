@@ -4,11 +4,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.api.backendCCEP.Facade.ISuppliers;
 import com.api.backendCCEP.Model.Supplier;
+import com.api.backendCCEP.Repository.SupplierRepository;
 import com.api.backendCCEP.Util.ApiResponse;
 
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,20 +20,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping({ "/admin" })
 public class SupplierController {
 
+    //Instacias
     private ISuppliers iSuppliers;
+    private SupplierRepository supplierRepository;
 
-    public SupplierController(ISuppliers iSuppliers) {
+
+    public SupplierController(ISuppliers iSuppliers, SupplierRepository supplierRepository) {
         this.iSuppliers = iSuppliers;
+        this.supplierRepository = supplierRepository;
     }
 
     // Verificar si ya hay un proveedor registrado con informacion
     public boolean verifyExistingSupplier(Object[] array) {
-        List<Supplier> existingSuppliers = iSuppliers.listSuppliers();
+        List<Supplier> existingSuppliers = supplierRepository.findAll();
 
         boolean supplierExists = existingSuppliers.stream().anyMatch(existingSupplier -> {
             for (Object field : array) {
@@ -50,7 +59,7 @@ public class SupplierController {
 
     // Verificar si ya existe un proveedor registrado excluyendo el actual
     public boolean verifyExistingSuppliersById(long id, Object[] array) {
-        List<Supplier> existingSuppliers = iSuppliers.listSuppliers();
+        List<Supplier> existingSuppliers = supplierRepository.findAll();
 
         boolean supplierExists = existingSuppliers.stream().anyMatch(existingSupplier -> {
             for (Object field : array) {
@@ -97,14 +106,42 @@ public class SupplierController {
         return false; // Si ninguno de los objetos en el array es nulo o vacío, devolvemos false
     }
 
-    // Listar Proveedores
+    // Listar Proveedores con paginacion
     @GetMapping({ "/suppliers" })
-    public ApiResponse<List<Supplier>> getSuppliersList() {
+    public ApiResponse<Page<Supplier>> getSuppliersLisPaginated(@RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "5") int size) {
+
+        ApiResponse<Page<Supplier>> response = new ApiResponse<>();
+
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Supplier> suppliers = iSuppliers.listSuppliers(pageable);
+
+            response.setSuccess(true);
+            response.setMessage("Consulta exitosa");
+            response.setData(suppliers);
+            response.setCode(200);
+
+        } catch (Exception e) {
+
+            response.setSuccess(false);
+            response.setMessage("Error en la consulta");
+            response.setData(null);
+            response.setCode(500);
+
+        }
+
+        return response;
+    }
+
+    // Listar Proveedores sin paginacion
+    @GetMapping({ "/suppliersnotpaginated" })
+    public ApiResponse<List<Supplier>> getSuppliersListNotPaginated() {
 
         ApiResponse<List<Supplier>> response = new ApiResponse<>();
 
         try {
-            List<Supplier> suppliers = iSuppliers.listSuppliers();
+            List<Supplier> suppliers = supplierRepository.findAll();
 
             response.setSuccess(true);
             response.setMessage("Consulta exitosa");

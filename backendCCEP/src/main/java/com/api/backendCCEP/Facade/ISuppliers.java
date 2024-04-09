@@ -1,12 +1,13 @@
 package com.api.backendCCEP.Facade;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.api.backendCCEP.Model.Supplier;
 
 public interface ISuppliers {
 
-    public List<Supplier> listSuppliers();
+    public Page<Supplier> listSuppliers(Pageable pageable);
     public Supplier findById(long id);
     public void save(Supplier supplier);
     public void delete(Supplier supplier);

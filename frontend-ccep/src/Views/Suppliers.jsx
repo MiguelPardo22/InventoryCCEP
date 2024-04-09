@@ -6,29 +6,39 @@ import { GeneralContext } from "../Context/GeneralContext";
 import { SupplierForm } from "../Components/Suppliers/SupplierForm";
 import { Modal } from "../Components/GeneralComponents/Modal";
 import ServiceSupplier from "../Services/ServiceSupplier";
+import { Pagination } from "../Components/GeneralComponents/Pagination";
 import Swal from "sweetalert2";
 
 function Suppliers() {
   const [suppliers, setSuppliers] = useState([]);
   const [supplierToEdit, setSupplierToEdit] = useState(null);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(0);
   const [loadingSupplier, setLoadingSupplier] = useState(false);
   const { setOpenModal, openModal, ok, swalCard } = useContext(GeneralContext);
 
   //LLamado al service para listar los proveedores
-  const suppliersList = () => {
-    ServiceSupplier.getAllSuppliers()
+  const suppliersList = (page, size) => {
+    ServiceSupplier.getAllSuppliersPaginated(page, size)
       .then((response) => {
-        setSuppliers(response.data.data);
+        setSuppliers(response.data.data.content);
+        setTotalPages(response.data.data.totalPages);
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
+  //Actualizar el estado de la pagina = Page
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber - 1);
+  };
+
   //Listar categorias una vez renderizada la pagina
   useEffect(() => {
-    suppliersList();
-  }, []);
+    suppliersList(page, size);
+  }, [page, size]);
 
   //Funcion para indicarle al formulario si se quiere crear un proveedor
   const createSupplier = () => {
@@ -137,6 +147,11 @@ function Suppliers() {
               ))}
             </tbody>
           </table>
+          <Pagination
+            totalPages={totalPages}
+            currentPage={page + 1}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
       {/* Formulario de Categorias */}
@@ -144,7 +159,7 @@ function Suppliers() {
         <Modal tittle={supplierToEdit ? "Editar Proveedor" : "Crear Proveedor"}>
           <SupplierForm
             /* Indicarle al formulario si es para editar o crear */
-            suppliersList={suppliersList}
+            suppliersList={() => suppliersList(page, size)}
             editSupplier={supplierToEdit}
           />
         </Modal>

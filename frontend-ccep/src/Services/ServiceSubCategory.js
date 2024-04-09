@@ -6,6 +6,9 @@ class ServiceSubCategory {
   getAll(page, size) {
     return axios.get(baseUrl + "/subcategories" + `?page=${page}&size=${size}`);
   }
+  getAllNotPaginated() {
+    return axios.get(baseUrl + "/subcategoriesnotpaginated");
+  }
 
   add(subCategory) {
     return axios.post(baseUrl + "/subcategories/create", subCategory);

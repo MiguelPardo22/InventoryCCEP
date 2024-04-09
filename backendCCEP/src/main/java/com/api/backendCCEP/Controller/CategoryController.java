@@ -86,7 +86,7 @@ public class CategoryController {
 		return response;
 	}
 
-	// Listar categorias
+	// Listar categorias sin paginacion
 	@GetMapping({ "/categoriesnotpaginated" })
 	public ApiResponse<List<Category>> getCategoriesListNotPaginated() {
 
