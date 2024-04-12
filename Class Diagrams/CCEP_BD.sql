@@ -28,8 +28,8 @@ id bigint auto_increment,
 name varchar(50) not null,
 reference bigint not null,
 description varchar(250) not null,
-purchase_price bigint not null,
-sale_price bigint not null,
+purchase_price numeric not null,
+sale_price numeric not null,
 subcategory_id bigint not null,
 provider_id bigint not null,
 state varchar(10),
@@ -39,7 +39,7 @@ foreign key(provider_id) references suppliers(id));
 
 create table sales(
 id bigint auto_increment,
-total_sale bigint not null,
+total_sale numeric not null,
 sale_date date not null,
 state varchar(10),
 primary key(id));
@@ -47,7 +47,7 @@ primary key(id));
 create table sales_details(
 id bigint auto_increment,
 quantity int not null,
-subtotal bigint not null,
+subtotal numeric not null,
 final_price bigint not null,
 product_id bigint not null,
 sale_id bigint not null,
@@ -59,7 +59,7 @@ foreign key(sale_id) references sales(id));
 
 create table purchases(
 id bigint auto_increment,
-total_purchase bigint not null,
+total_purchase numeric not null,
 purchase_date date not null,
 provider_id bigint not null,
 state varchar(10),
@@ -70,7 +70,7 @@ foreign key(provider_id) references suppliers(id));
 create table purchases_details(
 id bigint auto_increment,
 quantity int not null,
-subtotal bigint not null,
+subtotal numeric not null,
 product_id bigint not null,
 purchase_id bigint not null,
 state varchar(10),
@@ -87,6 +87,3 @@ purchasedetail_id bigint,
 primary key(id),
 foreign key(purchasedetail_id) references purchases_details(id),
 foreign key(saledetail_id) references sales_details(id));
-
-
-

@@ -2,7 +2,8 @@ package com.api.backendCCEP.Controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.api.backendCCEP.Facade.ISuppliers;
+import com.api.backendCCEP.Facade.ISupplier;
+import com.api.backendCCEP.Model.Product;
 import com.api.backendCCEP.Model.Supplier;
 import com.api.backendCCEP.Repository.SupplierRepository;
 import com.api.backendCCEP.Util.ApiResponse;
@@ -26,13 +27,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping({ "/admin" })
 public class SupplierController {
 
-    //Instacias
-    private ISuppliers iSuppliers;
+    // Instacias
+    private ISupplier iSupplier;
     private SupplierRepository supplierRepository;
 
-
-    public SupplierController(ISuppliers iSuppliers, SupplierRepository supplierRepository) {
-        this.iSuppliers = iSuppliers;
+    public SupplierController(ISupplier iSupplier, SupplierRepository supplierRepository) {
+        this.iSupplier = iSupplier;
         this.supplierRepository = supplierRepository;
     }
 
@@ -109,13 +109,13 @@ public class SupplierController {
     // Listar Proveedores con paginacion
     @GetMapping({ "/suppliers" })
     public ApiResponse<Page<Supplier>> getSuppliersLisPaginated(@RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "5") int size) {
+            @RequestParam(defaultValue = "5") int size) {
 
         ApiResponse<Page<Supplier>> response = new ApiResponse<>();
 
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<Supplier> suppliers = iSuppliers.listSuppliers(pageable);
+            Page<Supplier> suppliers = iSupplier.listSuppliers(pageable);
 
             response.setSuccess(true);
             response.setMessage("Consulta exitosa");
@@ -189,7 +189,7 @@ public class SupplierController {
                 response.setCode(400); // Código de respuesta 400 para indicar una solicitud incorrecta
             } else {
                 supplier.setState("Activo");
-                iSuppliers.save(supplier);
+                iSupplier.save(supplier);
 
                 response.setSuccess(true);
                 response.setMessage("Proveedor creado exitosamente");
@@ -209,13 +209,13 @@ public class SupplierController {
 
     // Encontrar el proveedor por id
     @GetMapping({ "/suppliers/{id}" })
-    public ApiResponse<Supplier> findCategory(@PathVariable Long id) {
+    public ApiResponse<Supplier> findSupplier(@PathVariable Long id) {
 
         ApiResponse<Supplier> response = new ApiResponse<>();
 
         try {
             // Aquí utilizamos el método findById de la interfaz ISupplier
-            Supplier supplier = iSuppliers.findById(id);
+            Supplier supplier = iSupplier.findById(id);
 
             if (supplier != null) {
                 response.setSuccess(true);
@@ -224,14 +224,14 @@ public class SupplierController {
                 response.setCode(200);
             } else {
                 response.setSuccess(false);
-                response.setMessage("No se encontró la proveedor con el ID proporcionado");
+                response.setMessage("No se encontró el proveedor con el ID proporcionado");
                 response.setData(null);
                 response.setCode(404);
             }
 
         } catch (Exception e) {
             response.setSuccess(false);
-            response.setMessage("Error al buscar la proveedor");
+            response.setMessage("Error al buscar el proveedor");
             response.setData(null);
             response.setCode(500);
         }
@@ -241,7 +241,7 @@ public class SupplierController {
 
     // Actualizos Proveedores
     @PutMapping("/suppliers/update/{id}")
-    public ApiResponse<Supplier> updateCategory(@PathVariable long id, @RequestBody Supplier updatedSupplier) {
+    public ApiResponse<Supplier> updateSupplier(@PathVariable long id, @RequestBody Supplier updatedSupplier) {
         ApiResponse<Supplier> response = new ApiResponse<>();
 
         // Array de campos
@@ -251,17 +251,28 @@ public class SupplierController {
         try {
             // Verificar si ya existe un proveedor con el mismo nombre, excluyendo la
             // proveedor actual
-            if (verifyExistingSuppliersById(id, fieldsToValidate)) {
+            if (isNullOrEmpty(fieldsToValidate)) {
+                response.setSuccess(false);
+                response.setMessage("Todos los campos son requeridos");
+                response.setData(null);
+                response.setCode(400); // Código de respuesta 400 para indicar una solicitud incorrecta
+                // Verficar una Categoria Existente
+            } else if (verifyExistingSuppliersById(id, fieldsToValidate)) {
                 response.setSuccess(false);
                 response.setMessage("Ya hay un proveedor registrado con la misma informacion");
                 response.setData(null);
-                response.setCode(400);
+                response.setCode(400); // Código de respuesta 400 para indicar una solicitud incorrecta
+            } else if (checkPhoneAndNitLength(updatedSupplier.getPhone(), updatedSupplier.getNit())) {
+                response.setSuccess(false);
+                response.setMessage("El telefono y el nit deben tener 10 digitos");
+                response.setData(null);
+                response.setCode(400); // Código de respuesta 400 para indicar una solicitud incorrecta
             } else {
                 // Actualizar la proveedor solo si existe
-                Optional<Supplier> optionalCategory = Optional.of(iSuppliers.findById(id));
+                Optional<Supplier> optionalSupplier = Optional.of(iSupplier.findById(id));
 
-                if (optionalCategory.isPresent()) {
-                    Supplier existingSupplier = optionalCategory.get();
+                if (optionalSupplier.isPresent()) {
+                    Supplier existingSupplier = optionalSupplier.get();
 
                     // Actualizar los campos del proveedor existente con la información
                     // proporcionada
@@ -272,7 +283,7 @@ public class SupplierController {
                     existingSupplier.setState(updatedSupplier.getState());
 
                     // Guardar el proveedor actualizado
-                    iSuppliers.save(existingSupplier);
+                    iSupplier.save(existingSupplier);
 
                     response.setSuccess(true);
                     response.setMessage("Proveedor actualizado exitosamente");
@@ -302,37 +313,36 @@ public class SupplierController {
         ApiResponse<String> response = new ApiResponse<>();
 
         try {
-            // Verificar si la proveedor existe antes de intentar eliminarla
-            Supplier existingSupplier = iSuppliers.findById(id);
+            // Verificar si el proveedor existe antes de intentar eliminarla
+            Supplier existingSupplier = iSupplier.findById(id);
 
             if (existingSupplier != null) {
-                // Verificar si existen subcategorías relacionadas
-                // List<SubCategory> subCategories = existingSupplier.getSubCategories();
+                //Verificar si existen productos relacionadas
+                List<Product> products = existingSupplier.getProducts();
 
-                // if (subCategories.isEmpty()) {
-                iSuppliers.delete(existingSupplier);
+                if (products.isEmpty()) {
+                iSupplier.delete(existingSupplier);
 
                 response.setSuccess(true);
                 response.setMessage("Proveedor eliminado exitosamente");
                 response.setData("Proveedor eliminado");
                 response.setCode(200);
-                // } else {
-                // response.setSuccess(false);
-                // response.setMessage("No se puede eliminar una proveedor relacionada con una
-                // subcategoría");
-                // response.setData(null);
-                // response.setCode(400);
-                // }
+                } else {
+                response.setSuccess(false);
+                response.setMessage("No se puede eliminar un proveedor relacionado con uno o mas productos");
+                response.setData(null);
+                response.setCode(400);
+                }
             } else {
                 response.setSuccess(false);
-                response.setMessage("No se encontró la proveedor con el ID proporcionado");
+                response.setMessage("No se encontró el proveedor con el ID proporcionado");
                 response.setData(null);
                 response.setCode(404);
             }
 
         } catch (Exception e) {
             response.setSuccess(false);
-            response.setMessage("Error al eliminar la proveedor");
+            response.setMessage("Error al eliminar el proveedor");
             response.setData(null);
             response.setCode(500);
         }

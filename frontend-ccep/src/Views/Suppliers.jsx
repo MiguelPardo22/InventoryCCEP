@@ -80,11 +80,11 @@ function Suppliers() {
 
             if (success) {
               ok(message, "success");
-              suppliersList();
+              suppliersList(page, size);
             } else {
               if (response.data.code == 400) {
-                //   swalCard("SubCategoria Relacionada", message, "error");
-                // } else {
+                swalCard("Producto Relacionado", message, "error");
+              } else {
                 swalCard("Error al eliminar el proveedor", message, "error");
               }
             }

@@ -80,7 +80,7 @@ function Categories() {
 
             if (success) {
               ok(message, "success");
-              categoriesList();
+              categoriesList(page, size);
             } else {
               if (response.data.code == 400) {
                 swalCard("SubCategoria Relacionada", message, "error");

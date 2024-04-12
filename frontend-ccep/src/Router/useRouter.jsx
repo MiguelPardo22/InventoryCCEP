@@ -10,6 +10,7 @@ import { StartPage } from "../Views/StarPage";
 import { Categories } from "../Views/Categories";
 import { SubCategories } from "../Views/SubCategories";
 import { Suppliers } from "../Views/Suppliers";
+import { Products } from "../Views/Products";
 
 
 const RouteContext = React.createContext();
@@ -39,6 +40,10 @@ function RouteProvider(props) {
         {
           path: "suppliers",
           element: <Suppliers />
+        },
+        {
+          path: "products",
+          element: <Products />
         },
       ]
     },

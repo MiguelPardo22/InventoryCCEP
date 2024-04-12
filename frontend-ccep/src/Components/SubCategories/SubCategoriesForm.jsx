@@ -5,17 +5,20 @@ import ServiceCategory from "../../Services/ServiceCategory";
 import { GeneralContext } from "../../Context/GeneralContext";
 
 function SubCategoryForm({ subCategoriesList, editSubCategory }) {
+  //Campos del json y del formulario
   const [name, setName] = useState("");
   const [category_id, setCategory_id] = useState("");
   const [state, setState] = useState("Activo");
   const [isEditMode, setIsEditMode] = useState(false);
 
+  //Estados para mostrar los errores de validacion
   const [nameError, setNameError] = useState("");
   const [categoryError, setCategoryError] = useState("");
   const [stateError, setStateError] = useState("");
 
   const [categories, setCategories] = useState([]);
 
+  //Contexto General
   const { closeModal, ok, swalCard } = useContext(GeneralContext);
 
   const onStatusChange = (e) => {
@@ -51,7 +54,7 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
     } else {
       // Si no se proporciona una SubCategoría para editar, resetear el formulario.
       setName("");
-      setCategory_id(1);
+      setCategory_id();
       setState("Activo");
       setIsEditMode(false);
     }
@@ -86,8 +89,8 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
       setStateError("");
     }
 
-    //Indicar que se quiere editar
     try {
+      //Indicar que se quiere editar
       if (isEditMode) {
         const response = await ServiceSubCategory.update(
           editSubCategory.id,
@@ -112,7 +115,7 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
       subCategoriesList();
     } catch (error) {
       console.error(error.message);
-      ok(error.message, "error");
+      swalCard("Hubo un problema", error.message, "error");
       closeModal();
     }
   };
@@ -140,14 +143,16 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
           onChange={onCategoryIdChange}
           className={`form-control ${categoryError && "error"}`}
         >
-          <option value="">--Seleccione un Categoria--</option>
+          <option value="">--Seleccione una Categoria--</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
             </option>
           ))}
         </select>
-        {categoryError && <span className="error-message">{categoryError}</span>}
+        {categoryError && (
+          <span className="error-message">{categoryError}</span>
+        )}
       </div>
       {/* Mostrar cada vez que se quiera editar */}
       {isEditMode && (

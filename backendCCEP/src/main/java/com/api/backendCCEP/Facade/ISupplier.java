@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.api.backendCCEP.Model.Supplier;
 
-public interface ISuppliers {
+public interface ISupplier {
 
     public Page<Supplier> listSuppliers(Pageable pageable);
     public Supplier findById(long id);

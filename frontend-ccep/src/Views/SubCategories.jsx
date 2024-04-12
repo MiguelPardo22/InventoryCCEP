@@ -35,7 +35,7 @@ function SubCategories() {
     setPage(pageNumber - 1);
   };
 
-  //Listar categorias una vez renderizada la pagina
+  //Listar categorias una vez haya cambios en los estados de page y size
   useEffect(() => {
     subCategoriesList(page, size);
   }, [page, size]);
@@ -81,12 +81,12 @@ function SubCategories() {
 
             if (success) {
               ok(message, "success");
-              subCategoriesList();
+              subCategoriesList(page, size);
             } else {
               if (response.data.code == 400) {
-                swalCard("SubCategoria Relacionada", message, "error");
+                swalCard("Producto Relacionado", message, "error");
               } else {
-                swalCard("Error al eliminar la categoría", message, "error");
+                swalCard("Error al eliminar la subcategoría", message, "error");
               }
             }
           })

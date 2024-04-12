@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.backendCCEP.Facade.ICategory;
 import com.api.backendCCEP.Facade.ISubCategory;
 import com.api.backendCCEP.Model.Category;
+import com.api.backendCCEP.Model.Product;
 import com.api.backendCCEP.Model.SubCategory;
 import com.api.backendCCEP.Repository.SubCategoryRepository;
 import com.api.backendCCEP.Util.ApiResponse;
@@ -31,7 +32,8 @@ public class SubCategoryController {
 	private ICategory iCategory;
 	private SubCategoryRepository subCategoryRepository;
 
-	public SubCategoryController(ISubCategory iSubCategory, ICategory iCategory, SubCategoryRepository subCategoryRepository) {
+	public SubCategoryController(ISubCategory iSubCategory, ICategory iCategory,
+			SubCategoryRepository subCategoryRepository) {
 		this.iSubCategory = iSubCategory;
 		this.iCategory = iCategory;
 		this.subCategoryRepository = subCategoryRepository;
@@ -74,13 +76,13 @@ public class SubCategoryController {
 	// Listar SubCategorias con paginacion
 	@GetMapping({ "/subcategories" })
 	public ApiResponse<Page<SubCategory>> getSubCategoriesListPaginated(@RequestParam(defaultValue = "0") int page,
-    	    @RequestParam(defaultValue = "5") int size) {
+			@RequestParam(defaultValue = "5") int size) {
 
 		ApiResponse<Page<SubCategory>> response = new ApiResponse<>();
 
 		try {
 			Pageable pageable = PageRequest.of(page, size);
-			
+
 			Page<SubCategory> subcategories = iSubCategory.listSubCategories(pageable);
 
 			response.setSuccess(true);
@@ -173,7 +175,7 @@ public class SubCategoryController {
 		return response;
 	}
 
-	//Actualizar subcategorias existentes
+	// Actualizar subcategorias existentes
 	@PutMapping("/subcategories/update/{id}")
 	public ApiResponse<SubCategory> updateSubCategory(@PathVariable Long id,
 			@RequestBody SubCategory updatedSubCategory) {
@@ -224,7 +226,7 @@ public class SubCategoryController {
 		return response;
 	}
 
-	//Eliminar la categoria encontrada con el id
+	// Eliminar la categoria encontrada con el id
 	@DeleteMapping("/subcategories/delete/{id}")
 	public ApiResponse<SubCategory> deleteSubCategory(@PathVariable long id) {
 
@@ -235,11 +237,22 @@ public class SubCategoryController {
 			SubCategory existingSubCategory = iSubCategory.findById(id);
 
 			if (existingSubCategory != null) {
-				iSubCategory.delete(existingSubCategory);
-				response.setSuccess(true);
-				response.setMessage("SubCategoria eliminada existosamente");
-				response.setData(existingSubCategory);
-				response.setCode(200);
+
+				// Verificar si existen productos relacionadas
+				List<Product> products = existingSubCategory.getProducts();
+
+				if (products.isEmpty()) {
+					iSubCategory.delete(existingSubCategory);
+					response.setSuccess(true);
+					response.setMessage("SubCategoria eliminada existosamente");
+					response.setData(existingSubCategory);
+					response.setCode(200);
+				} else {
+					response.setSuccess(false);
+					response.setMessage("No se puede eliminar una subcategoria relacionada con uno o mas productos");
+					response.setData(null);
+					response.setCode(400);
+				}
 			} else {
 				response.setSuccess(false);
 				response.setMessage("No se encontró la SuCategoría con el ID proporcionado");

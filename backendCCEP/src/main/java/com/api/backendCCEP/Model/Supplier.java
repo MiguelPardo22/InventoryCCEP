@@ -1,10 +1,16 @@
 package com.api.backendCCEP.Model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -29,6 +35,10 @@ public class Supplier {
 
     @Column(name = "state")
     private String state;
+
+    @OneToMany(mappedBy = "provider_id")
+    @JsonIgnore
+    private List<Product> products = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -78,16 +88,29 @@ public class Supplier {
         this.state = state;
     }
 
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
+
     public Supplier() {
     }
 
-    public Supplier(long id, long nit, String name, long phone, String mail, String state) {
+    public Supplier(long id, long nit, String name, long phone, String mail, String state, List<Product> products) {
         this.id = id;
         this.nit = nit;
         this.name = name;
         this.phone = phone;
         this.mail = mail;
         this.state = state;
+        this.products = products;
+    }
+
+    public Supplier(long id) {
+        this.id = id;
     }
 
 }
