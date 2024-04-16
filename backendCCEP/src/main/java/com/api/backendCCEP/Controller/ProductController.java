@@ -1,9 +1,9 @@
 package com.api.backendCCEP.Controller;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -193,7 +193,7 @@ public class ProductController {
             } else {
 
                 // Generar la referencia automática
-                BigDecimal salePrice = product.getSale_price();
+                Long salePrice = product.getSale_price();
                 String seconds = String.format("%02d", LocalDateTime.now().getSecond());
                 String minutes = String.format("%02d", LocalDateTime.now().getMinute());
                 String firstTwoDigits = salePrice.toString().substring(0, Math.min(2, salePrice.toString().length()));
@@ -369,6 +369,51 @@ public class ProductController {
             response.setCode(500);
         }
 
+        return response;
+    }
+
+    // Filtrar producto por Referencia o nombre
+    @PostMapping("/products/search")
+    public ApiResponse<List<Product>> searchProductByReferenceOrName(@RequestBody Map<String, Object> request) {
+
+        ApiResponse<List<Product>> response = new ApiResponse<>();
+
+        try {
+
+            String reference = (String) request.get("reference");
+            String name = (String) request.get("name");
+
+            if (reference == null && name == null) {
+                response.setSuccess(false);
+                response.setMessage("Debe proporcionar al menos un campo para realizar la búsqueda");
+                response.setData(null);
+                response.setCode(400);
+                return response;
+            }
+
+            String value = reference != null ? reference : name;
+
+            // Realizar la consulta basada en el campo proporcionado
+            List<Product> products = productRepository.searchProductByKeywordOrReference(value);
+
+            if (products.isEmpty()) {
+                response.setSuccess(false);
+                response.setMessage("No se encontró el producto");
+                response.setData(null);
+                response.setCode(404);
+                return response;
+            }
+
+            response.setSuccess(true);
+            response.setMessage("Consulta exitosa");
+            response.setData(products);
+            response.setCode(200);
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error en la consulta: " + e.getMessage());
+            response.setData(null);
+            response.setCode(500);
+        }
         return response;
     }
 

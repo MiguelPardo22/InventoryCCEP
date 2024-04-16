@@ -11,6 +11,7 @@ import { Categories } from "../Views/Categories";
 import { SubCategories } from "../Views/SubCategories";
 import { Suppliers } from "../Views/Suppliers";
 import { Products } from "../Views/Products";
+import { Sales } from "../Views/Sales";
 
 
 const RouteContext = React.createContext();
@@ -44,6 +45,10 @@ function RouteProvider(props) {
         {
           path: "products",
           element: <Products />
+        },
+        {
+          path: "sales",
+          element: <Sales />
         },
       ]
     },

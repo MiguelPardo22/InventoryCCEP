@@ -32,6 +32,9 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
             <SideBarLink to="products" text="Productos" icon="bx bx-football" />
           </li>
           <li>
+            <SideBarLink to="sales" text="Ventas" icon="bx bx-cart" />
+          </li>
+          <li>
             <nav id="nav">
               <a id="a" onClick={toggleUtils}>
                 <i className="bx bx-key"></i>

@@ -1,14 +1,19 @@
 package com.api.backendCCEP.Model;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -29,10 +34,10 @@ public class Product {
     private String description;
 
     @Column(name = "purchase_price")
-    private BigDecimal purchase_price;
+    private long purchase_price;
 
     @Column(name = "sale_price")
-    private BigDecimal sale_price;
+    private long sale_price;
 
     @ManyToOne
 	@JoinColumn(name = "subcategory_id", referencedColumnName = "id")
@@ -44,6 +49,10 @@ public class Product {
 
     @Column(name = "state", nullable = false)
 	private String state;
+
+    @OneToMany(mappedBy = "product_id", fetch = FetchType.LAZY)
+    @JsonBackReference
+    private List<Sale_Detail> sale_Details = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -77,19 +86,19 @@ public class Product {
         this.description = description;
     }
 
-    public BigDecimal getPurchase_price() {
+    public long getPurchase_price() {
         return purchase_price;
     }
 
-    public void setPurchase_price(BigDecimal purchase_price) {
+    public void setPurchase_price(long purchase_price) {
         this.purchase_price = purchase_price;
     }
 
-    public BigDecimal getSale_price() {
+    public long getSale_price() {
         return sale_price;
     }
 
-    public void setSale_price(BigDecimal sale_price) {
+    public void setSale_price(long sale_price) {
         this.sale_price = sale_price;
     }
 
@@ -117,11 +126,20 @@ public class Product {
         this.state = state;
     }
 
+    public List<Sale_Detail> getSale_Details() {
+        return sale_Details;
+    }
+
+    public void setSale_Details(List<Sale_Detail> sale_Details) {
+        this.sale_Details = sale_Details;
+    }
+
     public Product() {
     }
 
-    public Product(long id, String name, long reference, String description, BigDecimal purchase_price,
-            BigDecimal sale_price, SubCategory subcategory_id, Supplier provider_id, String state) {
+    public Product(long id, String name, long reference, String description, long purchase_price,
+            long sale_price, SubCategory subcategory_id, Supplier provider_id, String state,
+            List<Sale_Detail> sale_Details) {
         this.id = id;
         this.name = name;
         this.reference = reference;
@@ -131,6 +149,11 @@ public class Product {
         this.subcategory_id = subcategory_id;
         this.provider_id = provider_id;
         this.state = state;
+        this.sale_Details = sale_Details;
+    }
+
+    public Product(long id) {
+        this.id = id;
     }
 
 }
