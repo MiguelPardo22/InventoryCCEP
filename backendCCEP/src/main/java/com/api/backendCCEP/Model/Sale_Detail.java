@@ -23,9 +23,6 @@ public class Sale_Detail {
     @Column(name = "subtotal")
     private long subtotal;
 
-    @Column(name = "discount")
-    private long discount;
-
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product_id;
@@ -58,14 +55,6 @@ public class Sale_Detail {
         this.subtotal = subtotal;
     }
 
-    public long getFinal_price() {
-        return discount;
-    }
-
-    public void setFinal_price(long discount) {
-        this.discount = discount;
-    }
-
     public Product getProduct_id() {
         return product_id;
     }
@@ -85,11 +74,10 @@ public class Sale_Detail {
     public Sale_Detail() {
     }
 
-    public Sale_Detail(long id, long quantity, long subtotal, long discount, Product product_id, Sale sale_id) {
+    public Sale_Detail(long id, long quantity, long subtotal, Product product_id, Sale sale_id) {
         this.id = id;
         this.quantity = quantity;
         this.subtotal = subtotal;
-        this.discount = discount;
         this.product_id = product_id;
         this.sale_id = sale_id;
     }

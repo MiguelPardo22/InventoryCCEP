@@ -12,6 +12,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -29,11 +31,18 @@ public class Sale {
     @Column(name = "sale_date")
     private Date sale_date;
 
+    @Column(name = "discount")
+    private long discount;
+
     @Column(name = "user_id")
     private long user_id;
 
     @Column(name = "state", nullable = false)
     private String state;
+
+    @ManyToOne
+    @JoinColumn(name = "paymethod_id", referencedColumnName = "id")
+    private Payment_Method paymethod_id;
 
     @OneToMany(mappedBy = "sale_id", fetch = FetchType.LAZY)
     @JsonBackReference
@@ -55,12 +64,20 @@ public class Sale {
         this.total_sale = total_sale;
     }
 
-    public Date getDate_sale() {
+    public Date getSale_date() {
         return sale_date;
     }
-
-    public void setDate_sale(Date sale_date) {
+    
+    public void setSale_date(Date sale_date) {
         this.sale_date = sale_date;
+    }
+    
+    public long getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(long discount) {
+        this.discount = discount;
     }
 
     public long getUser_id() {
@@ -87,20 +104,19 @@ public class Sale {
         this.sale_Details = sale_Details;
     }
 
-    public Sale() {
+    public Payment_Method getPaymethod_id() {
+        return paymethod_id;
     }
 
-    public Sale(long id, long total_sale, Date sale_date, long user_id, String state,
-            List<Sale_Detail> sale_Details) {
-        this.id = id;
-        this.total_sale = total_sale;
-        this.sale_date = sale_date;
-        this.user_id = user_id;
-        this.state = state;
-        this.sale_Details = sale_Details;
+    public void setPaymethod_id(Payment_Method paymethod_id) {
+        this.paymethod_id = paymethod_id;
+    }
+
+    public Sale() {
     }
 
     public Sale(long id) {
         this.id = id;
     }
+
 }

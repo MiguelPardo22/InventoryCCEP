@@ -37,7 +37,7 @@ primary key(id),
 foreign key(subcategory_id) references subcategories(id),
 foreign key(provider_id) references suppliers(id));
 
-create table payment_method(
+create table payments_methods(
 id bigint auto_increment,
 name varchar(20),
 state varchar(10),
@@ -47,17 +47,17 @@ create table sales(
 id bigint auto_increment,
 total_sale bigint not null,
 sale_date date not null,
+discount bigint not null,
 user_id bigint not null,
 paymethod_id bigint not null,
 state varchar(10),
 primary key(id),
-foreign key(paymethod_id) references payment_method(id));
+foreign key(paymethod_id) references payments_methods(id));
 
 create table sales_details(
 id bigint auto_increment,
 quantity int not null,
 subtotal bigint not null,
-discount bigint not null,
 product_id bigint not null,
 sale_id bigint not null,
 primary key(id),
