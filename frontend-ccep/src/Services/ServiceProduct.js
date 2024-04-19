@@ -26,6 +26,11 @@ class ServiceProduct {
   delete(id) {
     return axios.delete(baseUrl + "/products/delete/" + id)
   }
+
+  filteredProducts(value){
+    return axios.post(baseUrl + "/products/search", value)
+  }
+
 }
 
 const productServiceInstance = new ServiceProduct();

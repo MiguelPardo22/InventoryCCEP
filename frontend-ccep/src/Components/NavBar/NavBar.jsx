@@ -1,5 +1,6 @@
 import React from "react";
 import "../../Styles/NavBar/NavBar.css";
+import { NavLink } from "react-router-dom";
 
 function NavBar() {
   return (
@@ -19,7 +20,10 @@ function NavBar() {
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <div
+          class="collapse navbar-collapse justify-content-end"
+          id="navbarNav"
+        >
           <ul class="navbar-nav">
             <li class="nav-item text-ccep">
               <a class="nav-link active" aria-current="page" href="#">
@@ -27,9 +31,11 @@ function NavBar() {
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">
-                Realizar Venta
-              </a>
+              <div class="nav-link">
+                <NavLink to="pos">
+                  Realizar Venta
+                </NavLink>
+              </div>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">

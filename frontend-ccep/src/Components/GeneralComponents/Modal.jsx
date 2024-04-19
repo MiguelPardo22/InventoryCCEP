@@ -1,10 +1,24 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { GeneralContext } from "../../Context/GeneralContext";
 import ReactDOM from "react-dom";
-import "../../Styles/GeneralStyles/Modal.css"
+import "../../Styles/GeneralStyles/Modal.css";
 
 function Modal({ children, tittle }) {
   const { modalClasses, closeModal } = useContext(GeneralContext);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      const modalContent = document.querySelector(".ModalContent");
+      if (modalContent && !modalContent.contains(event.target)) {
+        closeModal();
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [closeModal]);
 
   return ReactDOM.createPortal(
     <div className="Modal">

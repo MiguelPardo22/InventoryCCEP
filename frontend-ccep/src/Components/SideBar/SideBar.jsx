@@ -3,13 +3,21 @@ import { SideBarLink } from "./SideBarLink";
 import "../../Styles/SideBar/SideBar.css";
 
 function SideBar({ isSidebarOpen, toggleSidebar }) {
+  //Utiles
   const [utilsOpen, setUtilsOpen] = useState(false); // Estado para controlar si las subpestañas están abiertas o cerradas
   const [isActiveAnimation, setIsActiveAnimation] = useState(false); //Estado para controlar el estado de la animacion
+
+  //Sales
+  const [salesOpen, setSalesOpen] = useState(false);
 
   // Función para alternar el estado de las subpestañas y activar los sublinks
   const toggleUtils = () => {
     setUtilsOpen(!utilsOpen);
     setIsActiveAnimation(!isActiveAnimation);
+  };
+
+  const toggleSales = () => {
+    setSalesOpen(!salesOpen);
   };
 
   return (
@@ -32,8 +40,19 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
             <SideBarLink to="products" text="Productos" icon="bx bx-football" />
           </li>
           <li>
-            <SideBarLink to="sales" text="Ventas" icon="bx bx-cart" />
+            <nav id="nav">
+              <a id="a" onClick={toggleSales}>
+                <i className="bx bx-cart"></i>
+                <span className="links_name">Ventas</span>
+              </a>
+              <span className="tooltip"> Ventas </span>
+            </nav>
           </li>
+          {salesOpen && (
+            <li>
+              <SideBarLink to="pos" text="Realizar Ventas" icon="bx bx-cart-add" />
+            </li>
+          )}
           <li>
             <nav id="nav">
               <a id="a" onClick={toggleUtils}>

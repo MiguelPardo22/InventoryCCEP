@@ -131,8 +131,8 @@ function Products() {
                   <td>{product.reference}</td>
                   <td>{product.name}</td>
                   <td>{product.description}</td>
-                  <td>{product.purchase_price}</td>
-                  <td>{product.sale_price}</td>
+                  <td>${product.purchase_price.toLocaleString("es-CO")}</td>
+                  <td>${product.sale_price.toLocaleString("es-CO")}</td>
                   <td>{product.subcategory_id.name}</td>
                   <td>{product.provider_id.name}</td>
                   <td>{product.state}</td>
