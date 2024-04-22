@@ -21,12 +21,20 @@
 
 .scrollable-products {
   max-height: 700px;
-  overflow-y: auto; 
+  overflow-y: auto;
   overflow-x: hidden;
 }
 
 .scrollable-summary {
   max-height: 500px;
-  overflow-y: auto; 
+  overflow-y: auto;
   overflow-x: hidden;
+}
+
+.product-name {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
 }

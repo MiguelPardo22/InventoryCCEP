@@ -2,55 +2,61 @@ import React, { useEffect, useState, useRef } from "react";
 import { PrimaryButton } from "../../GeneralComponents/PrimaryButton";
 import ServiceProduct from "../../../Services/ServiceProduct";
 
-function FilteredProducts() {
-  // Estado para almacenar la lista de productos
+function FilteredProducts({ onAddProduct, selectedProducts }) {
   const [products, setProducts] = useState([]);
-  // Estado para almacenar el término de búsqueda
   const [searchTerm, setSearchTerm] = useState("");
-  // Estado para controlar el estado de carga
   const [loading, setLoading] = useState(false);
-  // Referencia al input de búsqueda
   const inputRef = useRef(null);
 
-  // Manejar cambios en el término de búsqueda
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
-  // Realizar la búsqueda de productos cuando cambie el término de búsqueda
+  const handleAddProduct = (product) => {
+    onAddProduct(product);
+  };
+
   useEffect(() => {
     const searchProduct = async () => {
-      setLoading(true); // Establecer el estado de carga como true antes de realizar la llamada a la API
+      setLoading(true);
       try {
         const response = await ServiceProduct.filteredProducts({
-          name: searchTerm, // Buscar por nombre o referencia
+          name: searchTerm,
         });
-        setProducts(response.data.data);
+
+        // Verificar si response.data es null antes de acceder a response.data.data
+        const filteredProducts =
+          response.data && response.data.data
+            ? response.data.data.filter(
+                (product) =>
+                  !selectedProducts.some(
+                    (selectedProduct) => selectedProduct.id === product.id
+                  )
+              )
+            : [];
+
+        setProducts(filteredProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
-        setLoading(false); // Establecer el estado de carga como false después de recibir la respuesta de la API
+        setLoading(false);
       }
     };
 
     searchProduct();
 
-    // Enfocar el input cuando la página se renderice o cuando cambie el término de búsqueda
     inputRef.current.focus();
-  }, [searchTerm]);
+  }, [searchTerm, selectedProducts]); // Añade selectedProducts como dependencia
 
   return (
     <>
-      {/* Encabezado */}
       <h2>Filtrar Productos Por Nombre</h2>
       <br />
-      {/* Contenedor de búsqueda */}
       <div className="container text-center">
         <div className="row mb-3">
           <div className="col">
-            {/* Input de búsqueda */}
             <input
-              ref={inputRef} // Asignar la referencia al input
+              ref={inputRef}
               type="text"
               className="form-control"
               placeholder="Buscar producto por referencia o nombre..."
@@ -60,18 +66,14 @@ function FilteredProducts() {
           </div>
         </div>
         <hr />
-        {/* Mostrar mensaje de carga o resultados de búsqueda */}
         {loading ? (
-          // Mostrar icono de carga si está cargando
           <i className="fa-solid fa-arrow-rotate-right fa-spin"></i>
         ) : products === null || products.length === 0 ? (
-          // Mostrar mensaje si no se encontraron productos
           <div className="alert alert-warning" role="alert">
             No se encontró el Producto
           </div>
         ) : (
           <div className="scrollable-products">
-            {/* Mostrar resultados de búsqueda */}
             <div className="row row-cols-3">
               {products.map((product) => {
                 return (
@@ -81,7 +83,6 @@ function FilteredProducts() {
                       style={{ width: "16rem", height: "100%" }}
                     >
                       <div className="card-body">
-                        {/* Detalles del producto */}
                         <h5 className="card-title" style={{ color: "#eabe3f" }}>
                           {product.name}
                         </h5>
@@ -95,10 +96,10 @@ function FilteredProducts() {
                         </h6>
                         <hr />
                         <p className="card-text">{product.description}</p>
-                        {/* Botón de agregar */}
                         <PrimaryButton
                           text={"Agregar"}
                           icon={"fa-solid fa-cart-plus"}
+                          execute={() => handleAddProduct(product)}
                         />
                       </div>
                     </div>
