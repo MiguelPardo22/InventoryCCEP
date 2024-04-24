@@ -124,7 +124,7 @@ function SummarySale({
 
     const saleData = {
       paymethod_id: parseInt(paymethod_id),
-      discount: parseInt(discount),
+      discount: parseInt(discount) ? parseInt(discount) : 0,
       user_id: 1, // Aquí debes establecer el ID del usuario actual
       details: details,
     };
@@ -182,7 +182,10 @@ function SummarySale({
                       className="form-control width-quantity"
                       value={quantities[product.id] || ""}
                       onChange={(e) =>
-                        handleQuantityChange(product.id, e.target.value)
+                        handleQuantityChange(
+                          product.id,
+                          parseInt(e.target.value)
+                        )
                       }
                     />
                   </td>
