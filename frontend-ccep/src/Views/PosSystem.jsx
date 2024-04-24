@@ -16,6 +16,11 @@ function PosSystem() {
     );
   };
 
+  // Función para limpiar la lista de productos seleccionados
+  const removeAllProducts = () => {
+    setSelectedProducts([]);
+  };
+
   return (
     <div className="text-center">
       <div className="row">
@@ -32,6 +37,7 @@ function PosSystem() {
           <SummarySale
             selectedProducts={selectedProducts}
             onRemoveProduct={removeProduct}
+            onRemoveAllProducts={removeAllProducts}
           />
         </div>
       </div>

@@ -1,7 +1,7 @@
 .sidebar {
   position: fixed;
   left: 0;
-  top: 20;
+  top: 50px;
   height: 100%;
   width: 78px;
   background: #eabe3f;
@@ -207,7 +207,7 @@ a {
   position: relative;
   background: #ffffed;
   min-height: 100vh;
-  top: 0;
+  top: 50px;
   left: 78px;
   width: calc(100% - 78px);
   transition: all 0.5s ease;

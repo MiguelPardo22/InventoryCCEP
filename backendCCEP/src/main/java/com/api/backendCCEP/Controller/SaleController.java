@@ -77,6 +77,32 @@ public class SaleController {
         return response;
     }
 
+    // Listar los metodos de pago
+    @GetMapping("/paymentmethod")
+    public ApiResponse<List<Payment_Method>> getPaymentsMethods() {
+
+        ApiResponse<List<Payment_Method>> response = new ApiResponse<>();
+
+        try {
+            List<Payment_Method> payment_Methods = payment_MethodRepository.findAll();
+
+            response.setSuccess(true);
+            response.setMessage("Consulta exitosa");
+            response.setData(payment_Methods);
+            response.setCode(200);
+
+        } catch (Exception e) {
+
+            response.setSuccess(false);
+            response.setMessage("Error en la consulta");
+            response.setData(null);
+            response.setCode(500);
+
+        }
+
+        return response;
+    }
+
     // Registrar Ventas
     @PostMapping("/sales/create")
     public ApiResponse<Sale> saveSaleWithDetails(@RequestBody Map<String, Object> request) {
@@ -85,43 +111,30 @@ public class SaleController {
 
         try {
 
-            // Inicializar la variable total y discount
-            long total = 0;
-            long discount = (Integer) request.get("discount");
-
-            Object[] fieldsToValidateSale = { request.get("user_id"), request.get("paymethod_id"), request.get("discount") };
+            
+            Object[] fieldsToValidateSale = { request.get("user_id"), request.get("paymethod_id"),
+                    request.get("discount") };
 
             // Validar que el campo user_id y discount no esten vacíos
             if (isNullOrEmpty(fieldsToValidateSale)) {
                 response.setSuccess(false);
-                response.setMessage("El campo 'usuario', 'Metodo de pago' y 'descuento' es obligatorio y no puede estar vacío.");
+                response.setMessage(
+                        "El campo 'usuario', 'Metodo de pago' y 'descuento' es obligatorio y no puede estar vacío.");
                 response.setData(null);
                 response.setCode(400);
                 return response;
             }
 
             // Cargar completamente el metodo de pago antes de asignarlo a la venta
-            Payment_Method payment_Method = payment_MethodRepository.findById((Integer) request.get("paymethod_id")).orElse(null);
+            Payment_Method payment_Method = payment_MethodRepository.findById((Integer) request.get("paymethod_id"))
+                    .orElse(null);
             if (payment_Method == null) {
                 response.setSuccess(false);
-                response.setMessage("El metodo de pago con el id: " + request.get("paymethod_id")
-                        + " no existe");
+                response.setMessage("El metodo de pago no existe");
                 response.setData(null);
                 response.setCode(404);
                 return response;
             }
-
-            // Instaciar el objeto sale
-            Sale sale = new Sale();
-
-            // Llenar los campos de la venta
-            sale.setSale_date(new Date());
-            sale.setTotal_sale(total);
-            sale.setDiscount(discount);
-            sale.setUser_id((Integer) request.get("user_id"));
-            sale.setPaymethod_id(payment_Method);
-            sale.setState("Activo");
-            iSale.save(sale);
 
             // Validar que el campo details no esté vacío y sea una lista
             if (!request.containsKey("details") || !(request.get("details") instanceof List)) {
@@ -145,57 +158,107 @@ public class SaleController {
                 return response;
             }
 
+            // Bloque de codigo de validacion de los detalles
+            for (Map<String, Object> detailMap : details) {
+                Object[] fieldsToValidateDetail = { detailMap.get("quantity"), detailMap.get("product_id"),
+                        detailMap.get("discount_product") };
+
+                // Validar que los campos de cada detalle no estén vacíos
+                if (isNullOrEmpty(fieldsToValidateDetail)) {
+                    response.setSuccess(false);
+                    response.setMessage(
+                            "Los campos 'Cantidad', 'Producto' y Descuento Unitario son obligatorios y no pueden estar vacíos");
+                    response.setData(null);
+                    response.setCode(400);
+                    return response;
+                }
+
+                // Cargar completamente el producto para validar si existe
+                Product product = iProduct.findById((Integer) detailMap.get("product_id"));
+                if (product == null) {
+                    response.setSuccess(false);
+                    response.setMessage("El producto seleccionado no existe.");
+                    response.setData(null);
+                    response.setCode(404);
+                    return response;
+                }
+
+                // Validar que la cantidad no sea cero
+                Integer quantity = (Integer) detailMap.get("quantity");
+                if (quantity == null || quantity <= 0) {
+                    response.setSuccess(false);
+                    response.setMessage("La cantidad debe ser mayor que cero.");
+                    response.setData(null);
+                    response.setCode(400);
+                    return response;
+                }
+            }
+            
+            // Inicializar la variable total y discount
+            long total = 0;
+            long discount = (Integer) request.get("discount");
+
+            // Instaciar el objeto sale
+            Sale sale = new Sale();
+
+            // Llenar los campos de la venta
+            sale.setSale_date(new Date());
+            sale.setTotal_sale(total);
+            sale.setDiscount(0);
+            sale.setUser_id((Integer) request.get("user_id"));
+            sale.setPaymethod_id(payment_Method);
+            sale.setState("Activo");
+            iSale.save(sale);
+
             // Recorrer el objeto detalles, para llenar los campos de los detalles
             for (Map<String, Object> detailMap : details) {
 
                 // Inicializar la variable del subtotal
                 long subtotal = 0;
 
-                Object[] fieldsToValidateDetail = { detailMap.get("quantity"), detailMap.get("product_id") };
-
-                // Validar que los campos de cada detalle no estén vacíos
-                if (isNullOrEmpty(fieldsToValidateDetail)) {
-                    response.setSuccess(false);
-                    response.setMessage(
-                            "Los campos 'Cantidad', 'Producto' y 'Descuento' son obligatorios y no pueden estar vacíos");
-                    response.setData(null);
-                    response.setCode(400);
-                    return response;
-                }
-
                 // Instaciar el objeto Sale_Details
                 Sale_Detail detail = new Sale_Detail();
 
                 // Cargar completamente el producto antes de asignarlo al detalle
                 Product product = iProduct.findById((Integer) detailMap.get("product_id"));
-                if (product == null) {
-                    response.setSuccess(false);
-                    response.setMessage("El producto con id " + detailMap.get("product_id")
-                            + " no se encontró en la base de datos.");
-                    response.setData(null);
-                    response.setCode(404);
-                    return response;
-                }
 
                 // Definir las variables para calcular el subtotal
                 long salePrice = product.getSale_price();
 
-                // Calculamos el subtotal antes de aplicar el descuento
+                // Definir el campo cantidad
+                Integer quantity = (Integer) detailMap.get("quantity");
+
+                // Definir el descuento unitario
+                long discount_product = (Integer) detailMap.get("discount_product");
+
+                // Calcular el subtotal antes de aplicar el descuento
                 subtotal = ((Integer) detailMap.get("quantity")) * salePrice;
 
-                // Agregamos el subtotal al total de la venta
+                // Calcular el valor del subtotal con el descuento unitario
+                subtotal -= discount_product;
+
+                // Si el subtotal es negativo debido al descuento, establecerlo como cero
+                subtotal = Math.max(subtotal, 0);
+
+                // Agregar el subtotal al total de la venta
                 total += subtotal;
 
-                // Llenar los campos 
+                // Llenar los campos
                 detail.setSale_id(sale);
-                detail.setQuantity((Integer) detailMap.get("quantity"));
+                detail.setQuantity(quantity);
                 detail.setProduct_id(product);
+                detail.setDiscount_product(discount_product);
                 detail.setSubtotal(subtotal);
                 iSale.saveDetails(detail);
             }
 
             total -= discount;
 
+            // Si el total es negativo después de aplicar el descuento total, establecerlo
+            // como cero
+            total = Math.max(total, 0);
+
+            sale.setDiscount(discount);
             sale.setTotal_sale(total);
             iSale.save(sale);
 

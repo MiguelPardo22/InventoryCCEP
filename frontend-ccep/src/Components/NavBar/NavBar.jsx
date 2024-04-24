@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 
 function NavBar() {
   return (
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg fixed-top">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">
           <i className="fa-solid fa-paw icon"></i> CCEP

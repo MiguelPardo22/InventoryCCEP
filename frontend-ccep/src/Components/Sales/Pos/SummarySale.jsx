@@ -1,27 +1,95 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DangerButton } from "../../GeneralComponents/DangerButton";
+import { PrimaryButton } from "../../GeneralComponents/PrimaryButton";
+import { GeneralContext } from "../../../Context/GeneralContext";
+import ServiceSale from "../../../Services/ServiceSale";
 
-function SummarySale({ selectedProducts, onRemoveProduct }) {
+function SummarySale({
+  selectedProducts,
+  onRemoveProduct,
+  onRemoveAllProducts,
+}) {
   const [quantities, setQuantities] = useState({});
+  const [discounts, setDiscounts] = useState({});
   const [total, setTotal] = useState(0);
+  const [paymentsMethods, setPaymentsMethods] = useState([]);
+
+  // Estado para controlar la habilitación del input de descuento
+  const [isDiscountEnabled, setIsDiscountEnabled] = useState(false);
+
+  //Contexto General
+  const { ok, swalCard } = useContext(GeneralContext);
+
+  // Campos para llenar el json
+  const [discount, setDiscount] = useState("");
+  const [paymethod_id, setPaymethodId] = useState(0);
 
   useEffect(() => {
     // Calcula el subtotal de cada producto y el total de la venta
     let subtotal = 0;
     selectedProducts.forEach((product) => {
       const quantity = quantities[product.id] || 0;
+      const discountUnity = discounts[product.id] || 0;
       const productSubtotal = quantity * product.sale_price;
+      subtotal -= discountUnity;
       subtotal += productSubtotal;
     });
-    setTotal(subtotal);
-  }, [selectedProducts, quantities]);
+    // Aplica el descuento al subtotal
+    const discountedTotal = subtotal - discount;
+    setTotal(discountedTotal > 0 ? discountedTotal : 0);
+  }, [selectedProducts, quantities, discounts, discount]);
+
+  // Listar los métodos de pago
+  const paymentsMethodsList = () => {
+    ServiceSale.getAllPaymentsMethods()
+      .then((response) => {
+        setPaymentsMethods(response.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    paymentsMethodsList();
+  }, []);
+
+  // Función para manejar cambios en la habilitación del input de descuento
+  const handleDiscountCheckboxChange = (e) => {
+    const isChecked = e.target.checked;
+    setIsDiscountEnabled(isChecked); // Actualiza el estado de habilitación del input según el estado del checkbox
+
+    // Verifica si el campo de descuento tiene un valor y si el checkbox está marcado
+    if (!isChecked) {
+      setDiscount(""); // Restablece el descuento a 0 si el checkbox está desmarcado y hay un valor en el campo de descuento
+    }
+  };
 
   // Función para manejar cambios en la cantidad de un producto
   const handleQuantityChange = (productId, quantity) => {
-    setQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: quantity,
-    }));
+    if (quantity >= 0) {
+      setQuantities((prevQuantities) => ({
+        ...prevQuantities,
+        [productId]: quantity,
+      }));
+    }
+  };
+
+  // Función para manejar cambios en el descuento de un producto
+  const handleDiscountChange = (productId, discount) => {
+    if (discount >= 0) {
+      setDiscounts((prevDiscounts) => ({
+        ...prevDiscounts,
+        [productId]: discount,
+      }));
+    }
+  };
+
+  // Función para manejar cambios en el descuento de un producto
+  const handleDiscountTotalChange = (discount) => {
+    if (discount >= 0) {
+      setDiscount(discount);
+    }
   };
 
   // Función para eliminar un producto de la lista
@@ -35,62 +103,176 @@ function SummarySale({ selectedProducts, onRemoveProduct }) {
     });
   };
 
+  // Función para limpiar los estados después de una venta exitosa
+  const resetComponentState = () => {
+    setQuantities({});
+    setDiscounts({});
+    setTotal(0);
+    setDiscount(0);
+    setPaymethodId(0);
+    setIsDiscountEnabled(false);
+    onRemoveAllProducts();
+  };
+
+  // Función para guardar la venta en el servidor
+  const saveSale = () => {
+    const details = selectedProducts.map((product) => ({
+      quantity: quantities[product.id] || 0,
+      product_id: product.id,
+      discount_product: discounts[product.id] || 0,
+    }));
+
+    const saleData = {
+      paymethod_id: parseInt(paymethod_id),
+      discount: parseInt(discount),
+      user_id: 1, // Aquí debes establecer el ID del usuario actual
+      details: details,
+    };
+
+    ServiceSale.saveSaleWithDetails(saleData)
+      .then((response) => {
+        if (response.data.code == 400) {
+          swalCard("Error al Guardar la Venta", response.data.message, "info");
+        } else if (response.data.code == 404) {
+          swalCard("No se encontro", response.data.message, "info");
+        } else if (response.data.code == 500) {
+          swalCard(
+            "Error al Guardar la Venta",
+            response.data.message,
+            "danger"
+          );
+        } else {
+          ok(response.data.message, "success");
+          resetComponentState();
+        }
+      })
+      .catch((error) => {
+        console.error("Error al guardar la venta:", error);
+      });
+  };
+
   return (
     <div>
       <h2>Resumen de la Venta</h2>
       <br />
       <div className="scrollable-summary">
-        {selectedProducts.map((product) => (
-          <div key={product.id}>
-            <div className="card border-warning">
-              <div className="card-body d-flex align-items-center justify-content-between">
-                <p className="text-start product-name" title={product.name}>{product.name}</p>
-                <p className="text-start">
-                  ${product.sale_price.toLocaleString("es-CO")}
-                </p>
-                <input
-                  type="number"
-                  className="form-control w-25 h-25"
-                  placeholder="Cantidad"
-                  value={quantities[product.id] || ""}
-                  onChange={(e) =>
-                    handleQuantityChange(product.id, parseInt(e.target.value))
-                  }
-                />
-                <p className="text-end">
-                  Subtotal: $
-                  {(
-                    (quantities[product.id] || 0) * product.sale_price
-                  ).toLocaleString("es-CO")}
-                </p>
-                {/* Al hacer clic en el botón de eliminar, llama a handleRemoveProduct con el producto actual */}
-                <DangerButton
-                  icon={"fa-regular fa-trash-can"}
-                  execute={() => handleRemoveProduct(product)}
-                />
-              </div>
-            </div>
-            <br />
-          </div>
-        ))}
+        <div className="table-responsive">
+          <table className="table caption-top align-items-center">
+            <caption>Detalles</caption>
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">Descuento</th>
+                <th scope="col">Subtotal</th>
+                <th scope="col">Eliminar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedProducts.map((product) => (
+                <tr key={product.id}>
+                  <td className="product-name" title={product.name}>
+                    {product.name}
+                  </td>
+                  <td>${product.sale_price.toLocaleString("es-CO")}</td>
+                  <td>
+                    <input
+                      type="number"
+                      className="form-control width-quantity"
+                      value={quantities[product.id] || ""}
+                      onChange={(e) =>
+                        handleQuantityChange(product.id, e.target.value)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      className="form-control width-quantity"
+                      value={discounts[product.id] || ""}
+                      onChange={(e) =>
+                        handleDiscountChange(product.id, e.target.value)
+                      }
+                    />
+                  </td>
+                  {/* Validacion de no mostrar el subtotal negativo */}
+                  <td>
+                    $
+                    {((quantities[product.id] || 0) * product.sale_price -
+                      (discounts[product.id] || 0) >
+                    0
+                      ? (quantities[product.id] || 0) * product.sale_price -
+                        (discounts[product.id] || 0)
+                      : 0
+                    ).toLocaleString("es-CO")}
+                  </td>
+                  <td>
+                    <DangerButton
+                      icon={"fa-regular fa-trash-can"}
+                      execute={() => handleRemoveProduct(product)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       <br />
       <div className="card">
         <div className="card-body">
           <h5 className="card-title">Finalizar Venta</h5>
-          <p className="card-text text-start">
-            Total: ${total.toLocaleString("es-CO")}
-          </p>
-          <p className="card-text">
-            This is a wider card with supporting text below as a natural lead-in
-            to additional content. This content is a little bit longer.
-          </p>
-          <p className="card-text">
-            This is a wider card with supporting text below as a natural
-          </p>
-          <p className="card-text">
-            <small className="text-muted">Last updated 3 mins ago</small>
-          </p>
+          <div className="row">
+            <div className="col-md-6">
+              <label>Metodo de Pago:</label>
+              <select
+                className="form-select"
+                name="paymethod_id"
+                id="paymethod_id"
+                value={paymethod_id}
+                onChange={(e) => setPaymethodId(e.target.value)}
+              >
+                <option value="">Seleccione una Opcion</option>
+                {paymentsMethods.map((paymentmethod) => (
+                  <option key={paymentmethod.id} value={paymentmethod.id}>
+                    {paymentmethod.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-6">
+              <label>Descuento: </label>
+              <div className="input-group mb-3">
+                <div className="input-group-text">
+                  <input
+                    className="form-check-input mt-0"
+                    type="checkbox"
+                    value=""
+                    aria-label="Checkbox for following text input"
+                    onChange={handleDiscountCheckboxChange}
+                    checked={isDiscountEnabled}
+                  />
+                </div>
+                <input
+                  type="number"
+                  className="form-control"
+                  aria-label="Text input with checkbox"
+                  value={discount}
+                  onChange={(e) => handleDiscountTotalChange(e.target.value)}
+                  disabled={!isDiscountEnabled}
+                />
+                <span className="input-group-text">COP</span>
+              </div>
+            </div>
+          </div>
+          <br />
+          <p className="card-text">Total: ${total.toLocaleString("es-CO")}</p>
+          <PrimaryButton
+            text={"Finalizar"}
+            icon={"fa-solid fa-check"}
+            execute={saveSale}
+          />
         </div>
       </div>
     </div>
