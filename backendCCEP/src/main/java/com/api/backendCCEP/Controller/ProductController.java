@@ -28,7 +28,7 @@ import com.api.backendCCEP.Repository.ProductRepository;
 import com.api.backendCCEP.Util.ApiResponse;
 
 @RestController
-@RequestMapping({ "/admin" })
+@RequestMapping({ "/vendor" })
 public class ProductController {
 
     // Instacios

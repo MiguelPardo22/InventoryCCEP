@@ -37,7 +37,7 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
             <SideBarLink to="index" text="Inicio" icon="bx bx-grid-alt" />
           </li>
           <li>
-            <SideBarLink to="products" text="Productos" icon="bx bx-football" />
+            <SideBarLink to="products" text="Productos" icon="bx bx-barcode" />
           </li>
           <li>
             <nav id="nav">
@@ -49,9 +49,22 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
             </nav>
           </li>
           {salesOpen && (
-            <li>
-              <SideBarLink to="pos" text="Realizar Ventas" icon="bx bx-cart-add" />
-            </li>
+            <>
+              <li>
+                <SideBarLink
+                  to="sales"
+                  text="Lista de Ventas"
+                  icon="bx bx-detail"
+                />
+              </li>
+              <li>
+                <SideBarLink
+                  to="pos"
+                  text="Realizar Ventas"
+                  icon="bx bx-cart-add"
+                />
+              </li>
+            </>
           )}
           <li>
             <nav id="nav">

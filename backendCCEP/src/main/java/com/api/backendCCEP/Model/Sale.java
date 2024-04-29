@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,6 +30,7 @@ public class Sale {
     private long total_sale;
 
     @Column(name = "sale_date")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "America/Bogota")
     private Date sale_date;
 
     @Column(name = "discount")

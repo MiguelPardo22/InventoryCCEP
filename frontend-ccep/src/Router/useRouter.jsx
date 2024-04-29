@@ -12,6 +12,7 @@ import { SubCategories } from "../Views/SubCategories";
 import { Suppliers } from "../Views/Suppliers";
 import { Products } from "../Views/Products";
 import { PosSystem } from "../Views/PosSystem";
+import { Sales } from "../Views/Sales";
 
 
 const RouteContext = React.createContext();
@@ -49,6 +50,10 @@ function RouteProvider(props) {
         {
           path: "pos",
           element: <PosSystem />
+        },
+        {
+          path: "sales",
+          element: <Sales />
         },
       ]
     },

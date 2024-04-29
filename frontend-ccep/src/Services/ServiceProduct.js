@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = "http://localhost:8080/admin";
+const baseUrl = "http://localhost:8080/vendor";
 
 class ServiceProduct {
   getAllProductsPaginated(page, size) {

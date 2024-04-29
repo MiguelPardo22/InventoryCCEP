@@ -2,6 +2,8 @@ package com.api.backendCCEP.FacadeImp;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.api.backendCCEP.Facade.ISale;
@@ -23,8 +25,8 @@ public class SaleDao implements ISale{
     }
     
     @Override
-    public List<Sale> listSales() {
-        return saleRepository.listSales();
+    public Page<Sale> listSales(Pageable pageable) {
+        return saleRepository.listSalesWithPagination(pageable);
     }
 
     //Guardar el objeto sale
@@ -38,6 +40,18 @@ public class SaleDao implements ISale{
     public void saveDetails(Sale_Detail sale_Detail) {
         detailRepository.save(sale_Detail);
     }
+
+    // Listar los detalles basado en el id de la venta
+	@Override
+	public List<Sale_Detail> listSaleDetailsById(long saleId) {
+		return detailRepository.listSalesDetailsById(saleId);
+	}
+
+	// Encontrar la venta por el id
+	@Override
+	public Sale findById(long id) {
+		return saleRepository.findById(id).orElse(null);
+	}
 
 
 }

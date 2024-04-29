@@ -149,6 +149,8 @@ function SummarySale({
       .catch((error) => {
         console.error("Error al guardar la venta:", error);
       });
+
+    console.log(saleData);
   };
 
   return (
@@ -195,7 +197,10 @@ function SummarySale({
                       className="form-control width-quantity"
                       value={discounts[product.id] || ""}
                       onChange={(e) =>
-                        handleDiscountChange(product.id, e.target.value)
+                        handleDiscountChange(
+                          product.id,
+                          parseInt(e.target.value)
+                        )
                       }
                     />
                   </td>
