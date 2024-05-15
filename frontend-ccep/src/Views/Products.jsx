@@ -81,11 +81,11 @@ function Products() {
               ok(message, "success");
               productsList(page, size);
             } else {
-              // if (response.data.code == 400) {
-              //   swalCard("Producto Relacionado", message, "error");
-              // } else {
-              swalCard("Error al eliminar la subcategoría", message, "error");
-              // }
+              if (response.data.code === 400) {
+                swalCard("Producto Vendido", message, "error");
+              } else {
+                swalCard("Error al eliminar el Producto", message, "error");
+              }
             }
           })
           .catch((error) => {

@@ -6,6 +6,7 @@ import { WarningButton } from "../Components/GeneralComponents/WarningButton";
 import { InfoButton } from "../Components/GeneralComponents/InfoButton";
 import { GeneralContext } from "../Context/GeneralContext";
 import { Modal } from "../Components/GeneralComponents/Modal";
+import Swal from "sweetalert2";
 
 function Sales() {
   const [sales, setSales] = useState([]);
@@ -52,6 +53,39 @@ function Sales() {
     setPage(pageNumber - 1);
   };
 
+  //Logica para eliminar la venta con los detalles
+  const deleteSales = (id) => {
+    Swal.fire({
+      title: "¿Está seguro de eliminar la venta?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-solid fa-check"></i> Sí, eliminar',
+      cancelButtonText: '<i class="fa-solid fa-ban"></i> Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        ServiceSale.deleteSaleWithDetails(id)
+          .then((response) => {
+            const { success, message } = response.data;
+
+            if (success) {
+              ok(message, "success");
+              saleList(page, size);
+            } else {
+              if (response.data.code == 404) {
+                swalCard("No se encontro la venta", message, "error");
+              } else {
+                swalCard("Error al eliminar la Venta", message, "error");
+              }
+            }
+          })
+          .catch((error) => {
+            console.log(error.data.message);
+            console.log(error);
+          });
+      }
+    });
+  };
+
   return (
     <div>
       <div className="container">
@@ -68,7 +102,7 @@ function Sales() {
                 <th scope="col">Total</th>
                 <th scope="col">Fecha</th>
                 <th scope="col">Descuento</th>
-                <th scope="col">Usario</th>
+                <th scope="col">Usuario</th>
                 <th scope="col">Metodo de Pago</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Detalles</th>
@@ -96,7 +130,12 @@ function Sales() {
                     <WarningButton icon={"fa-solid fa-pen-to-square"} />
                   </td>
                   <td>
-                    <DangerButton icon={"fa-solid fa-trash-can"} />
+                    <DangerButton
+                      execute={() =>
+                        deleteSales(sale.id)
+                      }
+                      icon={"fa-solid fa-trash-can"}
+                    />
                   </td>
                 </tr>
               ))}

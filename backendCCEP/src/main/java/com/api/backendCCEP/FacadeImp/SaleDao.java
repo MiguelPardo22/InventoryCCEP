@@ -12,6 +12,8 @@ import com.api.backendCCEP.Model.Sale_Detail;
 import com.api.backendCCEP.Repository.SaleRepository;
 import com.api.backendCCEP.Repository.Sale_DetailRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class SaleDao implements ISale{
 
@@ -53,5 +55,15 @@ public class SaleDao implements ISale{
 		return saleRepository.findById(id).orElse(null);
 	}
 
+	@Override
+	public void deleteSales(Sale sale) {
+		saleRepository.delete(sale);		
+	}
+
+	@Override
+	@Transactional
+	public void deteteSalesDetails(long saleId) {
+		detailRepository.deleteDetails(saleId);
+	}
 
 }

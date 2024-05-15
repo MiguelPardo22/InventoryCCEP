@@ -20,6 +20,7 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -95,7 +96,7 @@ public class SaleController {
 
 			List<Sale_Detail> salesDetails = iSale.listSaleDetailsById(saleId);
 
-			// Encontrar la venta por el id	
+			// Encontrar la venta por el id
 			Sale sale = iSale.findById(saleId);
 
 			// Si no se encuentra la venta mostrar la validacion
@@ -320,4 +321,41 @@ public class SaleController {
 
 		return response;
 	}
+
+	// Eliminar Ventas con los detalles
+	@DeleteMapping("/sales/delete/{id}")
+	public ApiResponse<Sale> deleteSalesWithDetails(@PathVariable long id) {
+
+		ApiResponse<Sale> response = new ApiResponse<>();
+
+		// Verificar si existe la venta antes de eliminarla
+		Sale sale = iSale.findById(id);
+
+		try {
+
+			if (sale != null) {
+
+				iSale.deteteSalesDetails(id);
+				iSale.deleteSales(sale);
+				response.setSuccess(true);
+				response.setMessage("Venta eliminada exitosamente");
+				response.setData(null);
+				response.setCode(200);
+			} else {
+				response.setSuccess(false);
+				response.setMessage("No se encontró la Venta con el ID proporcionado");
+				response.setData(null);
+				response.setCode(404);
+			}
+
+		} catch (Exception e) {
+			response.setSuccess(false);
+			response.setMessage("Error al eliminar la venta: " + e);
+			response.setData(null);
+			response.setCode(500);
+		}
+
+		return response;
+	}
+
 }

@@ -139,7 +139,7 @@ function SummarySale({
           swalCard(
             "Error al Guardar la Venta",
             response.data.message,
-            "danger"
+            "error"
           );
         } else {
           ok(response.data.message, "success");

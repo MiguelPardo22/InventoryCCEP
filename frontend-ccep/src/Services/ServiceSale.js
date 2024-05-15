@@ -20,6 +20,10 @@ class ServiceSale {
     return axios.post(baseUrl + "/sales/create", saleData);
   }
 
+  deleteSaleWithDetails(saleId){
+    return axios.delete(baseUrl + "/sales/delete/" + saleId)
+  }
+
 }
 
 const saleServiceInstance = new ServiceSale();

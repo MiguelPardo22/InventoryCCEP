@@ -66,7 +66,7 @@ function SubCategories() {
   };
 
   //Logica para eliminar una Categoria
-  const deleteCategory = (id, name) => {
+  const deleteSubCategory = (id, name) => {
     Swal.fire({
       title: "¿Está seguro de eliminar " + name + "?",
       icon: "question",
@@ -137,7 +137,7 @@ function SubCategories() {
                   <td>
                     <DangerButton
                       execute={() =>
-                        deleteCategory(SubCategory.id, SubCategory.name)
+                        deleteSubCategory(SubCategory.id, SubCategory.name)
                       }
                       icon="fa-solid fa-trash-can"
                     />

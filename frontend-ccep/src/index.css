@@ -5,6 +5,7 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
+  scrollbar-width: none !important;
 }
 
 body {
@@ -14,11 +15,11 @@ body {
   overflow: hidden;
   min-height: 100vh;
   background-color: #ffffed !important;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 th {
-  border-bottom: 2px solid #EABE3F !important;
+  border-bottom: 2px solid #eabe3f !important;
   text-align: center !important;
   /* background-color: #f8edcb !important; */
 }
