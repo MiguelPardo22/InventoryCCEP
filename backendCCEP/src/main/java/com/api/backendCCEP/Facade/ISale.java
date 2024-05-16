@@ -17,5 +17,6 @@ public interface ISale {
     public void saveDetails(Sale_Detail sale_Detail);
     public void deleteSales(Sale sale);
     public void deteteSalesDetails(long id);
+    public void deteteSalesDetailsUpdate(Sale_Detail sale_Detail);
 
 }

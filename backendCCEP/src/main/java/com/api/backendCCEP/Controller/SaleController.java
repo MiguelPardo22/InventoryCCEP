@@ -13,9 +13,11 @@ import com.api.backendCCEP.Model.Sale_Detail;
 import com.api.backendCCEP.Repository.Payment_MethodRepository;
 import com.api.backendCCEP.Util.ApiResponse;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
@@ -97,10 +100,10 @@ public class SaleController {
 			List<Sale_Detail> salesDetails = iSale.listSaleDetailsById(saleId);
 
 			// Encontrar la venta por el id
-			Sale sale = iSale.findById(saleId);
+			Sale saleUpdate = iSale.findById(saleId);
 
 			// Si no se encuentra la venta mostrar la validacion
-			if (sale == null) {
+			if (saleUpdate == null) {
 				response.setSuccess(false);
 				response.setMessage("No se encontro la venta");
 				response.setData(null);
@@ -243,7 +246,7 @@ public class SaleController {
 			long total = 0;
 			long discount = (Integer) request.get("discount");
 
-			// Instaciar el objeto sale
+			// Instaciar el objeto saleUpdate
 			Sale sale = new Sale();
 
 			// Llenar los campos de la venta
@@ -322,6 +325,246 @@ public class SaleController {
 		return response;
 	}
 
+	// Actualizar Ventas
+	@PutMapping("/sales/update/{id}")
+	public ApiResponse<Sale> updateSaleWithDetails(@PathVariable("id") int id,
+			@RequestBody Map<String, Object> request) {
+
+		ApiResponse<Sale> response = new ApiResponse<>();
+
+		try {
+
+			// Buscar la venta existente
+			Optional<Sale> optionalSale = Optional.of(iSale.findById(id));
+			if (!optionalSale.isPresent()) {
+				response.setSuccess(false);
+				response.setMessage("La venta con el ID proporcionado no se encuentra.");
+				response.setData(null);
+				response.setCode(404);
+				return response;
+			}
+
+			Object[] fieldsToValidateSale = { request.get("user_id"), request.get("paymethod_id"),
+					request.get("discount") };
+
+			// Validar que el campo user_id y discount no esten vacíos
+			if (isNullOrEmpty(fieldsToValidateSale)) {
+				response.setSuccess(false);
+				response.setMessage(
+						"El campo 'usuario', 'Metodo de pago' y 'descuento' es obligatorio y no puede estar vacío.");
+				response.setData(null);
+				response.setCode(400);
+				return response;
+			}
+
+			// Cargar completamente el metodo de pago antes de asignarlo a la venta
+			Payment_Method payment_Method = payment_MethodRepository.findById((Integer) request.get("paymethod_id"))
+					.orElse(null);
+			if (payment_Method == null) {
+				response.setSuccess(false);
+				response.setMessage("El metodo de pago no existe");
+				response.setData(null);
+				response.setCode(404);
+				return response;
+			}
+
+			// Validar que el campo details no esté vacío y sea una lista
+			if (!request.containsKey("details") || !(request.get("details") instanceof List)) {
+				response.setSuccess(false);
+				response.setMessage("El objeto 'details' es obligatorio y debe ser una lista de detalles.");
+				response.setData(null);
+				response.setCode(400);
+				return response;
+			}
+
+			// Convierte el objeto de detalles del request a un array
+			@SuppressWarnings("unchecked")
+			List<Map<String, Object>> details = (List<Map<String, Object>>) request.get("details");
+
+			// Validar que la lista de detalles no esté vacía
+			if (details.isEmpty()) {
+				response.setSuccess(false);
+				response.setMessage("La lista de detalles no puede estar vacía.");
+				response.setData(null);
+				response.setCode(400);
+				return response;
+			}
+
+			// Bloque de codigo de validacion de los detalles
+			for (Map<String, Object> detailMap : details) {
+				Object[] fieldsToValidateDetail = { detailMap.get("quantity"), detailMap.get("product_id"),
+						detailMap.get("discount_product") };
+
+				// Validar que los campos de cada detalle no estén vacíos
+				if (isNullOrEmpty(fieldsToValidateDetail)) {
+					response.setSuccess(false);
+					response.setMessage(
+							"Los campos 'Cantidad', 'Producto' y Descuento Unitario son obligatorios y no pueden estar vacíos");
+					response.setData(null);
+					response.setCode(400);
+					return response;
+				}
+
+				// Cargar completamente el producto para validar si existe
+				Product product = iProduct.findById((Integer) detailMap.get("product_id"));
+				if (product == null) {
+					response.setSuccess(false);
+					response.setMessage("El producto seleccionado no existe.");
+					response.setData(null);
+					response.setCode(404);
+					return response;
+				}
+
+				// Validar que la cantidad no sea cero
+				Integer quantity = (Integer) detailMap.get("quantity");
+				if (quantity == null || quantity <= 0) {
+					response.setSuccess(false);
+					response.setMessage("La cantidad debe ser mayor que cero.");
+					response.setData(null);
+					response.setCode(400);
+					return response;
+				}
+			}
+
+			// Inicializar la variable total y discount
+			long total = 0;
+			long discount = (Integer) request.get("discount");
+
+			// Instaciar el objeto saleUpdate
+			Sale saleUpdate = optionalSale.get();
+
+			// Llenar los campos de la venta
+			saleUpdate.setSale_date(new Date());
+			saleUpdate.setTotal_sale(total);
+			saleUpdate.setDiscount(0);
+			saleUpdate.setUser_id((Integer) request.get("user_id"));
+			saleUpdate.setPaymethod_id(payment_Method);
+			saleUpdate.setState("Activo");
+			iSale.save(saleUpdate);
+
+			// Obtener los detalles existentes de la venta que se va a actualizar
+			List<Sale_Detail> existingDetails = iSale.listSaleDetailsById(id);
+
+			// Lista para almacenar los nuevos detalles que se agregarán
+			List<Sale_Detail> newDetails = new ArrayList<>();
+
+			// Recorrer el objeto detalles, para llenar los campos de los detalles
+			for (Map<String, Object> detailMap : details) {
+
+				// Obtener el ID del detalle de la solicitud
+				Integer detailId = (Integer) detailMap.get("id");
+
+				// Buscar si el detalle existe en los detalles existentes
+				Sale_Detail existingDetail = null;
+				for (Sale_Detail detail : existingDetails) {
+					if (detail.getId() == detailId) {
+						existingDetail = detail;
+						break;
+					}
+				}
+
+				// Inicializar la variable del subtotal
+				long subtotal = 0;
+
+				// Cargar completamente el producto antes de asignarlo al detalle
+				Product product = iProduct.findById((Integer) detailMap.get("product_id"));
+
+				// Definir las variables para calcular el subtotal
+				long salePrice = product.getSale_price();
+
+				// Definir el campo cantidad
+				Integer quantity = (Integer) detailMap.get("quantity");
+
+				// Definir el descuento unitario
+				long discount_product = (Integer) detailMap.get("discount_product");
+
+				// Calcular el subtotal antes de aplicar el descuento
+				subtotal = ((Integer) detailMap.get("quantity")) * salePrice;
+
+				// Calcular el valor del subtotal con el descuento unitario
+				subtotal -= discount_product;
+
+				// Si el subtotal es negativo debido al descuento, establecerlo como cero
+				subtotal = Math.max(subtotal, 0);
+
+				// Agregar el subtotal al total de la venta
+				total += subtotal;
+
+				// Si el detalle existe, actualizarlo
+				if (existingDetail != null) {
+
+					// Llenar los campos
+					existingDetail.setSale_id(saleUpdate);
+					existingDetail.setQuantity(quantity);
+					existingDetail.setProduct_id(product);
+					existingDetail.setDiscount_product(discount_product);
+					existingDetail.setSubtotal(subtotal);
+					iSale.saveDetails(existingDetail);
+
+				} else {
+					// Si el detalle no existe, crear uno nuevo y agregarlo a la lista de nuevos
+					// detalles
+					Sale_Detail newDetail = new Sale_Detail();
+
+					newDetail.setQuantity(quantity);
+					newDetail.setProduct_id(product);
+					newDetail.setDiscount_product(discount_product);
+					newDetail.setSubtotal(subtotal);
+					
+					// Agregar el nuevo detalle a la lista de nuevos detalles
+					newDetails.add(newDetail);
+				}
+			}
+
+			// Eliminar los detalles existentes que no están presentes en los nuevos detalles
+			for (Sale_Detail detail : existingDetails) {
+			    boolean existsInNewDetails = false;
+			    for (Map<String, Object> detailMap : details) {
+			        Integer detailId = (Integer) detailMap.get("id");
+			        if (detail.getId() == detailId) {
+			            existsInNewDetails = true;
+			            break;
+			        }
+			    }
+			    // Si el detalle no existe en los nuevos detalles, eliminarlo
+			    if (!existsInNewDetails) {
+			        iSale.deteteSalesDetailsUpdate(detail);
+			    }
+			}
+			
+			// Agregar los nuevos detalles que no existen en la venta
+			for (Sale_Detail newDetail : newDetails) {
+			    // Asignar la venta a la que pertenecen los nuevos detalles
+			    newDetail.setSale_id(saleUpdate);
+			    // Guardar los nuevos detalles
+			    iSale.saveDetails(newDetail);
+			}
+			
+			total -= discount;
+
+			// Si el total es negativo después de aplicar el descuento total, establecerlo
+			// como cero
+			total = Math.max(total, 0);
+
+			saleUpdate.setDiscount(discount);
+			saleUpdate.setTotal_sale(total);
+			iSale.save(saleUpdate);
+
+			response.setSuccess(true);
+			response.setMessage("Venta actualizada exitosamente");
+			response.setData(saleUpdate);
+			response.setCode(201);
+
+		} catch (Exception e) {
+			response.setSuccess(false);
+			response.setMessage("Error al actualizar la venta: " + e);
+			response.setData(null);
+			response.setCode(500);
+		}
+
+		return response;
+	}
+
 	// Eliminar Ventas con los detalles
 	@DeleteMapping("/sales/delete/{id}")
 	public ApiResponse<Sale> deleteSalesWithDetails(@PathVariable long id) {
@@ -329,14 +572,14 @@ public class SaleController {
 		ApiResponse<Sale> response = new ApiResponse<>();
 
 		// Verificar si existe la venta antes de eliminarla
-		Sale sale = iSale.findById(id);
+		Sale saleUpdate = iSale.findById(id);
 
 		try {
 
-			if (sale != null) {
+			if (saleUpdate != null) {
 
 				iSale.deteteSalesDetails(id);
-				iSale.deleteSales(sale);
+				iSale.deleteSales(saleUpdate);
 				response.setSuccess(true);
 				response.setMessage("Venta eliminada exitosamente");
 				response.setData(null);

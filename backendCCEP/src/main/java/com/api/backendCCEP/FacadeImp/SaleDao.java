@@ -66,4 +66,12 @@ public class SaleDao implements ISale{
 		detailRepository.deleteDetails(saleId);
 	}
 
+	// Se crea un nuevo metodo para borrar un solo detalle de la venta
+	// el anterior metodo borra todos los detalles asociados a la venta
+	@Override
+	public void deteteSalesDetailsUpdate(Sale_Detail sale_Detail) {
+		Sale_Detail details = detailRepository.findById(sale_Detail.getId()).orElse(null);
+		detailRepository.delete(details);
+	}
+
 }
