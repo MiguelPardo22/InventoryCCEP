@@ -13,6 +13,9 @@ function SummarySale({
   const [discounts, setDiscounts] = useState({});
   const [total, setTotal] = useState(0);
   const [paymentsMethods, setPaymentsMethods] = useState([]);
+  const [amountCash, setAmountCash] = useState();
+
+  const [remainingCash, setRemainingCash] = useState(0);
 
   // Estado para controlar la habilitación del input de descuento
   const [isDiscountEnabled, setIsDiscountEnabled] = useState(false);
@@ -85,10 +88,21 @@ function SummarySale({
     }
   };
 
-  // Función para manejar cambios en el descuento de un producto
+  // Función para manejar cambios en el descuento total de la venta
   const handleDiscountTotalChange = (discount) => {
     if (discount >= 0) {
       setDiscount(discount);
+    }
+  };
+
+  // Funcion para manejar la cantidad en efectivo para que no sea menor al total de la venta
+  const handleAmountCashChange = (amountCash) => {
+    setAmountCash(amountCash);
+
+    // Calcula el restante del efectivo entregado por el cliente
+    if(amountCash >= total) {
+     const remainingCash = amountCash - total;
+     setRemainingCash(remainingCash);
     }
   };
 
@@ -136,11 +150,7 @@ function SummarySale({
         } else if (response.data.code == 404) {
           swalCard("No se encontro", response.data.message, "info");
         } else if (response.data.code == 500) {
-          swalCard(
-            "Error al Guardar la Venta",
-            response.data.message,
-            "error"
-          );
+          swalCard("Error al Guardar la Venta", response.data.message, "error");
         } else {
           ok(response.data.message, "success");
           resetComponentState();
@@ -272,6 +282,23 @@ function SummarySale({
                 />
                 <span className="input-group-text">COP</span>
               </div>
+            </div>
+            {/* Vueltas */}
+            <div className="col-md-6">
+              <label>Entrega de Efectivo: </label>
+              
+                <input
+                  type="number"
+                  className="form-control"
+                  aria-label="Text input with checkbox"
+                  value={amountCash}
+                  onChange={(e) => handleAmountCashChange(e.target.value)}
+                />
+
+            </div>
+            <div className="col-md-6">
+                <label>Restante: </label>
+                <span className="input-group-text">{remainingCash.toLocaleString("es-CO")} COP</span> 
             </div>
           </div>
           <br />
