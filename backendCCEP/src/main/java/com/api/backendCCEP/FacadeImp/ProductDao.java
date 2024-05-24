@@ -1,5 +1,7 @@
 package com.api.backendCCEP.FacadeImp;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,5 +39,10 @@ public class ProductDao implements IProduct {
     public void delete(Product product) {
         productRepository.delete(product);
     }
+
+	@Override
+	public List<Product> filterProductsByProviders(long id) {
+		return productRepository.filterProductsByProviders(id);
+	}
 
 }

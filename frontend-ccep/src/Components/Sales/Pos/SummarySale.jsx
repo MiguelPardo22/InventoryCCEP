@@ -13,7 +13,7 @@ function SummarySale({
   const [discounts, setDiscounts] = useState({});
   const [total, setTotal] = useState(0);
   const [paymentsMethods, setPaymentsMethods] = useState([]);
-  const [amountCash, setAmountCash] = useState();
+  const [amountCash, setAmountCash] = useState(0);
 
   const [remainingCash, setRemainingCash] = useState(0);
 
@@ -159,8 +159,6 @@ function SummarySale({
       .catch((error) => {
         console.error("Error al guardar la venta:", error);
       });
-
-    console.log(saleData);
   };
 
   return (
@@ -298,7 +296,7 @@ function SummarySale({
             </div>
             <div className="col-md-6">
                 <label>Restante: </label>
-                <span className="input-group-text">{remainingCash.toLocaleString("es-CO")} COP</span> 
+                <span className="input-group-text">${remainingCash.toLocaleString("es-CO")} COP</span> 
             </div>
           </div>
           <br />

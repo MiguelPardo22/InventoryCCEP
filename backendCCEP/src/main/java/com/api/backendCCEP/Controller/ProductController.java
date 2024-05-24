@@ -427,4 +427,39 @@ public class ProductController {
 		return response;
 	}
 
+	// Filtrar los productos por el proveedor
+	@GetMapping("/products/filter-product-provider/{provider_id}")
+	public ApiResponse<List<Product>> searchProductByReferenceOrName(@PathVariable Long provider_id) {
+		
+		ApiResponse<List<Product>> response = new ApiResponse<>();
+		
+		try {
+			
+			List<Product> filterProducts = iProduct.filterProductsByProviders(provider_id);
+			
+			if(filterProducts.isEmpty()) {
+				response.setSuccess(false);
+				response.setMessage("No se encontró productos asociados a ese proveedor");
+				response.setData(null);
+				response.setCode(404);
+				return response;
+			}
+			
+			response.setSuccess(true);
+			response.setMessage("Consulta exitosa");
+			response.setData(filterProducts);
+			response.setCode(200);
+			
+		} catch (Exception e) {
+			
+			response.setSuccess(false);
+			response.setMessage("Error en la consulta: " + e.getMessage());
+			response.setData(null);
+			response.setCode(500);
+			
+		}
+		
+		return response;
+	}
+	
 }

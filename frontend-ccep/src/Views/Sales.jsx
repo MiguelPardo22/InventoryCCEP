@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ServiceSale from "../Services/ServiceSale";
 import { Pagination } from "../Components/GeneralComponents/Pagination";
 import { DangerButton } from "../Components/GeneralComponents/DangerButton";
@@ -9,6 +10,7 @@ import { Modal } from "../Components/GeneralComponents/Modal";
 import Swal from "sweetalert2";
 
 function Sales() {
+  const navigate = useNavigate();
   const [sales, setSales] = useState([]);
   const [sales_details, setSales_details] = useState([]);
   const [page, setPage] = useState(0);
@@ -127,13 +129,14 @@ function Sales() {
                     />
                   </td>
                   <td>
-                    <WarningButton icon={"fa-solid fa-pen-to-square"} />
+                    <WarningButton
+                      icon={"fa-solid fa-pen-to-square"}
+                      execute={() => navigate(`/dashboard/sale-update/${sale.id}`)}
+                    />
                   </td>
                   <td>
                     <DangerButton
-                      execute={() =>
-                        deleteSales(sale.id)
-                      }
+                      execute={() => deleteSales(sale.id)}
                       icon={"fa-solid fa-trash-can"}
                     />
                   </td>

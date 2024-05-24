@@ -14,8 +14,6 @@ import com.api.backendCCEP.Model.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-	// Consulta personalizada para obtener la lista de products
-	// ordenadas asendente por el id
 	@Query(value = "SELECT * FROM products p ORDER BY p.id ASC", nativeQuery = true)
 	Page<Product> findAllProductsWithPagination(Pageable pageable);
 
@@ -23,4 +21,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	@Query(value = "SELECT * FROM products WHERE LOWER(reference) LIKE LOWER(CONCAT('%', :value, '%')) OR LOWER(name) LIKE LOWER(CONCAT('%', :value, '%'));", nativeQuery = true)
 	List<Product> searchProductByKeywordOrReference(@Param("value") String value);
 
+	// Filtrar los productos por el proveedor
+	@Query(value = "SELECT * FROM products WHERE provider_id = :provider_id", nativeQuery = true)
+	List<Product> filterProductsByProviders(@Param("provider_id") long provider_id);
+	
 }

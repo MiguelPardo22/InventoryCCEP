@@ -8,6 +8,10 @@ class ServiceSale {
     return axios.get(baseUrl + "/sales?page=" + page + "&size=" + size);
   }
 
+  getSaleById(id) {
+    return axios.get(baseUrl + "/sales/" + id);
+  }
+
   getSaleDetailById(saleId) {
     return axios.get(baseUrl + "/detailsbyid/" + saleId);
   }

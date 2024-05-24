@@ -1,5 +1,7 @@
 package com.api.backendCCEP.Facade;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,6 +13,7 @@ public interface IProduct {
     public Product findById(long id);
     public void save(Product product);
     public void delete(Product product);
+    public List<Product> filterProductsByProviders(long id);
 
 
 }

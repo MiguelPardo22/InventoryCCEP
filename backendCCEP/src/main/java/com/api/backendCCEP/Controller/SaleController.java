@@ -89,6 +89,39 @@ public class SaleController {
 		return response;
 	}
 
+    // Obtener las ventas registradas por el id
+	@GetMapping({ "/sales/{id}" })
+	public ApiResponse<Sale> getSalesById(@PathVariable int id){
+		
+		ApiResponse<Sale> response = new ApiResponse<>();
+		
+		try {
+			
+			Sale sale = iSale.findById(id);
+			
+			if (sale == null) {
+				response.setSuccess(false);
+				response.setMessage("No se encontro la venta");
+				response.setData(null);
+				response.setCode(404);
+				return response;
+			}
+			
+			response.setSuccess(true);
+			response.setMessage("Consulta Exitosa");
+			response.setData(sale);
+			response.setCode(200);
+			
+		} catch (Exception e) {
+			response.setSuccess(false);
+			response.setMessage("Error en la consulta");
+			response.setData(null);
+			response.setCode(500);
+		}
+		
+		return response;
+	}
+	
 	// Filtrar los detalles basado en el id de la venta
 	@GetMapping("/detailsbyid/{saleId}")
 	public ApiResponse<List<Sale_Detail>> getSaleDetailsById(@PathVariable int saleId) {
