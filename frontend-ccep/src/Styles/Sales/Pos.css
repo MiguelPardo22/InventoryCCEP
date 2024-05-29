@@ -42,3 +42,8 @@ td.product-name {
 .width-quantity {
   max-width: 100px;
 }
+
+.highlighted {
+  background-color: #ffff99;
+  transition: background-color 0.3s ease;
+}

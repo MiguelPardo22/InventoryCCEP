@@ -24,6 +24,10 @@ class ServiceSale {
     return axios.post(baseUrl + "/sales/create", saleData);
   }
 
+  updateSaleWithDetails(id, saleData){
+    return axios.put(baseUrl + "/sales/update/" + id, saleData);
+  }
+
   deleteSaleWithDetails(saleId){
     return axios.delete(baseUrl + "/sales/delete/" + saleId)
   }
