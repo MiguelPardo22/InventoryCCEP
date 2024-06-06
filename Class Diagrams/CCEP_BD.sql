@@ -69,6 +69,7 @@ foreign key(sale_id) references sales(id));
 create table purchases(
 id bigint auto_increment,
 total_purchase bigint not null,
+bill_number bigint not null,
 purchase_date date not null,
 provider_id bigint not null,
 state varchar(10),

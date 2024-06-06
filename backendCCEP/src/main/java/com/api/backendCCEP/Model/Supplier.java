@@ -39,6 +39,10 @@ public class Supplier {
     @OneToMany(mappedBy = "provider_id")
     @JsonIgnore
     private List<Product> products = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "provider_id")
+    @JsonIgnore
+    private List<Purchase> purchases = new ArrayList<>();
 
     public long getId() {
         return id;

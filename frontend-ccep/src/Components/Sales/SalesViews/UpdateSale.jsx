@@ -165,8 +165,6 @@ function UpdateSale() {
       details: details,
     };
 
-    console.log(saleData);
-
     ServiceSale.updateSaleWithDetails(id, saleData)
       .then((response) => {
         if (response.data.code === 400) {

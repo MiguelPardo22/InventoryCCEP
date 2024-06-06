@@ -62,7 +62,7 @@ public class SaleController {
 
 	// Listar Ventas
 	@GetMapping({ "/sales" })
-	public ApiResponse<Page<Sale>> getSalesListNotPaginated(@RequestParam(defaultValue = "0") int page,
+	public ApiResponse<Page<Sale>> getSalesListPaginated(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int size) {
 
 		ApiResponse<Page<Sale>> response = new ApiResponse<>();
@@ -279,7 +279,7 @@ public class SaleController {
 			long total = 0;
 			long discount = (Integer) request.get("discount");
 
-			// Instaciar el objeto saleUpdate
+			// Instaciar el objeto sale
 			Sale sale = new Sale();
 
 			// Llenar los campos de la venta

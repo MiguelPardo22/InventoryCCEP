@@ -53,6 +53,10 @@ public class Product {
     @OneToMany(mappedBy = "product_id", fetch = FetchType.LAZY)
     @JsonBackReference
     private List<Sale_Detail> sale_Details = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "product_id", fetch = FetchType.LAZY)
+    @JsonBackReference
+    private List<Purchase_Detail> purchases_Details = new ArrayList<>();
 
     public long getId() {
         return id;
