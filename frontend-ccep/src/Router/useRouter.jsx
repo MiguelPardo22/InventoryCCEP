@@ -14,6 +14,7 @@ import { Products } from "../Views/Products";
 import { PosSystem } from "../Views/PosSystem";
 import { Sales } from "../Views/Sales";
 import { UpdateSale } from "../Components/Sales/SalesViews/UpdateSale";
+import { EdcSystem } from "../Views/EdcSystem";
 
 
 const RouteContext = React.createContext();
@@ -60,6 +61,10 @@ function RouteProvider(props) {
           path: "sale-update/:id",
           element: <UpdateSale />
         },
+        {
+          path: "edc",
+          element: <EdcSystem />
+        }
       ]
     },
   ]);

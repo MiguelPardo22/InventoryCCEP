@@ -382,7 +382,7 @@ public class ProductController {
 		return response;
 	}
 
-	// Filtrar producto por Referencia o nombre
+	// Filtrar producto por Referencia o nombre(Ventas)
 	@PostMapping("/products/search")
 	public ApiResponse<List<Product>> searchProductByReferenceOrName(@RequestBody Map<String, Object> request) {
 
@@ -427,7 +427,7 @@ public class ProductController {
 		return response;
 	}
 
-	// Filtrar los productos por el proveedor
+	// Filtrar los productos por el proveedor(Compras)
 	@GetMapping("/products/filter-product-provider/{provider_id}")
 	public ApiResponse<List<Product>> searchProductByReferenceOrName(@PathVariable Long provider_id) {
 		

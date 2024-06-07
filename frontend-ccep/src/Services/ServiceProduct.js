@@ -31,6 +31,10 @@ class ServiceProduct {
     return axios.post(baseUrl + "/products/search", value)
   }
 
+  findProductByProvider(providerId){
+    return axios.get(baseUrl + "/products/filter-product-provider/" + providerId);
+  }
+
 }
 
 const productServiceInstance = new ServiceProduct();

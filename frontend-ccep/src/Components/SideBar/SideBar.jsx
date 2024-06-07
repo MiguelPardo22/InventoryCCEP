@@ -10,6 +10,9 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
   //Sales
   const [salesOpen, setSalesOpen] = useState(false);
 
+  //Purchases
+  const [purchasesOpen, setPurchasesOpen] = useState(false);
+
   // Función para alternar el estado de las subpestañas y activar los sublinks
   const toggleUtils = () => {
     setUtilsOpen(!utilsOpen);
@@ -18,6 +21,10 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
 
   const toggleSales = () => {
     setSalesOpen(!salesOpen);
+  };
+
+  const togglePurchases = () => {
+    setPurchasesOpen(!purchasesOpen);
   };
 
   return (
@@ -62,6 +69,26 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
                   to="pos"
                   text="Realizar Ventas"
                   icon="bx bx-cart-add"
+                />
+              </li>
+            </>
+          )}
+          <li>
+            <nav id="nav">
+              <a id="a" onClick={togglePurchases}>
+                <i class="bx bxs-sticker"></i>
+                <span className="links_name">Compras</span>
+              </a>
+              <span className="tooltip"> Compras </span>
+            </nav>
+          </li>
+          {purchasesOpen && (
+            <>
+              <li>
+                <SideBarLink
+                  to="edc"
+                  text="Realizar Compras"
+                  icon="bx bx-purchase-tag-alt"
                 />
               </li>
             </>
