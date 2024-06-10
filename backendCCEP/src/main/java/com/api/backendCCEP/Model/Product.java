@@ -51,11 +51,11 @@ public class Product {
 	private String state;
 
     @OneToMany(mappedBy = "product_id", fetch = FetchType.LAZY)
-    @JsonBackReference
+    @JsonBackReference(value="sale-detailsReference")
     private List<Sale_Detail> sale_Details = new ArrayList<>();
     
     @OneToMany(mappedBy = "product_id", fetch = FetchType.LAZY)
-    @JsonBackReference
+    @JsonBackReference(value="purchase-detailsReference")
     private List<Purchase_Detail> purchases_Details = new ArrayList<>();
 
     public long getId() {
@@ -137,26 +137,35 @@ public class Product {
     public void setSale_Details(List<Sale_Detail> sale_Details) {
         this.sale_Details = sale_Details;
     }
+    
+    public List<Purchase_Detail> getPurchases_Details() {
+		return purchases_Details;
+	}
 
-    public Product() {
+	public void setPurchases_Details(List<Purchase_Detail> purchases_Details) {
+		this.purchases_Details = purchases_Details;
+	}
+
+	public Product() {
     }
 
-    public Product(long id, String name, long reference, String description, long purchase_price,
-            long sale_price, SubCategory subcategory_id, Supplier provider_id, String state,
-            List<Sale_Detail> sale_Details) {
-        this.id = id;
-        this.name = name;
-        this.reference = reference;
-        this.description = description;
-        this.purchase_price = purchase_price;
-        this.sale_price = sale_price;
-        this.subcategory_id = subcategory_id;
-        this.provider_id = provider_id;
-        this.state = state;
-        this.sale_Details = sale_Details;
-    }
+    public Product(long id, String name, long reference, String description, long purchase_price, long sale_price,
+			SubCategory subcategory_id, Supplier provider_id, String state, List<Sale_Detail> sale_Details,
+			List<Purchase_Detail> purchases_Details) {
+		this.id = id;
+		this.name = name;
+		this.reference = reference;
+		this.description = description;
+		this.purchase_price = purchase_price;
+		this.sale_price = sale_price;
+		this.subcategory_id = subcategory_id;
+		this.provider_id = provider_id;
+		this.state = state;
+		this.sale_Details = sale_Details;
+		this.purchases_Details = purchases_Details;
+	}
 
-    public Product(long id) {
+	public Product(long id) {
         this.id = id;
     }
 
