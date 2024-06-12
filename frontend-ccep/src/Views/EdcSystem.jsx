@@ -1,19 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Select from "react-select";
 import ServiceSupplier from "../Services/ServiceSupplier";
 import ServiceProduct from "../Services/ServiceProduct";
 import ServicePurchase from "../Services/ServicePurchase";
 import { PrimaryButton } from "../Components/GeneralComponents/PrimaryButton";
 import { DangerButton } from "../Components/GeneralComponents/DangerButton";
+import { GeneralContext } from "../Context/GeneralContext";
 
 const EdcSystem = () => {
   const [suppliers, setSuppliers] = useState([]);
-  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [selectedSupplier, setSelectedSupplier] = useState();
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [disableSupplierSelect, setDisableSupplierSelect] = useState(false);
   const [total, setTotal] = useState(0);
-  const [billNumber, setBillNumber] = useState();
+  const [billNumber, setBillNumber] = useState("");
+
+  // Texto para mostrar errores de validacion
+  const [billNumberError, setBillNumberError] = useState();
+
+  const { ok, swalCard } = useContext(GeneralContext);
 
   // Llamado al service para listar proveedores
   const suppliersList = () => {
@@ -63,15 +69,27 @@ const EdcSystem = () => {
     const selectedProduct = products.find(
       (product) => product.id === selectedOption.value
     );
-    setSelectedProducts([
-      ...selectedProducts,
-      {
-        ...selectedProduct,
-        quantity: 1,
-        subtotal: selectedProduct.purchase_price,
-      },
-    ]);
+  
+    // Verificar si el producto ya está en la lista de productos seleccionados
+    const productExists = selectedProducts.some(
+      (product) => product.id === selectedProduct.id
+    );
+  
+    if (!productExists) {
+      setSelectedProducts([
+        ...selectedProducts,
+        {
+          ...selectedProduct,
+          quantity: 1,
+          subtotal: selectedProduct.purchase_price,
+        },
+      ]);
+    } else {
+      // Aquí podrías mostrar un mensaje de que el producto ya está en la lista si lo deseas
+      console.log("El producto ya está en la lista");
+    }
   };
+  
 
   const handleQuantityChange = (index, quantity) => {
     const newSelectedProducts = [...selectedProducts];
@@ -87,10 +105,22 @@ const EdcSystem = () => {
   };
 
   const handleSavePurchase = () => {
+    if (billNumber.toString().trim() === "") {
+      setBillNumberError("Este campo es requerido");
+      return;
+    } else if (billNumber.length > 10) {
+      setBillNumberError(
+        "El numero de factura no puede tener mas de 10 digitos"
+      );
+      return;
+    } else {
+      setBillNumberError("");
+    }
+
     // Construir objeto de compra
     const purchase = {
       provider_id: selectedSupplier.id,
-      billNumber: billNumber,
+      billNumber: parseInt(billNumber),
       total: total,
       details: selectedProducts.map((product) => ({
         product_id: product.id,
@@ -102,13 +132,29 @@ const EdcSystem = () => {
     // Guardar compra
     ServicePurchase.savePurchaseWithDetails(purchase)
       .then((response) => {
-        console.log("Compra guardada exitosamente", response.data);
-        // Limpiar estado después de guardar la compra
-        setSelectedSupplier(null);
-        setSelectedProducts([]);
-        setTotal(0);
-        setBillNumber("");
-        setDisableSupplierSelect(false);
+        if (response.data.code === 400) {
+          swalCard(
+            "Error al Actualizar la Venta",
+            response.data.message,
+            "info"
+          );
+        } else if (response.data.code === 404) {
+          swalCard("No se encontró", response.data.message, "info");
+        } else if (response.data.code === 500) {
+          swalCard(
+            "Error al Actualizar la Venta",
+            response.data.message,
+            "error"
+          );
+        } else {
+          ok(response.data.message, "success");
+          // Limpiar estado después de guardar la compra
+          setSelectedSupplier(null);
+          setSelectedProducts([]);
+          setTotal(0);
+          setBillNumber("");
+          setDisableSupplierSelect(false);
+        }
       })
       .catch((error) => {
         console.error("Error al guardar la compra", error);
@@ -199,11 +245,13 @@ const EdcSystem = () => {
                 <input
                   id="billNumber"
                   name="billNumber"
+                  type="number"
                   value={billNumber}
-                  className="form-control"
+                  className={`form-control ${billNumberError && "error"}`}
                   onChange={(e) => setBillNumber(e.target.value)}
                   placeholder="Numero de Factura"
                 />
+                {billNumberError && <div className="text-danger">{billNumberError}</div>}
               </div>
               <br />
               <h5>Total: ${total.toLocaleString("es-CO")}</h5>

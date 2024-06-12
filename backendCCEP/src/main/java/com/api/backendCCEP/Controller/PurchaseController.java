@@ -221,7 +221,7 @@ public class PurchaseController {
 				if (isNullOrEmpty(fieldsToValidateDetail)) {
 					response.setSuccess(false);
 					response.setMessage(
-							"Los campos 'Cantidad' y 'Producto' Unitario son obligatorios y no pueden estar vacíos");
+							"Los campos 'Cantidad' y 'Producto' son obligatorios y no pueden estar vacíos");
 					response.setData(null);
 					response.setCode(400);
 					return response;
