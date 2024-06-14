@@ -134,7 +134,7 @@ const EdcSystem = () => {
       .then((response) => {
         if (response.data.code === 400) {
           swalCard(
-            "Error al Actualizar la Venta",
+            "Error al registrar la compra",
             response.data.message,
             "info"
           );
@@ -142,7 +142,7 @@ const EdcSystem = () => {
           swalCard("No se encontró", response.data.message, "info");
         } else if (response.data.code === 500) {
           swalCard(
-            "Error al Actualizar la Venta",
+            "Error al registrar la compra",
             response.data.message,
             "error"
           );

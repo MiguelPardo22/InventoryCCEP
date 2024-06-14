@@ -1,14 +1,24 @@
-import axios from "axios";
+import axios, { AxiosHeaders } from "axios";
 
 const baseUrl = "http://localhost:8080/admin";
 
 class ServicePurchase {
+  getPurchasesPaginated(page, size) {
+    return axios.get(baseUrl + "/purchases?page=" + page + "&size=" + size);
+  }
 
-    savePurchaseWithDetails(purchase) {
-        return axios.post(baseUrl +  "/purchase/create", purchase);
-    }
+  getPurchaseDetailsById(purchaseId) {
+    return axios.get(baseUrl + "/detailsbyid/" + purchaseId);
+  }
 
-};
+  savePurchaseWithDetails(purchase) {
+    return axios.post(baseUrl + "/purchase/create", purchase);
+  }
+
+  deletePurchasesAndDetails(id){
+    return axios.delete(baseUrl + "/purchase/delete/" + id);
+  }
+}
 
 const purchaseServiceInstance = new ServicePurchase();
 

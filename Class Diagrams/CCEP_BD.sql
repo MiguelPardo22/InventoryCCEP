@@ -83,7 +83,6 @@ quantity int not null,
 subtotal bigint not null,
 product_id bigint not null,
 purchase_id bigint not null,
-state varchar(10),
 primary key(id),
 foreign key(product_id) references products(id),
 foreign key(purchase_id) references purchases(id));

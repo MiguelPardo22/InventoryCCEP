@@ -85,6 +85,9 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
           {purchasesOpen && (
             <>
               <li>
+                <SideBarLink to="purchases" text="Compras" icon="bx bx-library" />
+              </li>
+              <li>
                 <SideBarLink
                   to="edc"
                   text="Realizar Compras"

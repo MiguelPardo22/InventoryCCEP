@@ -1,28 +1,27 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import ServiceSale from "../Services/ServiceSale";
+import React, { useContext, useState } from "react";
+import ServicePurchase from "../Services/ServicePurchase";
+import { useEffect } from "react";
 import { Pagination } from "../Components/GeneralComponents/Pagination";
-import { DangerButton } from "../Components/GeneralComponents/DangerButton";
-import { WarningButton } from "../Components/GeneralComponents/WarningButton";
 import { InfoButton } from "../Components/GeneralComponents/InfoButton";
+import { WarningButton } from "../Components/GeneralComponents/WarningButton";
+import { DangerButton } from "../Components/GeneralComponents/DangerButton";
 import { GeneralContext } from "../Context/GeneralContext";
 import { Modal } from "../Components/GeneralComponents/Modal";
 import Swal from "sweetalert2";
 
-function Sales() {
-  const navigate = useNavigate();
-  const [sales, setSales] = useState([]);
-  const [sales_details, setSales_details] = useState([]);
+function Purchases() {
+  const [purchases, setPurchases] = useState([]);
+  const [detailsPurchases, setDetailsPurchases] = useState([]);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const { setOpenModal, openModal, ok, swalCard } = useContext(GeneralContext);
 
-  // Llamado al service para listar las ventas
-  const saleList = (page, size) => {
-    ServiceSale.getSalesList(page, size)
+  // Llamado al service para listar las compras
+  const purchasesList = (page, size) => {
+    ServicePurchase.getPurchasesPaginated(page, size)
       .then((response) => {
-        setSales(response.data.data.content);
+        setPurchases(response.data.data.content);
         setTotalPages(response.data.data.totalPages);
       })
       .catch((error) => {
@@ -30,23 +29,25 @@ function Sales() {
       });
   };
 
-  const detailsById = async (saleId) => {
+  // Listar los detalles de la compra
+  const detailsById = async (purchaseId) => {
     try {
-      const response = await ServiceSale.getSaleDetailById(saleId);
+      const response = await ServicePurchase.getPurchaseDetailsById(purchaseId);
       const details = response.data.data;
 
       if (details) {
+        console.log(details);
         setOpenModal(true);
-        setSales_details(details);
+        setDetailsPurchases(details);
       }
     } catch (error) {
       console.log("Hubo un error listando los detalles: " + error);
     }
   };
 
-  // Listar las ventas cada vez que haya un cambio en la pagina o en el tamaño
+  // Listar las compras una vez haya cambios en el estado de page y size
   useEffect(() => {
-    saleList(page, size);
+    purchasesList(page, size);
   }, [page, size]);
 
   // Actualizar el estado de la pagina = Page
@@ -54,8 +55,8 @@ function Sales() {
     setPage(pageNumber - 1);
   };
 
-  //Logica para eliminar la venta con los detalles
-  const deleteSales = (id) => {
+  // Logica para eliminar las compras con los detalles
+  const deletePurchases = (id) => {
     Swal.fire({
       title: "¿Está seguro de eliminar la venta?",
       icon: "question",
@@ -64,13 +65,13 @@ function Sales() {
       cancelButtonText: '<i class="fa-solid fa-ban"></i> Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        ServiceSale.deleteSaleWithDetails(id)
+        ServicePurchase.deletePurchasesAndDetails(id)
           .then((response) => {
             const { success, message } = response.data;
 
             if (success) {
               ok(message, "success");
-              saleList(page, size);
+              purchasesList(page, size);
             } else {
               if (response.data.code == 404) {
                 swalCard("No se encontro la venta", message, "error");
@@ -91,20 +92,17 @@ function Sales() {
     <div>
       <div className="container">
         <br />
-        <h2 className="text-center">Ventas</h2>
-        <br />
-        <br />
+        <h2 className="text-center">Compras</h2>
         <div className="table-responsive">
           <table className="table caption-top">
-            <caption>Lista de Ventas</caption>
+            <caption>Lista de Compras</caption>
             <thead>
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Total</th>
+                <th scope="col">Numero de Factura</th>
                 <th scope="col">Fecha</th>
-                <th scope="col">Descuento</th>
-                <th scope="col">Usuario</th>
-                <th scope="col">Metodo de Pago</th>
+                <th scope="col">Proveedor</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Detalles</th>
                 <th scope="col">Editar</th>
@@ -112,31 +110,30 @@ function Sales() {
               </tr>
             </thead>
             <tbody>
-              {sales.map((sale, i) => (
-                <tr key={sale.id}>
+              {purchases.map((purchase, i) => (
+                <tr key={purchase.id}>
                   <td>{page * size + i + 1}</td>
-                  <td>${sale.total_sale.toLocaleString("es-CO")}</td>
-                  <td>{sale.sale_date}</td>
-                  <td>${sale.discount.toLocaleString("es-CO")}</td>
-                  <td>{sale.user_id}</td>
-                  <td>{sale.paymethod_id.name}</td>
-                  <td>{sale.state}</td>
+                  <td>${purchase.total_purchase.toLocaleString("es-CO")}</td>
+                  <td>{purchase.bill_number}</td>
+                  <td>{purchase.purchase_date}</td>
+                  <td>{purchase.provider_id.name}</td>
+                  <td>{purchase.state}</td>
                   <td>
                     <InfoButton
                       icon={"fa-solid fa-circle-info"}
-                      execute={() => detailsById(sale.id)}
+                      execute={() => detailsById(purchase.id)}
                     />
                   </td>
                   <td>
                     <WarningButton
-                      icon={"fa-solid fa-pen-to-square"}
-                      execute={() => navigate(`/dashboard/sale-update/${sale.id}`)}
+                      icon="fa-solid fa-pen-to-square"
+                      //execute={() => editProduct(product.id)}
                     />
                   </td>
                   <td>
                     <DangerButton
-                      execute={() => deleteSales(sale.id)}
-                      icon={"fa-solid fa-trash-can"}
+                      execute={() => deletePurchases(purchase.id,)}
+                      icon="fa-solid fa-trash-can"
                     />
                   </td>
                 </tr>
@@ -151,31 +148,26 @@ function Sales() {
         </div>
       </div>
 
-      {/* Mostrar los detalles de la venta */}
       {openModal && (
-        <Modal tittle={"Detalles de la venta"}>
+        <Modal tittle={"Detalles de la compra"}>
           <div className="table-responsive">
             <table className="table caption-top">
-              <caption>Detalles de la Venta</caption>
+              <caption>Detalles de la Compra</caption>
               <thead>
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Cantidad</th>
                   <th scope="col">Subtotal</th>
                   <th scope="col">Producto</th>
-                  <th scope="col">Descuento del Producto</th>
                 </tr>
               </thead>
               <tbody>
-                {sales_details.map((sale_detail, i) => (
-                  <tr key={sale_detail.id}>
+                {detailsPurchases.map((detail, i) => (
+                  <tr key={detail.id}>
                     <td>{page * size + i + 1}</td>
-                    <td>{sale_detail.quantity}</td>
-                    <td>${sale_detail.subtotal.toLocaleString("es-CO")}</td>
-                    <td>{sale_detail.product_id.name}</td>
-                    <td>
-                      ${sale_detail.discount_product.toLocaleString("es-CO")}
-                    </td>
+                    <td>{detail.quantity}</td>
+                    <td>${detail.subtotal.toLocaleString("es-CO")}</td>
+                    <td>{detail.product_id.name}</td>
                   </tr>
                 ))}
               </tbody>
@@ -187,4 +179,4 @@ function Sales() {
   );
 }
 
-export { Sales };
+export { Purchases };

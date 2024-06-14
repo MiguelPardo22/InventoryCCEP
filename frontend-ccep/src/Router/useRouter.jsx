@@ -15,6 +15,7 @@ import { PosSystem } from "../Views/PosSystem";
 import { Sales } from "../Views/Sales";
 import { UpdateSale } from "../Components/Sales/SalesViews/UpdateSale";
 import { EdcSystem } from "../Views/EdcSystem";
+import { Purchases } from "../Views/Purchases";
 
 
 const RouteContext = React.createContext();
@@ -64,6 +65,10 @@ function RouteProvider(props) {
         {
           path: "edc",
           element: <EdcSystem />
+        },
+        {
+          path: "purchases",
+          element: <Purchases />
         }
       ]
     },
