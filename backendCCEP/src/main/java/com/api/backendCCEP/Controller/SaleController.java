@@ -123,7 +123,7 @@ public class SaleController {
 	}
 	
 	// Filtrar los detalles basado en el id de la venta
-	@GetMapping("/detailsbyid/{saleId}")
+	@GetMapping("/sales/detailsbyid/{saleId}")
 	public ApiResponse<List<Sale_Detail>> getSaleDetailsById(@PathVariable int saleId) {
 
 		ApiResponse<List<Sale_Detail>> response = new ApiResponse<>();
@@ -467,12 +467,12 @@ public class SaleController {
 			Sale saleUpdate = optionalSale.get();
 
 			// Llenar los campos de la venta
-			saleUpdate.setSale_date(new Date());
+			saleUpdate.setEdit_date(new Date());
 			saleUpdate.setTotal_sale(total);
 			saleUpdate.setDiscount(0);
 			saleUpdate.setUser_id((Integer) request.get("user_id"));
 			saleUpdate.setPaymethod_id(payment_Method);
-			saleUpdate.setState("Activo");
+			saleUpdate.setState((String) request.get("status"));
 			iSale.save(saleUpdate);
 
 			// Obtener los detalles existentes de la venta que se va a actualizar

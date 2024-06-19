@@ -7,12 +7,20 @@ class ServicePurchase {
     return axios.get(baseUrl + "/purchases?page=" + page + "&size=" + size);
   }
 
+  getPurchaseById(id) {
+    return axios.get(baseUrl +  "/purchases/" + id)
+  }
+
   getPurchaseDetailsById(purchaseId) {
-    return axios.get(baseUrl + "/detailsbyid/" + purchaseId);
+    return axios.get(baseUrl + "/purchase/detailsbyid/" + purchaseId);
   }
 
   savePurchaseWithDetails(purchase) {
     return axios.post(baseUrl + "/purchase/create", purchase);
+  }
+
+  updatePurchaseWithDetails(id, purchase) {
+    return axios.put(baseUrl +  "/purchase/update/" + id, purchase);
   }
 
   deletePurchasesAndDetails(id){

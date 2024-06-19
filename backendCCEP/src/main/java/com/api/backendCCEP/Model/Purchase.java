@@ -36,6 +36,10 @@ public class Purchase {
 	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "America/Bogota")
 	private Date purchase_date;
 
+	@Column(name = "edit_date")
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "America/Bogota")
+	private Date edit_date;
+	
 	@ManyToOne
 	@JoinColumn(name = "provider_id", referencedColumnName = "id")
 	private Supplier provider_id;
@@ -78,6 +82,14 @@ public class Purchase {
 	public void setPurchase_date(Date purchase_date) {
 		this.purchase_date = purchase_date;
 	}
+	
+	public Date getEdit_date() {
+		return edit_date;
+	}
+
+	public void setEdit_date(Date edit_date) {
+		this.edit_date = edit_date;
+	}
 
 	public Supplier getProvider_id() {
 		return provider_id;
@@ -106,12 +118,14 @@ public class Purchase {
 	public Purchase() {
 	}
 
-	public Purchase(long id, long total_purchase, long bill_number, Date purchase_date, Supplier provider_id,
-			String state, List<Purchase_Detail> purchases_Details) {
+	public Purchase(long id, long total_purchase, long bill_number, Date purchase_date, Date edit_date,
+			Supplier provider_id, String state, List<Purchase_Detail> purchases_Details) {
+		super();
 		this.id = id;
 		this.total_purchase = total_purchase;
 		this.bill_number = bill_number;
 		this.purchase_date = purchase_date;
+		this.edit_date = edit_date;
 		this.provider_id = provider_id;
 		this.state = state;
 		this.purchases_Details = purchases_Details;

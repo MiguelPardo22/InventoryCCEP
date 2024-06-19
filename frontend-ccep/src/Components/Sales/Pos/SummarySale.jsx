@@ -70,7 +70,7 @@ function SummarySale({
 
   // Función para manejar cambios en la cantidad de un producto
   const handleQuantityChange = (productId, quantity) => {
-    if (quantity >= 0) {
+    if (quantity >= 0 && quantity >= "") {
       setQuantities((prevQuantities) => ({
         ...prevQuantities,
         [productId]: quantity,
@@ -80,7 +80,7 @@ function SummarySale({
 
   // Función para manejar cambios en el descuento de un producto
   const handleDiscountChange = (productId, discount) => {
-    if (discount >= 0) {
+    if (discount >= 0 && discount >= "") {
       setDiscounts((prevDiscounts) => ({
         ...prevDiscounts,
         [productId]: discount,
@@ -90,14 +90,16 @@ function SummarySale({
 
   // Función para manejar cambios en el descuento total de la venta
   const handleDiscountTotalChange = (discount) => {
-    if (discount >= 0) {
+    if (discount >= 0 && discount >= "") {
       setDiscount(discount);
     }
   };
 
   // Funcion para manejar la cantidad en efectivo para que no sea menor al total de la venta
   const handleAmountCashChange = (amountCash) => {
-    setAmountCash(amountCash);
+    if (amountCash >= 0 && amountCash >= "") {
+      setAmountCash(amountCash);
+    }
 
     // Calcula el restante del efectivo entregado por el cliente
     if(amountCash >= total) {
@@ -124,6 +126,7 @@ function SummarySale({
     setTotal(0);
     setDiscount(0);
     setPaymethodId(0);
+    setAmountCash(0);
     setIsDiscountEnabled(false);
     onRemoveAllProducts();
   };

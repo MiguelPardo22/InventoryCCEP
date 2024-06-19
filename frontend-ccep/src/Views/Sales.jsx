@@ -101,7 +101,8 @@ function Sales() {
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Total</th>
-                <th scope="col">Fecha</th>
+                <th scope="col">Fecha de la Venta</th>
+                <th scope="col">Fecha de Edición</th>
                 <th scope="col">Descuento</th>
                 <th scope="col">Usuario</th>
                 <th scope="col">Metodo de Pago</th>
@@ -117,6 +118,7 @@ function Sales() {
                   <td>{page * size + i + 1}</td>
                   <td>${sale.total_sale.toLocaleString("es-CO")}</td>
                   <td>{sale.sale_date}</td>
+                  <td>{sale.edit_date || "No ha sido editada"}</td>
                   <td>${sale.discount.toLocaleString("es-CO")}</td>
                   <td>{sale.user_id}</td>
                   <td>{sale.paymethod_id.name}</td>

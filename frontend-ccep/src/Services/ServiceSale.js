@@ -13,7 +13,7 @@ class ServiceSale {
   }
 
   getSaleDetailById(saleId) {
-    return axios.get(baseUrl + "/detailsbyid/" + saleId);
+    return axios.get(baseUrl + "/sales/detailsbyid/" + saleId);
   }
 
   getAllPaymentsMethods() {

@@ -32,6 +32,10 @@ public class Sale {
     @Column(name = "sale_date")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "America/Bogota")
     private Date sale_date;
+    
+    @Column(name = "edit_date")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "America/Bogota")
+    private Date edit_date;
 
     @Column(name = "discount")
     private long discount;
@@ -74,7 +78,15 @@ public class Sale {
         this.sale_date = sale_date;
     }
     
-    public long getDiscount() {
+    public Date getEdit_date() {
+		return edit_date;
+	}
+
+	public void setEdit_date(Date edit_date) {
+		this.edit_date = edit_date;
+	}
+
+	public long getDiscount() {
         return discount;
     }
 
@@ -116,8 +128,21 @@ public class Sale {
 
     public Sale() {
     }
+    
+    public Sale(long id, long total_sale, Date sale_date, Date edit_date, long discount, long user_id, String state,
+			Payment_Method paymethod_id, List<Sale_Detail> sale_Details) {
+		this.id = id;
+		this.total_sale = total_sale;
+		this.sale_date = sale_date;
+		this.edit_date = edit_date;
+		this.discount = discount;
+		this.user_id = user_id;
+		this.state = state;
+		this.paymethod_id = paymethod_id;
+		this.sale_Details = sale_Details;
+	}
 
-    public Sale(long id) {
+	public Sale(long id) {
         this.id = id;
     }
 

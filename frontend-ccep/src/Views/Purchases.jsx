@@ -8,8 +8,10 @@ import { DangerButton } from "../Components/GeneralComponents/DangerButton";
 import { GeneralContext } from "../Context/GeneralContext";
 import { Modal } from "../Components/GeneralComponents/Modal";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 function Purchases() {
+  const navigate = useNavigate();
   const [purchases, setPurchases] = useState([]);
   const [detailsPurchases, setDetailsPurchases] = useState([]);
   const [page, setPage] = useState(0);
@@ -36,7 +38,6 @@ function Purchases() {
       const details = response.data.data;
 
       if (details) {
-        console.log(details);
         setOpenModal(true);
         setDetailsPurchases(details);
       }
@@ -58,7 +59,7 @@ function Purchases() {
   // Logica para eliminar las compras con los detalles
   const deletePurchases = (id) => {
     Swal.fire({
-      title: "¿Está seguro de eliminar la venta?",
+      title: "¿Está seguro de eliminar la Compra?",
       icon: "question",
       showCancelButton: true,
       confirmButtonText: '<i class="fa-solid fa-check"></i> Sí, eliminar',
@@ -101,7 +102,8 @@ function Purchases() {
                 <th scope="col">#</th>
                 <th scope="col">Total</th>
                 <th scope="col">Numero de Factura</th>
-                <th scope="col">Fecha</th>
+                <th scope="col">Fecha de la Compra</th>
+                <th scope="col">Fecha de Edición</th>
                 <th scope="col">Proveedor</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Detalles</th>
@@ -116,6 +118,7 @@ function Purchases() {
                   <td>${purchase.total_purchase.toLocaleString("es-CO")}</td>
                   <td>{purchase.bill_number}</td>
                   <td>{purchase.purchase_date}</td>
+                  <td>{purchase.edit_date || "No ha sido editada"}</td>
                   <td>{purchase.provider_id.name}</td>
                   <td>{purchase.state}</td>
                   <td>
@@ -127,7 +130,7 @@ function Purchases() {
                   <td>
                     <WarningButton
                       icon="fa-solid fa-pen-to-square"
-                      //execute={() => editProduct(product.id)}
+                      execute={() => navigate(`/dashboard/purchase-update/${purchase.id}`)}
                     />
                   </td>
                   <td>
