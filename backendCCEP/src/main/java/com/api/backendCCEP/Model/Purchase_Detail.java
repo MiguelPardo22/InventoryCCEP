@@ -1,12 +1,19 @@
 package com.api.backendCCEP.Model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -31,6 +38,10 @@ public class Purchase_Detail {
     @JoinColumn(name = "purchase_id", referencedColumnName = "id")
     private Purchase purchase_id;
 
+	@OneToMany(mappedBy = "purchasedetail_id", fetch = FetchType.LAZY)
+	@JsonBackReference(value = "purchaseDetailReference")
+	private List<Inventory> listInventory = new ArrayList<>();
+	
 	public long getId() {
 		return id;
 	}

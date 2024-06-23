@@ -57,6 +57,10 @@ public class Product {
     @OneToMany(mappedBy = "product_id", fetch = FetchType.LAZY)
     @JsonBackReference(value="purchase-detailsReference")
     private List<Purchase_Detail> purchases_Details = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "product_id", fetch = FetchType.LAZY)
+    @JsonBackReference(value="inventoryReference")
+    private List<Inventory> inventoriesList = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -146,12 +150,21 @@ public class Product {
 		this.purchases_Details = purchases_Details;
 	}
 
+	public List<Inventory> getInventoriesList() {
+		return inventoriesList;
+	}
+
+	public void setInventoriesList(List<Inventory> inventoriesList) {
+		this.inventoriesList = inventoriesList;
+	}
+
 	public Product() {
     }
 
-    public Product(long id, String name, long reference, String description, long purchase_price, long sale_price,
+	public Product(long id, String name, long reference, String description, long purchase_price, long sale_price,
 			SubCategory subcategory_id, Supplier provider_id, String state, List<Sale_Detail> sale_Details,
-			List<Purchase_Detail> purchases_Details) {
+			List<Purchase_Detail> purchases_Details, List<Inventory> inventoriesList) {
+		super();
 		this.id = id;
 		this.name = name;
 		this.reference = reference;
@@ -163,6 +176,7 @@ public class Product {
 		this.state = state;
 		this.sale_Details = sale_Details;
 		this.purchases_Details = purchases_Details;
+		this.inventoriesList = inventoriesList;
 	}
 
 	public Product(long id) {
