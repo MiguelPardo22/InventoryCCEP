@@ -4,8 +4,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.api.backendCCEP.Facade.IInventory;
 import com.api.backendCCEP.Facade.IProduct;
 import com.api.backendCCEP.Facade.ISale;
+import com.api.backendCCEP.Model.Inventory;
 import com.api.backendCCEP.Model.Payment_Method;
 import com.api.backendCCEP.Model.Product;
 import com.api.backendCCEP.Model.Sale;
@@ -37,11 +39,15 @@ public class SaleController {
 	private IProduct iProduct;
 	private ISale iSale;
 	private Payment_MethodRepository payment_MethodRepository;
+	private IInventory iInventory;
 
-	public SaleController(IProduct iProduct, ISale iSale, Payment_MethodRepository payment_MethodRepository) {
+	public SaleController(IProduct iProduct, ISale iSale,
+			Payment_MethodRepository payment_MethodRepository,
+			IInventory iInventory) {
 		this.iProduct = iProduct;
 		this.iSale = iSale;
 		this.payment_MethodRepository = payment_MethodRepository;
+		this.iInventory = iInventory; 
 	}
 
 	private boolean isNullOrEmpty(Object[] array) {
@@ -331,6 +337,13 @@ public class SaleController {
 				detail.setDiscount_product(discount_product);
 				detail.setSubtotal(subtotal);
 				iSale.saveDetails(detail);
+				
+				Inventory inventory = new Inventory();
+				
+				inventory.setProduct_id(product);
+				inventory.setSaledetail_id(detail);
+				inventory.setStock(-quantity);
+				iInventory.save(inventory);
 			}
 
 			total -= discount;

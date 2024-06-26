@@ -1,5 +1,7 @@
 package com.api.backendCCEP.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +26,7 @@ public class Inventory {
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product_id;
 	
+	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	@ManyToOne
 	@JoinColumn(name = "purchasedetail_id", referencedColumnName = "id")
 	private Purchase_Detail purchasedetail_id;

@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.api.backendCCEP.Facade.IInventory;
 import com.api.backendCCEP.Facade.IProduct;
 import com.api.backendCCEP.Facade.IPurchase;
 import com.api.backendCCEP.Facade.ISupplier;
+import com.api.backendCCEP.Model.Inventory;
 import com.api.backendCCEP.Model.Product;
 import com.api.backendCCEP.Model.Purchase;
 import com.api.backendCCEP.Model.Purchase_Detail;
@@ -35,11 +37,14 @@ public class PurchaseController {
 	private IPurchase iPurchase;
 	private IProduct iProduct;
 	private ISupplier iSupplier;
+	private IInventory iInventory;
 
-	public PurchaseController(IPurchase iPurchase, IProduct iProduct, ISupplier iSupplier) {
+	public PurchaseController(IPurchase iPurchase, IProduct iProduct, ISupplier iSupplier,
+			IInventory iInventory) {
 		this.iPurchase = iPurchase;
 		this.iProduct = iProduct;
 		this.iSupplier = iSupplier;
+		this.iInventory = iInventory;
 	}
 
 	private boolean isNullOrEmpty(Object[] array) {
@@ -296,6 +301,12 @@ public class PurchaseController {
 				purchase_Detail.setSubtotal(subtotal);
 				iPurchase.saveDetails(purchase_Detail);
 
+				Inventory inventory = new Inventory();
+				inventory.setProduct_id(product);
+				inventory.setPurchasedetail_id(purchase_Detail);
+				inventory.setStock(quantity);
+				iInventory.save(inventory);
+				
 			}
 
 			// Si el total es negativo después de aplicar el descuento total, establecerlo

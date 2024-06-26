@@ -47,6 +47,9 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
             <SideBarLink to="products" text="Productos" icon="bx bx-barcode" />
           </li>
           <li>
+            <SideBarLink to="inventories" text="Inventario" icon="bx bx-data" />
+          </li>
+          <li>
             <nav id="nav">
               <a id="a" onClick={toggleSales}>
                 <i className="bx bx-cart"></i>
