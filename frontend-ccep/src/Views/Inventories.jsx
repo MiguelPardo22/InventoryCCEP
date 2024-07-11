@@ -16,7 +16,7 @@ function Inventories () {
       setInventories(response.data.data.content);
       setTotalPages(response.data.data.totalPages);
     }).catch((error) => {
-      console.log(error );
+      console.log(error);
     })
   }
 
@@ -45,7 +45,7 @@ function Inventories () {
               </tr>
             </thead>
             <tbody>
-              {inventories.map((inventory, i) => (
+              {inventories.map((inventory) => (
                 <tr key={inventory.id}>
                   <td>{inventory.product_id.name}</td>
                   <td>{inventory.stock}</td>

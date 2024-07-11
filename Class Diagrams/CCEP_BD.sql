@@ -47,6 +47,7 @@ create table sales(
 id bigint auto_increment,
 total_sale bigint not null,
 sale_date date not null,
+edit_date date,
 discount bigint not null,
 user_id bigint not null,
 paymethod_id bigint not null,
@@ -71,11 +72,11 @@ id bigint auto_increment,
 total_purchase bigint not null,
 bill_number bigint not null,
 purchase_date date not null,
+edit_date date,
 provider_id bigint not null,
 state varchar(10),
 primary key(id),
 foreign key(provider_id) references suppliers(id));
-
 
 create table purchases_details(
 id bigint auto_increment,
@@ -96,3 +97,31 @@ purchasedetail_id bigint,
 primary key(id),
 foreign key(purchasedetail_id) references purchases_details(id),
 foreign key(saledetail_id) references sales_details(id));
+
+create table roles(
+id int auto_increment,
+name_role varchar(100),
+primary key(id));
+
+create table persons(
+id bigint auto_increment,
+first_name varchar(255),
+second_name varchar(255),
+first_last_name varchar(255),
+second_last_name varchar(255),
+email varchar(255),
+phone bigint,
+identification bigint,
+type_identification varchar(255),
+primary key(id));
+
+create table users(
+id bigint auto_increment,
+email varchar(255),
+password_encrypted varchar(255),
+role_id int,
+person_id bigint,
+state varchar(10),
+primary key(id),
+foreign key(role_id) references roles(id),
+foreign key(person_id) references persons(id));
