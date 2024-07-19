@@ -38,9 +38,11 @@ function NavBar() {
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">
-                Realizar Compra
-              </a>
+              <div class="nav-link">
+                <NavLink to="edc">
+                  Realizar Compra
+                </NavLink>
+              </div>
             </li>
             <li class="nav-item">
               <a class="nav-link disabled">Cerrar Sesion</a>
