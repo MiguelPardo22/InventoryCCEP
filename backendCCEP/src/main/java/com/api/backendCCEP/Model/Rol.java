@@ -41,5 +41,10 @@ public class Rol {
 		this.id = id;
 		this.name_role = name_role;
 	}
+
+	@Override
+	public String toString() {
+		return name_role;
+	}
 	
 }

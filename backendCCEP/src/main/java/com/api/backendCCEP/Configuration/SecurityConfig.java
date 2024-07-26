@@ -4,11 +4,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
-
 	
 	//Configuracion de Spring Security
 	@Bean
@@ -18,8 +19,10 @@ public class SecurityConfig {
 		.csrf(csrf -> csrf.disable())
 		.cors(Customizer.withDefaults())
 	    .authorizeHttpRequests((authorize) -> authorize
-	    	.requestMatchers("/admin/**").permitAll()
-	    	.requestMatchers("/vendor/**").permitAll()
+	    	.requestMatchers("/admin/productnotpaginated").hasAnyAuthority("Administrador", "Vendedor")
+	    	.requestMatchers("/admin/products/search").hasAnyAuthority("Administrador", "Vendedor")
+	    	.requestMatchers("/vendor/**").hasAnyAuthority("Administrador", "Vendedor")
+	    	.requestMatchers("/admin/**").hasAuthority("Administrador")
 	        .anyRequest()
 	        .authenticated()
 	    )
@@ -27,6 +30,11 @@ public class SecurityConfig {
     
 		
 		return http.build();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 	
 }

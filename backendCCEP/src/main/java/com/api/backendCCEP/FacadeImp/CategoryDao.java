@@ -10,7 +10,9 @@ import com.api.backendCCEP.Repository.CategoryRepository;
 
 @Service
 public class CategoryDao implements ICategory {
-
+    //Nota futura, para cuando se haya terminado el login cambiar todos los dao's
+	// a services dado que dao es una terminologia diferente a como se esta usando
+	
 	// Instancias
 	private CategoryRepository categoryRepository;
 
