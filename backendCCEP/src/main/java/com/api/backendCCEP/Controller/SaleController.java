@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.api.backendCCEP.Facade.IInventory;
+import com.api.backendCCEP.Facade.IPaymentMethod;
 import com.api.backendCCEP.Facade.IProduct;
 import com.api.backendCCEP.Facade.ISale;
 import com.api.backendCCEP.Model.Inventory;
@@ -12,7 +13,6 @@ import com.api.backendCCEP.Model.Payment_Method;
 import com.api.backendCCEP.Model.Product;
 import com.api.backendCCEP.Model.Sale;
 import com.api.backendCCEP.Model.Sale_Detail;
-import com.api.backendCCEP.Repository.Payment_MethodRepository;
 import com.api.backendCCEP.Util.ApiResponse;
 
 import java.util.ArrayList;
@@ -24,6 +24,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,15 +39,14 @@ public class SaleController {
 	// Instacias
 	private IProduct iProduct;
 	private ISale iSale;
-	private Payment_MethodRepository payment_MethodRepository;
+	private IPaymentMethod iPaymentMethod;
 	private IInventory iInventory;
 
 	public SaleController(IProduct iProduct, ISale iSale,
-			Payment_MethodRepository payment_MethodRepository,
-			IInventory iInventory) {
+			IPaymentMethod iPaymentMethod, IInventory iInventory) {
 		this.iProduct = iProduct;
 		this.iSale = iSale;
-		this.payment_MethodRepository = payment_MethodRepository;
+		this.iPaymentMethod = iPaymentMethod;
 		this.iInventory = iInventory; 
 	}
 
@@ -68,6 +68,7 @@ public class SaleController {
 
 	// Listar Ventas
 	@GetMapping({ "/sales" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Page<Sale>> getSalesListPaginated(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int size) {
 
@@ -97,6 +98,7 @@ public class SaleController {
 
     // Obtener las ventas registradas por el id
 	@GetMapping({ "/sales/{id}" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Sale> getSalesById(@PathVariable int id){
 		
 		ApiResponse<Sale> response = new ApiResponse<>();
@@ -130,6 +132,7 @@ public class SaleController {
 	
 	// Filtrar los detalles basado en el id de la venta
 	@GetMapping("/sales/detailsbyid/{saleId}")
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<List<Sale_Detail>> getSaleDetailsById(@PathVariable int saleId) {
 
 		ApiResponse<List<Sale_Detail>> response = new ApiResponse<>();
@@ -167,12 +170,13 @@ public class SaleController {
 
 	// Listar los metodos de pago
 	@GetMapping("/paymentmethod")
+	@PreAuthorize("hasAnyRole('Administrador', 'Vendedor')")
 	public ApiResponse<List<Payment_Method>> getPaymentsMethods() {
 
 		ApiResponse<List<Payment_Method>> response = new ApiResponse<>();
 
 		try {
-			List<Payment_Method> payment_Methods = payment_MethodRepository.findAll();
+			List<Payment_Method> payment_Methods = iPaymentMethod.allPaymentMethods();
 
 			response.setSuccess(true);
 			response.setMessage("Consulta exitosa");
@@ -193,6 +197,7 @@ public class SaleController {
 
 	// Registrar Ventas
 	@PostMapping("/sales/create")
+	@PreAuthorize("hasAnyRole('Administrador', 'Vendedor')")
 	public ApiResponse<Sale> saveSaleWithDetails(@RequestBody Map<String, Object> request) {
 
 		ApiResponse<Sale> response = new ApiResponse<>();
@@ -213,8 +218,7 @@ public class SaleController {
 			}
 
 			// Cargar completamente el metodo de pago antes de asignarlo a la venta
-			Payment_Method payment_Method = payment_MethodRepository.findById((Integer) request.get("paymethod_id"))
-					.orElse(null);
+			Payment_Method payment_Method = iPaymentMethod.findById((Integer) request.get("paymethod_id"));
 			if (payment_Method == null) {
 				response.setSuccess(false);
 				response.setMessage("El metodo de pago no existe");
@@ -373,6 +377,7 @@ public class SaleController {
 
 	// Actualizar Ventas
 	@PutMapping("/sales/update/{id}")
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Sale> updateSaleWithDetails(@PathVariable("id") int id,
 			@RequestBody Map<String, Object> request) {
 
@@ -404,8 +409,7 @@ public class SaleController {
 			}
 
 			// Cargar completamente el metodo de pago antes de asignarlo a la venta
-			Payment_Method payment_Method = payment_MethodRepository.findById((Integer) request.get("paymethod_id"))
-					.orElse(null);
+			Payment_Method payment_Method = iPaymentMethod.findById((Integer) request.get("paymethod_id"));
 			if (payment_Method == null) {
 				response.setSuccess(false);
 				response.setMessage("El metodo de pago no existe");
@@ -613,6 +617,7 @@ public class SaleController {
 
 	// Eliminar Ventas con los detalles
 	@DeleteMapping("/sales/delete/{id}")
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Sale> deleteSalesWithDetails(@PathVariable long id) {
 
 		ApiResponse<Sale> response = new ApiResponse<>();

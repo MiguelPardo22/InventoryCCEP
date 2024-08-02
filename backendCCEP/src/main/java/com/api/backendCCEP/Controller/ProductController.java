@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,30 +26,27 @@ import com.api.backendCCEP.Model.Product;
 import com.api.backendCCEP.Model.Sale_Detail;
 import com.api.backendCCEP.Model.SubCategory;
 import com.api.backendCCEP.Model.Supplier;
-import com.api.backendCCEP.Repository.ProductRepository;
 import com.api.backendCCEP.Util.ApiResponse;
 
 @RestController
 @RequestMapping({ "/admin" })
 public class ProductController {
 
-	// Instacios
+	// Instacias
 	private IProduct iProduct;
-	private ProductRepository productRepository;
 	private ISubCategory iSubCategory;
 	private ISupplier iSupplier;
 
-	public ProductController(IProduct iProduct, ProductRepository productRepository, ISubCategory iSubCategory,
+	public ProductController(IProduct iProduct, ISubCategory iSubCategory,
 			ISupplier iSupplier) {
 		this.iProduct = iProduct;
-		this.productRepository = productRepository;
 		this.iSubCategory = iSubCategory;
 		this.iSupplier = iSupplier;
 	}
 
 	// Verificar si ya hay un producto registrado con la misma informacion
 	public boolean verifyExistingProduct(Object[] array) {
-		List<Product> existingProducts = productRepository.findAll();
+		List<Product> existingProducts = iProduct.allProducts();
 
 		boolean productExists = existingProducts.stream().anyMatch(existingProduct -> {
 			for (Object field : array) {
@@ -66,7 +64,7 @@ public class ProductController {
 
 	// Verificar si ya existe un producto registrado excluyendo el actual
 	public boolean verifyExistingProductById(long id, Object[] array) {
-		List<Product> existingProducts = productRepository.findAll();
+		List<Product> existingProducts = iProduct.allProducts();
 
 		boolean productExists = existingProducts.stream().anyMatch(existingProduct -> {
 			for (Object field : array) {
@@ -102,6 +100,7 @@ public class ProductController {
 
 	// Listar productos con paginacion
 	@GetMapping({ "/products" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Page<Product>> getProductLisPaginated(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int size) {
 
@@ -129,12 +128,13 @@ public class ProductController {
 
 	// Listar productos sin paginacion
 	@GetMapping({ "/productnotpaginated" })
+	@PreAuthorize("hasAnyRole('Administrador', 'Vendedor')")
 	public ApiResponse<List<Product>> getProductListNotPaginated() {
 
 		ApiResponse<List<Product>> response = new ApiResponse<>();
 
 		try {
-			List<Product> products = productRepository.findAll();
+			List<Product> products = iProduct.allProducts();
 
 			response.setSuccess(true);
 			response.setMessage("Consulta exitosa");
@@ -155,6 +155,7 @@ public class ProductController {
 
 	// Creacion de nuevos Productos
 	@PostMapping({ "/products/create" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Product> createProducts(@RequestBody Product product) {
 
 		ApiResponse<Product> response = new ApiResponse<>();
@@ -232,6 +233,7 @@ public class ProductController {
 
 	// Encontrar el producto por id
 	@GetMapping({ "/products/{id}" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Product> findProduct(@PathVariable Long id) {
 
 		ApiResponse<Product> response = new ApiResponse<>();
@@ -264,6 +266,7 @@ public class ProductController {
 
 	// Actualizar Productos
 	@PutMapping("/products/update/{id}")
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Product> updateProduct(@PathVariable long id, @RequestBody Product updatedProduct) {
 		ApiResponse<Product> response = new ApiResponse<>();
 
@@ -340,6 +343,7 @@ public class ProductController {
 
 	// Eliminar al producto encontrado por el id
 	@DeleteMapping("/products/delete/{id}")
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Product> deleteProduct(@PathVariable Long id) {
 
 		ApiResponse<Product> response = new ApiResponse<>();
@@ -384,6 +388,7 @@ public class ProductController {
 
 	// Filtrar producto por Referencia o nombre(Ventas)
 	@PostMapping("/products/search")
+	@PreAuthorize("hasAnyRole('Administrador', 'Vendedor')")
 	public ApiResponse<List<Product>> searchProductByReferenceOrName(@RequestBody Map<String, Object> request) {
 
 		ApiResponse<List<Product>> response = new ApiResponse<>();
@@ -404,7 +409,7 @@ public class ProductController {
 			String value = reference != null ? reference : name;
 
 			// Realizar la consulta basada en el campo proporcionado
-			List<Product> products = productRepository.searchProductByKeywordOrReference(value);
+			List<Product> products = iProduct.searchProductByReferenceOrName(value);
 
 			if (products.isEmpty()) {
 				response.setSuccess(false);
@@ -429,6 +434,7 @@ public class ProductController {
 
 	// Filtrar los productos por el proveedor(Compras)
 	@GetMapping("/products/filter-product-provider/{provider_id}")
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<List<Product>> searchProductByReferenceOrName(@PathVariable Long provider_id) {
 		
 		ApiResponse<List<Product>> response = new ApiResponse<>();

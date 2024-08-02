@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.backendCCEP.Facade.ICategory;
 import com.api.backendCCEP.Model.Category;
 import com.api.backendCCEP.Model.SubCategory;
-import com.api.backendCCEP.Repository.CategoryRepository;
 import com.api.backendCCEP.Util.ApiResponse;
 
 @RestController
@@ -28,16 +28,14 @@ public class CategoryController {
 
 	// Instancias
 	private ICategory icategory;
-	private CategoryRepository categoryRepository;
 
-	public CategoryController(ICategory icategory, CategoryRepository categoryRepository) {
+	public CategoryController(ICategory icategory) {
 		this.icategory = icategory;
-		this.categoryRepository = categoryRepository;
 	}
 
 	// Verificar si ya existe una categoria registrada
 	public boolean verifyExistingCategories(Category category) {
-		List<Category> existingCategories = categoryRepository.findAll();
+		List<Category> existingCategories = icategory.allCategories();
 		boolean categoryExists = existingCategories.stream()
 				.anyMatch(existingCategory -> existingCategory.getName().equals(category.getName()));
 		return categoryExists;
@@ -45,7 +43,7 @@ public class CategoryController {
 
 	// Verificar si ya existe una categoria registrada excluyendo la actual
 	public boolean verifyExistingCategoriesById(long id, Category category) {
-		List<Category> existingCategories = categoryRepository.findAll();
+		List<Category> existingCategories = icategory.allCategories();
 		boolean categoryExists = existingCategories.stream()
 				.anyMatch(existingCategory -> existingCategory.getName().equals(category.getName())
 						&& !(existingCategory.getId() == id));
@@ -59,6 +57,7 @@ public class CategoryController {
 
 	// Listar categorias con paginacion
 	@GetMapping({ "/categories" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Page<Category>> getCategoriesList(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "3") int size) {
 
@@ -88,12 +87,13 @@ public class CategoryController {
 
 	// Listar categorias sin paginacion
 	@GetMapping({ "/categoriesnotpaginated" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<List<Category>> getCategoriesListNotPaginated() {
 
 		ApiResponse<List<Category>> response = new ApiResponse<>();
 
 		try {
-			List<Category> categories = categoryRepository.findAll();
+			List<Category> categories = icategory.allCategories();
 
 			response.setSuccess(true);
 			response.setMessage("Consulta exitosa");
@@ -114,6 +114,7 @@ public class CategoryController {
 
 	// Creacion de nuevas Categorias
 	@PostMapping({ "/categories/create" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Category> createCategories(@RequestBody Category category) {
 
 		ApiResponse<Category> response = new ApiResponse<>();
@@ -153,6 +154,7 @@ public class CategoryController {
 
 	// Encontrar la categoria por id
 	@GetMapping({ "/categories/{id}" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Category> findCategory(@PathVariable Long id) {
 
 		ApiResponse<Category> response = new ApiResponse<>();
@@ -185,6 +187,7 @@ public class CategoryController {
 
 	// Actualizar Categorias
 	@PutMapping("/categories/update/{id}")
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Category> updateCategory(@PathVariable long id, @RequestBody Category updatedCategory) {
 		ApiResponse<Category> response = new ApiResponse<>();
 
@@ -233,6 +236,7 @@ public class CategoryController {
 	}
 
 	@DeleteMapping("/categories/delete/{id}")
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<String> deleteCategory(@PathVariable Long id) {
 
 		ApiResponse<String> response = new ApiResponse<>();

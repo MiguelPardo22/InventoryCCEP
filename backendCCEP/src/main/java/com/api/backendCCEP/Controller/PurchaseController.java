@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,6 +66,7 @@ public class PurchaseController {
 
 	// Listar Compras
 	@GetMapping({ "/purchases" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Page<Purchase>> getPurchaseListPaginated(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "5") int size) {
 
@@ -95,6 +97,7 @@ public class PurchaseController {
 
 	// Obtener la compra por el id
 	@GetMapping({ "/purchases/{id}" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Purchase> getPurchaseById(@PathVariable int id) {
 
 		ApiResponse<Purchase> response = new ApiResponse<>();
@@ -131,6 +134,7 @@ public class PurchaseController {
 
 	// Filtrar los detalles basado en el id de la compra
 	@GetMapping("/purchase/detailsbyid/{purchaseId}")
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<List<Purchase_Detail>> getPurchaseDetailsById(@PathVariable int purchaseId) {
 
 		ApiResponse<List<Purchase_Detail>> response = new ApiResponse<>();
@@ -168,6 +172,7 @@ public class PurchaseController {
 
 	// Registrar Compras
 	@PostMapping({ "/purchase/create" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Purchase> savePurchaseWithDetails(@RequestBody Map<String, Object> request) {
 
 		ApiResponse<Purchase> response = new ApiResponse<>();
@@ -333,6 +338,7 @@ public class PurchaseController {
 
 	// Actualizar la compra con los detalles
 	@PutMapping("/purchase/update/{id}")
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Purchase> updatePurchasesWithDetails(@PathVariable int id,
 			@RequestBody Map<String, Object> request) {
 
@@ -561,6 +567,7 @@ public class PurchaseController {
 
 	// Eliminar la compra con los detalees
 	@DeleteMapping({ "/purchase/delete/{id}" })
+	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<Purchase> deletePurchasesWithDetails(@PathVariable long id) {
 
 		ApiResponse<Purchase> response = new ApiResponse<>();

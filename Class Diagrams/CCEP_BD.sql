@@ -119,9 +119,13 @@ create table users(
 id bigint auto_increment,
 email varchar(255),
 password_encrypted varchar(255),
-role_id int,
 person_id bigint,
 state varchar(10),
 primary key(id),
-foreign key(role_id) references roles(id),
 foreign key(person_id) references persons(id));
+
+create table users_roles(
+user_id bigint,
+rol_id int,
+foreign key(user_id) references users(id),
+foreign key(rol_id) references roles(id));

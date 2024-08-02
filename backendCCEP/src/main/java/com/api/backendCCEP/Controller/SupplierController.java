@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.backendCCEP.Facade.ISupplier;
 import com.api.backendCCEP.Model.Product;
 import com.api.backendCCEP.Model.Supplier;
-import com.api.backendCCEP.Repository.SupplierRepository;
 import com.api.backendCCEP.Util.ApiResponse;
 
 import java.util.List;
@@ -14,6 +13,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,16 +29,15 @@ public class SupplierController {
 
     // Instacias
     private ISupplier iSupplier;
-    private SupplierRepository supplierRepository;
 
-    public SupplierController(ISupplier iSupplier, SupplierRepository supplierRepository) {
+    public SupplierController(ISupplier iSupplier) {
         this.iSupplier = iSupplier;
-        this.supplierRepository = supplierRepository;
+        
     }
 
     // Verificar si ya hay un proveedor registrado con informacion
     public boolean verifyExistingSupplier(Object[] array) {
-        List<Supplier> existingSuppliers = supplierRepository.findAll();
+        List<Supplier> existingSuppliers = iSupplier.allSuppliers();
 
         boolean supplierExists = existingSuppliers.stream().anyMatch(existingSupplier -> {
             for (Object field : array) {
@@ -59,7 +58,7 @@ public class SupplierController {
 
     // Verificar si ya existe un proveedor registrado excluyendo el actual
     public boolean verifyExistingSuppliersById(long id, Object[] array) {
-        List<Supplier> existingSuppliers = supplierRepository.findAll();
+        List<Supplier> existingSuppliers = iSupplier.allSuppliers();
 
         boolean supplierExists = existingSuppliers.stream().anyMatch(existingSupplier -> {
             for (Object field : array) {
@@ -108,6 +107,7 @@ public class SupplierController {
 
     // Listar Proveedores con paginacion
     @GetMapping({ "/suppliers" })
+    @PreAuthorize("hasRole('Administrador')")
     public ApiResponse<Page<Supplier>> getSuppliersLisPaginated(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
 
@@ -136,12 +136,13 @@ public class SupplierController {
 
     // Listar Proveedores sin paginacion
     @GetMapping({ "/suppliersnotpaginated" })
+    @PreAuthorize("hasRole('Administrador')")
     public ApiResponse<List<Supplier>> getSuppliersListNotPaginated() {
 
         ApiResponse<List<Supplier>> response = new ApiResponse<>();
 
         try {
-            List<Supplier> suppliers = supplierRepository.findAll();
+            List<Supplier> suppliers = iSupplier.allSuppliers();
 
             response.setSuccess(true);
             response.setMessage("Consulta exitosa");
@@ -162,6 +163,7 @@ public class SupplierController {
 
     // Creacion de nuevos Proveedores
     @PostMapping({ "/suppliers/create" })
+    @PreAuthorize("hasRole('Administrador')")
     public ApiResponse<Supplier> createSuppliers(@RequestBody Supplier supplier) {
 
         ApiResponse<Supplier> response = new ApiResponse<>();
@@ -209,6 +211,7 @@ public class SupplierController {
 
     // Encontrar el proveedor por id
     @GetMapping({ "/suppliers/{id}" })
+    @PreAuthorize("hasRole('Administrador')")
     public ApiResponse<Supplier> findSupplier(@PathVariable Long id) {
 
         ApiResponse<Supplier> response = new ApiResponse<>();
@@ -241,6 +244,7 @@ public class SupplierController {
 
     // Actualizos Proveedores
     @PutMapping("/suppliers/update/{id}")
+    @PreAuthorize("hasRole('Administrador')")
     public ApiResponse<Supplier> updateSupplier(@PathVariable long id, @RequestBody Supplier updatedSupplier) {
         ApiResponse<Supplier> response = new ApiResponse<>();
 
@@ -308,6 +312,7 @@ public class SupplierController {
 
     // Eliminar Proveedores
     @DeleteMapping("/suppliers/delete/{id}")
+    @PreAuthorize("hasRole('Administrador')")
     public ApiResponse<String> deleteSupplier(@PathVariable Long id) {
 
         ApiResponse<String> response = new ApiResponse<>();

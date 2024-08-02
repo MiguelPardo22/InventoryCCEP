@@ -2,6 +2,7 @@ package com.api.backendCCEP.FacadeImp;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 import com.api.backendCCEP.Facade.IInventory;
@@ -18,11 +19,13 @@ public class InventoryDao implements IInventory{
 	}
 
 	@Override
+	@Secured({"ROLE_Administrador", "ROLE_Vendedor"})
 	public void save(Inventory inventory) {
 		inventoryRepository.save(inventory);
 	}
 
 	@Override
+	@Secured("ROLE_Administrador")
 	public Page<Inventory> stock(Pageable pageable) {
 		return inventoryRepository.stock(pageable);
 	}
