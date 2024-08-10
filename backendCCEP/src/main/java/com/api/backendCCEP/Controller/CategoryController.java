@@ -33,6 +33,7 @@ public class CategoryController {
 		this.icategory = icategory;
 	}
 
+
 	// Verificar si ya existe una categoria registrada
 	public boolean verifyExistingCategories(Category category) {
 		List<Category> existingCategories = icategory.allCategories();
@@ -72,6 +73,7 @@ public class CategoryController {
 			response.setMessage("Consulta exitosa");
 			response.setData(categoriesPage);
 			response.setCode(200);
+			
 
 		} catch (Exception e) {
 

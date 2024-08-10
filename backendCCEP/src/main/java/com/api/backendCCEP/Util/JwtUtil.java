@@ -14,7 +14,7 @@ public class JwtUtil {
 
 	private final Algorithm ALGORITHM;
 	
-	public JwtUtil(@Value("${jwt.secret.key}") String secretKey) {
+	public JwtUtil(@Value("${jwt.key.secret}") String secretKey) {
 		this.ALGORITHM = Algorithm.HMAC256(secretKey);
 	}
 	
@@ -26,5 +26,5 @@ public class JwtUtil {
 				.withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toHours(6)))
 				.sign(ALGORITHM);
 	}
-	
+
 }
