@@ -1,0 +1,65 @@
+package com.api.backendCCEP.Configuration;
+
+import java.io.IOException;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.api.backendCCEP.Util.JwtUtil;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@Component
+public class JWTFilter extends OncePerRequestFilter {
+
+	private final JwtUtil jwtUtil;
+	private final UserDetailsService detailsService;
+
+	public JWTFilter(JwtUtil jwtUtil, UserDetailsService detailsService) {
+		this.jwtUtil = jwtUtil;
+		this.detailsService = detailsService;
+	}
+
+	// Creacion de filtros propios
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
+		
+		// Validar que el header "Authorization" sea valido
+		String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+		
+		if(authHeader == null || authHeader.isEmpty() || authHeader.startsWith("Bearer")) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+		
+		//Validar que el jwt sea valido
+		String jwt = authHeader.replace("Bearer ", "").trim();
+		
+		if(!this.jwtUtil.isValid(jwt)) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+		
+		//Cargar el usuario del UserDetailsService
+		String email = this.jwtUtil.getUsername(jwt);
+		
+		User user = (User) this.detailsService.loadUserByUsername(email);
+		
+		//Cargar el usuario en el contexto de seguridad
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getUsername(),
+				user.getPassword(), user.getAuthorities());
+		
+		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+		
+	}
+
+}

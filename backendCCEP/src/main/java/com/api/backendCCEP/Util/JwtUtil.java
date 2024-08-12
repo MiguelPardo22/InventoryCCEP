@@ -13,18 +13,37 @@ import com.auth0.jwt.algorithms.Algorithm;
 public class JwtUtil {
 
 	private final Algorithm ALGORITHM;
-	
+
 	public JwtUtil(@Value("${jwt.key.secret}") String secretKey) {
 		this.ALGORITHM = Algorithm.HMAC256(secretKey);
 	}
-	
+
 	public String createJwt(String username) {
-		return JWT.create()
-				.withSubject(username)
-				.withIssuer("mpccepInventoryñ")
-				.withIssuedAt(new Date())
-				.withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toHours(6)))
-				.sign(ALGORITHM);
+		return JWT.create().withSubject(username).withIssuer("mpccepInventoryñ").withIssuedAt(new Date())
+				.withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toHours(6))).sign(ALGORITHM);
+	}
+
+	// Validar si el JWT es valido
+	public boolean isValid(String jwt) {
+
+		try {
+			JWT.require(ALGORITHM).build().verify(jwt);
+			return true;
+		} catch (Exception e) {
+			// TODO: handle exception
+			return false;
+		}
+
+	}
+	
+	//Obtener el usuario al que se le asigno el JWT
+	public String getUsername(String jwt) {
+		
+		return JWT.require(ALGORITHM)
+				  .build()
+				  .verify(jwt)
+				  .getSubject();
+		
 	}
 
 }
