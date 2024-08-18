@@ -14,53 +14,59 @@ import com.api.backendCCEP.Util.ApiResponse;
 import com.api.backendCCEP.Util.JwtUtil;
 
 @RestController
-@RequestMapping({"/auth"})
+@RequestMapping({ "/auth" })
 public class AuthenticationController {
 
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
-	
+
 	public AuthenticationController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
 		this.authenticationManager = authenticationManager;
 		this.jwtUtil = jwtUtil;
 	}
 
-	//Inicio de Sesion
+	// Inicio de Sesion
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<String>> login(@RequestBody LoginDto loginDto) {
-		
+
 		ApiResponse<String> response = new ApiResponse<>();
-		
+
 		try {
-			
-			UsernamePasswordAuthenticationToken login = new 
-					UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
-			
+
+			UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginDto.getEmail(),
+					loginDto.getPassword());
+
 			Authentication authentication = this.authenticationManager.authenticate(login);
-			
-			System.out.println("El usuario esta autenticado: " + authentication.isAuthenticated());
-			System.out.println("Usuario: " + authentication.getPrincipal().toString());
-			
-			String jwt = jwtUtil.createJwt(loginDto.getEmail());
-			
-			response.setSuccess(true);
-			response.setMessage("Inicio de Sesion Exitoso");
-			response.setData(null);
-			response.setCode(200);
-			
-			return ResponseEntity.ok().header("Authorization", jwt).body(response);
-			
+
+			if (authentication.isAuthenticated()) {
+				String jwt = jwtUtil.createJwt(loginDto.getEmail());
+
+				response.setSuccess(true);
+				response.setMessage("Inicio de Sesion Exitoso");
+				response.setData(null);
+				response.setCode(200);
+
+				return ResponseEntity.ok().header("Authorization", jwt).body(response);
+			} else {
+				response.setSuccess(false);
+				response.setMessage("Inicio de sesion Fallido");
+				response.setData(null);
+				response.setCode(401);
+				
+				return ResponseEntity.badRequest().body(response);
+			}
+
 		} catch (Exception e) {
-			
+
 			response.setSuccess(false);
 			response.setMessage("Inicio de Sesion Fallido: " + e);
 			response.setData(null);
 			response.setCode(500);
-			
+
 			return ResponseEntity.internalServerError().body(response);
-			
+
 		}
-		
+
 	}
-	
+
 }
