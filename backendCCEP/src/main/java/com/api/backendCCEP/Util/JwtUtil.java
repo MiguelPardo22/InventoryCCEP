@@ -21,7 +21,7 @@ public class JwtUtil {
 
 	public String createJwt(String username) {
 		return JWT.create().withSubject(username).withIssuer("mpccepInventoryñ").withIssuedAt(new Date())
-				.withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1))).sign(ALGORITHM);
+				.withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(6))).sign(ALGORITHM);
 	}
 
 	// Validar si el JWT es valido

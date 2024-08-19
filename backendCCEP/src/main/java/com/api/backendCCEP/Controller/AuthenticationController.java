@@ -59,7 +59,7 @@ public class AuthenticationController {
 		} catch (Exception e) {
 
 			response.setSuccess(false);
-			response.setMessage("Inicio de Sesion Fallido: " + e);
+			response.setMessage("Inicio de Sesion Fallido");
 			response.setData(null);
 			response.setCode(500);
 
