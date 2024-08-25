@@ -1,6 +1,8 @@
 package com.api.backendCCEP.FacadeImp;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.api.backendCCEP.Util.JwtUtil;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -49,6 +53,20 @@ public class JWTFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
+		
+		//Decodificar el token recibido
+		DecodedJWT decodedJWT = JWT.decode(jwt);
+		Date issuedAt = decodedJWT.getIssuedAt();
+        Date now = new Date();
+        
+        // Verificar si el token fue emitido en las últimas 4 horas
+        long diffInMillis = now.getTime() - issuedAt.getTime();
+        long sixHoursInMillis = TimeUnit.HOURS.toMillis(4);
+        
+        if (diffInMillis > sixHoursInMillis) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 		
 		//Cargar el usuario del UserDetailsService
 		String email = this.jwtUtil.getUsername(jwt);
