@@ -4,7 +4,7 @@ import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 
 //Views
-import { Index } from "../Views/Index";
+import { Login } from "../Views/Login";
 import { DashBoard } from "../Views/DashBoard";
 import { StartPage } from "../Views/StarPage";
 import { Categories } from "../Views/Categories";
@@ -26,7 +26,7 @@ function RouteProvider(props) {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Index />,
+      element: <Login />,
     },
     {
       path: "/dashboard",
