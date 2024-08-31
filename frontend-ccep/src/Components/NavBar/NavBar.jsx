@@ -32,20 +32,18 @@ function NavBar() {
             </li>
             <li class="nav-item">
               <div class="nav-link">
-                <NavLink to="pos">
-                  Realizar Venta
-                </NavLink>
+                <NavLink to="pos">Realizar Venta</NavLink>
               </div>
             </li>
             <li class="nav-item">
               <div class="nav-link">
-                <NavLink to="edc">
-                  Realizar Compra
-                </NavLink>
+                <NavLink to="edc">Realizar Compra</NavLink>
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link disabled">Cerrar Sesion</a>
+              <div class="nav-link">
+                <NavLink to="/">Cerrar Sesion</NavLink>
+              </div>
             </li>
           </ul>
         </div>
