@@ -11,7 +11,7 @@ import com.api.backendCCEP.Model.Inventory;
 @Repository
 public interface InventoryRepository extends JpaRepository<Inventory, Long>{
 
-	@Query(value = "SELECT inven.id, sum(inven.stock) AS stock, inven.purchasedetail_id, inven.saledetail_id, inven.product_id from inventories inven GROUP BY product_id ORDER BY stock DESC", nativeQuery = true)
+	@Query(value = "SELECT inven.id, sum(inven.stock) AS stock, inven.product_id FROM inventories inven GROUP BY product_id ORDER BY stock DESC", nativeQuery = true)
 	Page<Inventory> stock(Pageable pageable);
 	
 }

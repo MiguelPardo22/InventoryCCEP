@@ -2,7 +2,6 @@ import axios from "axios";
 
 const baseUrl = "http://localhost:8080/admin";
 
-
 class ServiceCategory {
   getCategoriesPagination(page, size) {
     return axios.get(baseUrl + "/categories" + `?page=${page}&size=${size}`);
