@@ -18,7 +18,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	Page<Product> findAllProductsWithPagination(Pageable pageable);
 
 	// Filtrar el producto por referencia o por nombre
-	@Query(value = "SELECT * FROM products WHERE LOWER(reference) LIKE LOWER(CONCAT('%', :value, '%')) OR LOWER(name) LIKE LOWER(CONCAT('%', :value, '%'));", nativeQuery = true)
+	@Query(value = "SELECT * \r\n"
+	        + "FROM products \r\n"
+	        + "WHERE CAST(reference AS TEXT) ILIKE CONCAT('%', :value, '%') \r\n"
+	        + "   OR name ILIKE CONCAT('%', :value, '%');\r\n", 
+	        nativeQuery = true)
 	List<Product> searchProductByKeywordOrReference(@Param("value") String value);
 
 	// Filtrar los productos por el proveedor

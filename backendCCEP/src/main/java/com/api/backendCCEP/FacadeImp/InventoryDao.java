@@ -25,9 +25,9 @@ public class InventoryDao implements IInventory{
 	}
 
 	@Override
-	@Secured("ROLE_Administrador")
+	@Secured({"ROLE_Administrador"})
 	public Page<Inventory> stock(Pageable pageable) {
-		return inventoryRepository.stock(pageable);
+		return this.inventoryRepository.stock(pageable);
 	}
 	
 }

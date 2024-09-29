@@ -18,7 +18,7 @@ import { EdcSystem } from "../Views/EdcSystem";
 import { Purchases } from "../Views/Purchases";
 import { UpdatePurchase } from "../Components/Purchases/UpdatePurchase";
 import { Inventories } from "../Views/Inventories";
-
+import { ProtectedRoute } from "../Components/Security/ProtectedRoute";
 
 const RouteContext = React.createContext();
 
@@ -26,7 +26,12 @@ function RouteProvider(props) {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Login />,
+      element: (
+        <ProtectedRoute
+          element={<Login />}
+          requiresAuth={false}
+        />
+      ),
     },
     {
       path: "/dashboard",
@@ -34,53 +39,87 @@ function RouteProvider(props) {
       children: [
         {
           path: "index",
-          element: <StartPage />
+          element: (
+            <ProtectedRoute element={<StartPage />} requiresAuth={true} />
+          ),
         },
         {
           path: "categories",
-          element: <Categories />
+          element: (
+            <ProtectedRoute element={<Categories />} requiresAuth={true} />
+          ),
         },
         {
           path: "subcategories",
-          element: <SubCategories />
+          element: (
+            <ProtectedRoute element={<SubCategories />} requiresAuth={true} />
+          ),
         },
         {
           path: "suppliers",
-          element: <Suppliers />
+          element: (
+            <ProtectedRoute element={<Suppliers />} requiresAuth={true} />
+          ),
         },
         {
           path: "products",
-          element: <Products />
+          element: (
+            <ProtectedRoute element={<Products />} requiresAuth={true} />
+          ),
         },
         {
           path: "pos",
-          element: <PosSystem />
+          element: (
+            <ProtectedRoute element={<PosSystem />} requiresAuth={true} />
+          ),
         },
         {
           path: "sales",
-          element: <Sales />
+          element: <ProtectedRoute element={<Sales />} requiresAuth={true} />,
         },
         {
           path: "sale-update/:id",
-          element: <UpdateSale />
+          element: (
+            <ProtectedRoute element={<UpdateSale />} requiresAuth={true} />
+          ),
         },
         {
           path: "edc",
-          element: <EdcSystem />
+          element: (
+            <ProtectedRoute
+              element={<EdcSystem />}
+              requiresAuth={true}
+            />
+          ),
         },
         {
           path: "purchases",
-          element: <Purchases />
+          element: (
+            <ProtectedRoute
+              element={<Purchases />}
+              requiresAuth={true}
+            />
+          ),
         },
         {
           path: "purchase-update/:id",
-          element: <UpdatePurchase />
+          element: (
+            <ProtectedRoute
+              element={<UpdatePurchase />}
+              requiresAuth={true}
+            />
+          ),
         },
         {
           path: "inventories",
-          element: <Inventories />
-        }
-      ]
+          element: (
+            <ProtectedRoute
+              element={<Inventories />}
+              requiresAuth={true}
+            />
+          ),
+        },
+      ],
     },
   ]);
 

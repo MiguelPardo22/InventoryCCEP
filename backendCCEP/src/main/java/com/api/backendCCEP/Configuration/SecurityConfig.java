@@ -40,7 +40,7 @@ public class SecurityConfig {
 	    	.requestMatchers("/admin/products/search").hasAnyRole("Administrador", "Vendedor")
 	    	.requestMatchers("/vendor/**").hasAnyRole("Administrador", "Vendedor")
 	    	.requestMatchers("/admin/**").hasRole("Administrador")
-	    	.requestMatchers("/auth/login").permitAll()
+	    	.requestMatchers("/auth/**").permitAll()
 	        .anyRequest()
 	        .authenticated()
 	    )

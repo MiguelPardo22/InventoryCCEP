@@ -41,20 +41,25 @@ function Login() {
       const response = await ServiceAuth.authentication(login);
 
       // Acceder al header Authorization
-      const token = response.headers.get("Authorization") || response.headers.get("authorization");
+      const token =
+        response.headers.get("Authorization") ||
+        response.headers.get("authorization");
 
       if (token) {
         sessionStorage.setItem("authToken", token);
         ok(response.data.message, "success");
+
+        // Si viene de una redirección, navega a esa página, de lo contrario, al dashboard
+        const from = location.state?.from?.pathname || "/dashboard/index";
+        navigate(from);
       } else {
         throw new Error("Hubo un error, intentelo nuevamente");
       }
-      console.log("Token: " + token);
 
       ok(response.data.message, "success");
       navigate("/dashboard/index");
     } catch (error) {
-      swalCard("Credenciales Incorrectas", error.message, "error");
+      swalCard("Credenciales Incorrectas", "Email o contraseña Incorectos", "error");
     }
   };
 
