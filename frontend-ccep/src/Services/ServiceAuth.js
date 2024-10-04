@@ -8,6 +8,10 @@ class ServiceAuth {
         return axios.post(baseUrl + "/login", login)
     }
 
+    verifyToken(token) {
+        return axios.post(baseUrl + "/validate-token", token)
+    }
+
 }
 
 const authServiceInstance = new ServiceAuth();

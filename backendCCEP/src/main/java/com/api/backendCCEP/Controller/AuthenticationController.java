@@ -1,10 +1,13 @@
 package com.api.backendCCEP.Controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.api.backendCCEP.Dto.LoginDto;
@@ -55,36 +58,57 @@ public class AuthenticationController {
 		}
 	}
 
-	// Inicio de Sesión
-	@PostMapping("/token-user")
-	public ApiResponse<String> verifyTokenUser(@RequestBody String jwt) {
+	//Validacion de token
+	@PostMapping("/validate-token")
+	public ResponseEntity<ApiResponse<String>> validateToken(@RequestHeader("Authorization") String authHeader) {
+	    ApiResponse<String> response = new ApiResponse<>();
 
-		ApiResponse<String> response = new ApiResponse<>();
+	    try {
+	        // Validar que el encabezado Authorization esté presente y en formato correcto
+	        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+	            response.setSuccess(false);
+	            response.setMessage("Token no proporcionado o formato incorrecto.");
+	            response.setCode(400);
+	            return ResponseEntity.badRequest().body(response);
+	        }
 
-		try {
+	        String jwt = authHeader.substring(7); // Remover "Bearer "
 
-			boolean isValid = this.jwtUtil.isValid(jwt);
-			
-			String username = this.jwtUtil.getUsername(jwt);
-			System.out.println("Usuario: " + username);
-			boolean isUserValid = this.securityService.isUserValid(username);
-			
-			if (isValid && isUserValid) {
-				response.setSuccess(true);
-				response.setMessage("Verificacion Exitosa");
-				response.setData(null);
-				response.setCode(200);
-			}
-			return response;
+	        // Validar el JWT
+	        if (!jwtUtil.isValid(jwt)) {
+	            response.setSuccess(false);
+	            response.setMessage("JWT inválido.");
+	            response.setCode(401);
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+	        }
 
-		} catch (Exception e) {
-			response.setSuccess(false);
-			response.setMessage("Verificacion Fallida");
-			response.setData(null);
-			response.setCode(500);
+	        // Obtener el nombre de usuario del JWT
+	        String username = jwtUtil.getUsername(jwt);
 
-			return response;
-		}
+	        // Validar el usuario
+	        if (securityService.isUserValid(username)) {
+	            response.setSuccess(true);
+	            response.setMessage("JWT válido y usuario activo.");
+	            response.setCode(200);
+	            return ResponseEntity.ok().body(response);
+	        } else {
+	            response.setSuccess(false);
+	            response.setMessage("Usuario inactivo o no válido.");
+	            response.setCode(401);
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+	        }
+
+	    } catch (UsernameNotFoundException e) {
+	        response.setSuccess(false);
+	        response.setMessage("Usuario no encontrado.");
+	        response.setCode(401);
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+	    } catch (Exception e) {
+	        response.setSuccess(false);
+	        response.setMessage("Error interno del servidor.");
+	        response.setCode(500);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
 	}
 
 }
