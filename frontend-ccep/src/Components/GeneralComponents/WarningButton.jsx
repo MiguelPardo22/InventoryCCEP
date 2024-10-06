@@ -1,9 +1,9 @@
 import React from "react";
 import "../../Styles/GeneralStyles/WarningButton.css";
 
-function WarningButton({ text, icon, execute }) {
+function WarningButton({ text, icon, title,execute }) {
   return (
-    <button onClick={execute} className="warning-button">
+    <button onClick={execute} className="warning-button" title={title}>
       <i className={icon}></i>
       {text}
     </button>

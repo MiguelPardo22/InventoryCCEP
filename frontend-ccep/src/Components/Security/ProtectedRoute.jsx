@@ -13,9 +13,9 @@ function ProtectedRoute({ element, requiresAuth }) {
       ServiceAuth.verifyToken(token)
         .then((response) => {
           if (response.data.success) {
-            setIsAuthenticated(true); // Token válido
+            setIsAuthenticated(true);
           } else {
-            setIsAuthenticated(false); // Token inválido
+            setIsAuthenticated(false);
           }
         })
         .catch(() => {
@@ -29,7 +29,11 @@ function ProtectedRoute({ element, requiresAuth }) {
   }, [token, requiresAuth]);
 
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+    return (
+      <div>
+        <i className="fa-solid fa-arrow-rotate-right fa-spin"></i>
+      </div>
+    );
   }
 
   // Si no está autenticado, redirigir al login

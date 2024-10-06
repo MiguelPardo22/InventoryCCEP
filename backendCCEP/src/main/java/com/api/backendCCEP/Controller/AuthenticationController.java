@@ -100,7 +100,7 @@ public class AuthenticationController {
 
 	    } catch (UsernameNotFoundException e) {
 	        response.setSuccess(false);
-	        response.setMessage("Usuario no encontrado.");
+	        response.setMessage("Error interno del servidor.");
 	        response.setCode(401);
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 	    } catch (Exception e) {

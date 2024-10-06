@@ -1,10 +1,10 @@
 import React from "react";
 import "../../Styles/GeneralStyles/PrimaryButton.css";
 
-function PrimaryButton({ icon, text, execute }) {
+function PrimaryButton({ icon, text, title, execute }) {
 
   return (
-    <button onClick={execute} className="primary-button">
+    <button onClick={execute} className="primary-button" title={title}>
       <i className={icon}></i>
       &nbsp;{text}
     </button>

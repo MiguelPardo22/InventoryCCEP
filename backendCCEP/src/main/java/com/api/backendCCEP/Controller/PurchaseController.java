@@ -478,13 +478,13 @@ public class PurchaseController {
 				Product product = iProduct.findById((Integer) detailMap.get("product_id"));
 
 				// Definir las variables para calcular el subtotal
-				long salePrice = product.getPurchase_price();
+				long purchasePrices = product.getPurchase_price();
 
 				// Definir el campo cantidad
 				Integer quantity = (Integer) detailMap.get("quantity");
 
 				// Calcular el subtotal de la compra
-				subtotal = ((Integer) detailMap.get("quantity")) * salePrice;
+				subtotal = ((Integer) detailMap.get("quantity")) * purchasePrices;
 
 				// Si el subtotal es negativo establecerlo como cero
 				subtotal = Math.max(subtotal, 0);

@@ -196,6 +196,7 @@ const EdcSystem = () => {
                         <tr>
                           <th>Nombre del producto</th>
                           <th>Cantidad</th>
+                          <th>Precio de Compra</th>
                           <th>Subtotal</th>
                           <th>Acciones</th>
                         </tr>
@@ -220,6 +221,7 @@ const EdcSystem = () => {
                                 />
                               </div>
                             </td>
+                            <td>$ {product.purchase_price.toLocaleString("es-CO")}</td>
                             <td className="text-center">
                               $ {product.subtotal.toLocaleString("es-CO")}
                             </td>

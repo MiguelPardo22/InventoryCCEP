@@ -87,7 +87,7 @@ function UpdatePurchase() {
     let subtotal = 0;
     productDetails.forEach((product) => {
       const quantity = quantities[product.product_id.id] || 0;
-      const productSubtotal = quantity * product.product_id.sale_price;
+      const productSubtotal = quantity * product.product_id.purchase_price;
       subtotal += productSubtotal;
     });
     setTotal_Purchase(subtotal);
@@ -208,7 +208,7 @@ function UpdatePurchase() {
             </div>
             <div className="card-footer">
               <div className="d-flex justify-content-between">
-                <DangerButton execute={() => navigate(-1)} text="Cancelar" />
+                <DangerButton execute={() => navigate(-1)} icon={"fa-solid fa-circle-xmark"} />
                 <PrimaryButton execute={savePurchase} text="Actualizar" />
               </div>
             </div>
@@ -223,7 +223,7 @@ function UpdatePurchase() {
                   <thead>
                     <tr>
                       <th scope="col">Nombre</th>
-                      <th scope="col">Precio</th>
+                      <th scope="col">Precio de Compra</th>
                       <th scope="col">Cantidad</th>
                       <th scope="col">Subtotal</th>
                       <th scope="col">Acciones</th>
@@ -242,7 +242,7 @@ function UpdatePurchase() {
                         <td>{detail.product_id.name}</td>
                         <td>
                           $
-                          {detail.product_id.sale_price.toLocaleString("es-CO")}
+                          {detail.product_id.purchase_price.toLocaleString("es-CO")}
                         </td>
                         <td>
                           <input
@@ -261,10 +261,10 @@ function UpdatePurchase() {
                         <td>
                           $
                           {((quantities[detail.product_id.id] || 0) *
-                            detail.product_id.sale_price >
+                            detail.product_id.purchase_price >
                           0
                             ? (quantities[detail.product_id.id] || 0) *
-                              detail.product_id.sale_price
+                              detail.product_id.purchase_price
                             : 0
                           ).toLocaleString("es-CO")}
                         </td>
@@ -273,7 +273,7 @@ function UpdatePurchase() {
                             className="btn btn-danger"
                             onClick={() => handleRemoveProduct(index)}
                           >
-                            Eliminar
+                            <i class="fa-solid fa-trash-can"></i>
                           </button>
                         </td>
                       </tr>
