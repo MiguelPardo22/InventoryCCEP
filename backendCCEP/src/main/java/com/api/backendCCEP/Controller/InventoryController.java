@@ -1,6 +1,5 @@
 package com.api.backendCCEP.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +19,6 @@ public class InventoryController {
 	// Instacias
 	private IInventory iInventory;	
 	
-	@Autowired
 	public InventoryController(IInventory iInventory) {
 		this.iInventory = iInventory;
 	}
