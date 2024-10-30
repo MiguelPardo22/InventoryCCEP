@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { SideBarLink } from "./SideBarLink";
 import "../../Styles/SideBar/SideBar.css";
+import Cookies from "js-cookie";
 
 function SideBar({ isSidebarOpen, toggleSidebar }) {
   //Utiles
@@ -27,6 +28,10 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
     setPurchasesOpen(!purchasesOpen);
   };
 
+  const user = JSON.parse(Cookies.get("user"));
+  const userRole = user.roles[0].name_role;
+  const userEmail = user.email;
+
   return (
     <>
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
@@ -43,52 +48,80 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
           <li>
             <SideBarLink to="index" text="Inicio" icon="bx bx-grid-alt" />
           </li>
-          <li>
-            <SideBarLink to="products" text="Productos" icon="bx bx-barcode" />
-          </li>
-          <li>
-            <SideBarLink to="inventories" text="Inventario" icon="bx bx-data" />
-          </li>
-          <li>
-            <nav id="nav">
-              <a id="a" onClick={toggleSales}>
-                <i className="bx bx-cart"></i>
-                <span className="links_name">Ventas</span>
-              </a>
-              <span className="tooltip"> Ventas </span>
-            </nav>
-          </li>
+          {userRole === "Administrador" ? (
+            <li>
+              <SideBarLink
+                to="products"
+                text="Productos"
+                icon="bx bx-barcode"
+              />
+            </li>
+          ) : null}
+
+          {userRole === "Administrador" ? (
+            <li>
+              <SideBarLink
+                to="inventories"
+                text="Inventario"
+                icon="bx bx-data"
+              />
+            </li>
+          ) : null}
+
+          {userRole === "Administrador" || userRole === "Vendedor" ? (
+            <li>
+              <nav id="nav">
+                <a id="a" onClick={() => setSalesOpen(!salesOpen)}>
+                  <i className="bx bx-cart"></i>
+                  <span className="links_name">Ventas</span>
+                </a>
+                <span className="tooltip">Ventas</span>
+              </nav>
+            </li>
+          ) : null}
           {salesOpen && (
             <>
-              <li>
-                <SideBarLink
-                  to="sales"
-                  text="Lista de Ventas"
-                  icon="bx bx-detail"
-                />
-              </li>
-              <li>
-                <SideBarLink
-                  to="pos"
-                  text="Realizar Ventas"
-                  icon="bx bx-cart-add"
-                />
-              </li>
+              {userRole === "Administrador" ? (
+                <li>
+                  <SideBarLink
+                    to="sales"
+                    text="Lista de Ventas"
+                    icon="bx bx-detail"
+                  />
+                </li>
+              ) : null}
+              {userRole === "Administrador" || userRole === "Vendedor" ? (
+                <li>
+                  <SideBarLink
+                    to="pos"
+                    text="Realizar Ventas"
+                    icon="bx bx-cart-add"
+                  />
+                </li>
+              ) : null}
             </>
           )}
-          <li>
-            <nav id="nav">
-              <a id="a" onClick={togglePurchases}>
-                <i class="bx bxs-sticker"></i>
-                <span className="links_name">Compras</span>
-              </a>
-              <span className="tooltip"> Compras </span>
-            </nav>
-          </li>
-          {purchasesOpen && (
+
+          {userRole === "Administrador" ? (
+            <li>
+              <nav id="nav">
+                <a id="a" onClick={togglePurchases}>
+                  <i className="bx bxs-sticker"></i>
+                  <span className="links_name">Compras</span>
+                </a>
+                <span className="tooltip">Compras</span>
+              </nav>
+            </li>
+          ) : null}
+
+          {purchasesOpen && userRole === "Administrador" ? (
             <>
               <li>
-                <SideBarLink to="purchases" text="Compras" icon="bx bx-library" />
+                <SideBarLink
+                  to="purchases"
+                  text="Compras"
+                  icon="bx bx-library"
+                />
               </li>
               <li>
                 <SideBarLink
@@ -98,48 +131,51 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
                 />
               </li>
             </>
-          )}
-          <li>
-            <nav id="nav">
-              <a id="a" onClick={toggleUtils}>
-                <i className="bx bx-key"></i>
-                <span className="links_name">Utilidades</span>
-              </a>
-              <span className="tooltip"> Utilidades </span>
-            </nav>
-          </li>
-          {/* Renderizamos las subpestañas con la clase "active" si utilsOpen es true */}
-          {utilsOpen && (
-            <div>
-              <li className={`${isActiveAnimation ? "sub-link" : ""}`}>
+          ) : null}
+
+          {userRole === "Administrador" ? (
+            <li>
+              <nav id="nav">
+                <a id="a" onClick={() => setUtilsOpen(!utilsOpen)}>
+                  <i className="bx bx-key"></i>
+                  <span className="links_name">Utilidades</span>
+                </a>
+                <span className="tooltip">Utilidades</span>
+              </nav>
+            </li>
+          ) : null}
+
+          {utilsOpen && userRole === "Administrador" ? (
+            <>
+              <li>
                 <SideBarLink
                   to="categories"
                   text="Categorias"
                   icon="bx bx-box"
                 />
               </li>
-              <li className={`${isActiveAnimation ? "sub-link" : ""}`}>
+              <li>
                 <SideBarLink
                   to="subcategories"
                   text="SubCategorias"
                   icon="bx bx-folder"
                 />
               </li>
-              <li className={`${isActiveAnimation ? "sub-link" : ""}`}>
+              <li>
                 <SideBarLink
                   to="suppliers"
                   text="Proveedores"
                   icon="bx bxs-truck"
                 />
               </li>
-            </div>
-          )}
+            </>
+          ) : null}
           <li className="profile">
             <div className="profile-details">
               <img src="profile.jpg" alt="profileImg" />
               <div className="name_job">
-                <div className="name">Miguel Pardo</div>
-                <div className="job">Administrador</div>
+                <div className="name">{userEmail}</div>
+                <div className="job">{userRole}</div>
               </div>
             </div>
             <i className="bx bx-log-out" id="log_out"></i>
