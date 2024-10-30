@@ -2,16 +2,17 @@ import React, { useState } from "react";
 import "../Styles/Login/Login.css";
 import logo from "../assets/Images/Logo_Ccep.jpg";
 import ServiceAuth from "../Services/ServiceAuth";
+import ServiceUser from "../Services/ServiceUser";
 import { PrimaryButton } from "../Components/GeneralComponents/PrimaryButton";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie"; // Importa la biblioteca
 
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  //Alerta de tostada
   const ok = (msj, icon) => {
     Swal.fire({
       title: msj,
@@ -24,7 +25,6 @@ function Login() {
     });
   };
 
-  //Alerta de Carta
   const swalCard = (title, msj, icon) => {
     Swal.fire({
       title: title,
@@ -34,13 +34,13 @@ function Login() {
     });
   };
 
-  const login = async () => {
+  const login = async (event) => {
+    event.preventDefault();
+    sessionStorage.removeItem("authToken");
     try {
       const login = { email, password };
-
       const response = await ServiceAuth.authentication(login);
 
-      // Acceder al header Authorization
       const token =
         response.headers.get("Authorization") ||
         response.headers.get("authorization");
@@ -49,67 +49,80 @@ function Login() {
         sessionStorage.setItem("authToken", token);
         ok(response.data.message, "success");
 
-        // Si viene de una redirección, navega a esa página, de lo contrario, al dashboard
+        // Obtener usuario por email
+        const user = await ServiceUser.findByEmail(email);
+
+        // Guardar usuario en una cookie segura
+        Cookies.set("user", JSON.stringify(user.data.data), {
+          secure: true,
+          expires: 2 / 24,
+        });
+
+        // Verificar el rol del usuario
+        const userRoles = JSON.stringify(Cookies.get("user"));
+
+        console.log("Rol: " + userRoles);
+
         const from = location.state?.from?.pathname || "/dashboard/index";
         navigate(from);
       } else {
         throw new Error("Hubo un error, intentelo nuevamente");
       }
-
-      ok(response.data.message, "success");
-      navigate("/dashboard/index");
     } catch (error) {
-      swalCard("Credenciales Incorrectas", "Email o contraseña Incorectos", "error");
+      console.log("error: " + error);
+      swalCard(
+        "Credenciales Incorrectas",
+        "Email o contraseña incorrectos",
+        "error"
+      );
     }
   };
 
   return (
-    <>
-      <div className="container position-relative divCard">
-        <div class="position-absolute start-50 translate-middle border">
-          <div id="form">
-            <div class="imgcontainer">
-              <img src={logo} alt="Avatar" class="avatar" />
-            </div>
-
-            <div class="containerLogin">
-              <label htmlFor="uname">
-                <b>Correo Electronico: </b>
-              </label>
-              <input
-                type="text"
-                placeholder="Ingrese el Correo Electronico"
-                onChange={(e) => setEmail(e.target.value)}
-                name={email}
-                value={email}
-                required
-              />
-
-              <label htmlFor="psw">
-                <b>Contraseña: </b>
-              </label>
-              <input
-                type="password"
-                placeholder="Ingrese la contraseña"
-                onChange={(e) => setPassword(e.target.value)}
-                name={password}
-                value={password}
-                required
-              />
-              <br />
-              <br />
-              <div className="text-center">
-                <PrimaryButton
-                  text={"Iniciar Sesion"}
-                  icon={"fa-solid fa-arrow-right-to-bracket"}
-                  execute={() => login()}
-                />
-              </div>
-            </div>
+    <div className="container position-relative divCard">
+      <div className="position-absolute start-50 translate-middle border">
+        <div id="form">
+          <div className="imgcontainer">
+            <img src={logo} alt="Avatar" className="avatar" />
           </div>
+
+          <form className="containerLogin" onSubmit={login}>
+            <label htmlFor="uname">
+              <b>Correo Electrónico: </b>
+            </label>
+            <input
+              type="text"
+              placeholder="Ingrese el Correo Electrónico"
+              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              value={email}
+              required
+            />
+
+            <label htmlFor="psw">
+              <b>Contraseña: </b>
+            </label>
+            <input
+              type="password"
+              placeholder="Ingrese la contraseña"
+              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              value={password}
+              required
+            />
+            <br />
+            <br />
+            <div className="text-center">
+              <PrimaryButton
+                text={"Iniciar Sesión"}
+                icon={"fa-solid fa-arrow-right-to-bracket"}
+                type="submit"
+              />
+            </div>
+          </form>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

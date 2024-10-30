@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 //React Router
 import { createBrowserRouter } from "react-router-dom";
@@ -30,57 +30,98 @@ function RouteProvider(props) {
         <ProtectedRoute
           element={<Login />}
           requiresAuth={false}
+          allowedRoles={[]}
         />
       ),
     },
     {
       path: "/dashboard",
-      element: <DashBoard />,
+      element: (
+        <ProtectedRoute
+          element={<DashBoard />}
+          requiresAuth={true}
+          allowedRoles={["Administrador", "Vendedor"]}
+        />
+      ),
       children: [
         {
           path: "index",
           element: (
-            <ProtectedRoute element={<StartPage />} requiresAuth={true} />
+            <ProtectedRoute
+              element={<StartPage />}
+              requiresAuth={true}
+              allowedRoles={["Administrador", "Vendedor"]}
+            />
           ),
         },
         {
           path: "categories",
           element: (
-            <ProtectedRoute element={<Categories />} requiresAuth={true} />
+            <ProtectedRoute
+              element={<Categories />}
+              requiresAuth={true}
+              allowedRoles={["Administrador"]}
+            />
           ),
         },
         {
           path: "subcategories",
           element: (
-            <ProtectedRoute element={<SubCategories />} requiresAuth={true} />
+            <ProtectedRoute
+              element={<SubCategories />}
+              requiresAuth={true}
+              allowedRoles={["Administrador"]}
+            />
           ),
         },
         {
           path: "suppliers",
           element: (
-            <ProtectedRoute element={<Suppliers />} requiresAuth={true} />
+            <ProtectedRoute
+              element={<Suppliers />}
+              requiresAuth={true}
+              allowedRoles={["Administrador"]}
+            />
           ),
         },
         {
           path: "products",
           element: (
-            <ProtectedRoute element={<Products />} requiresAuth={true} />
+            <ProtectedRoute
+              element={<Products />}
+              requiresAuth={true}
+              allowedRoles={["Administrador"]}
+            />
           ),
         },
         {
           path: "pos",
           element: (
-            <ProtectedRoute element={<PosSystem />} requiresAuth={true} />
+            <ProtectedRoute
+              element={<PosSystem />}
+              requiresAuth={true}
+              allowedRoles={["Administrador", "Vendedor"]}
+            />
           ),
         },
         {
           path: "sales",
-          element: <ProtectedRoute element={<Sales />} requiresAuth={true} />,
+          element: (
+            <ProtectedRoute
+              element={<Sales />}
+              requiresAuth={true}
+              allowedRoles={["Administrador"]}
+            />
+          ),
         },
         {
           path: "sale-update/:id",
           element: (
-            <ProtectedRoute element={<UpdateSale />} requiresAuth={true} />
+            <ProtectedRoute
+              element={<UpdateSale />}
+              requiresAuth={true}
+              allowedRoles={["Administrador"]}
+            />
           ),
         },
         {
@@ -89,6 +130,7 @@ function RouteProvider(props) {
             <ProtectedRoute
               element={<EdcSystem />}
               requiresAuth={true}
+              allowedRoles={["Administrador"]}
             />
           ),
         },
@@ -98,6 +140,7 @@ function RouteProvider(props) {
             <ProtectedRoute
               element={<Purchases />}
               requiresAuth={true}
+              allowedRoles={["Administrador"]}
             />
           ),
         },
@@ -107,6 +150,7 @@ function RouteProvider(props) {
             <ProtectedRoute
               element={<UpdatePurchase />}
               requiresAuth={true}
+              allowedRoles={["Administrador"]}
             />
           ),
         },
@@ -116,6 +160,7 @@ function RouteProvider(props) {
             <ProtectedRoute
               element={<Inventories />}
               requiresAuth={true}
+              allowedRoles={["Administrador"]}
             />
           ),
         },

@@ -40,7 +40,7 @@ public class AuthenticationController {
 			this.authenticationManager.authenticate(login);
 
 			String jwt = jwtUtil.createJwt(loginDto.getEmail());
-
+			
 			response.setSuccess(true);
 			response.setMessage("Inicio de Sesion Exitoso");
 			response.setData(null);
@@ -77,7 +77,7 @@ public class AuthenticationController {
 	        // Validar el JWT
 	        if (!jwtUtil.isValid(jwt)) {
 	            response.setSuccess(false);
-	            response.setMessage("JWT inválido.");
+	            response.setMessage("Sesion Invalida.");
 	            response.setCode(401);
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 	        }
@@ -88,7 +88,7 @@ public class AuthenticationController {
 	        // Validar el usuario
 	        if (securityService.isUserValid(username)) {
 	            response.setSuccess(true);
-	            response.setMessage("JWT válido y usuario activo.");
+	            response.setMessage("Sesion Valida.");
 	            response.setCode(200);
 	            return ResponseEntity.ok().body(response);
 	        } else {
