@@ -6,9 +6,12 @@ import { jwtDecode } from "jwt-decode";
 import ServiceAuth from "../../Services/ServiceAuth";
 
 function ProtectedRoute({ element, requiresAuth, allowedRoles }) {
-  const [authStatus, setAuthStatus] = useState({ isAuthenticated: null, hasPermission: null });
+  const [authStatus, setAuthStatus] = useState({
+    isAuthenticated: null,
+    hasPermission: null,
+  });
   const [loading, setLoading] = useState(true);
-  const token = sessionStorage.getItem("authToken");
+  const token = Cookies.get("authToken");
   const location = useLocation();
 
   useEffect(() => {
@@ -40,7 +43,7 @@ function ProtectedRoute({ element, requiresAuth, allowedRoles }) {
         const hasPermission = allowedRoles.includes(userRole);
 
         setAuthStatus({ isAuthenticated: true, hasPermission });
-        
+
         if (timeLeft <= 300) handleTokenExpiryWarning();
       } catch {
         setAuthStatus({ isAuthenticated: false, hasPermission: false });
@@ -62,13 +65,18 @@ function ProtectedRoute({ element, requiresAuth, allowedRoles }) {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        sessionStorage.removeItem("authToken");
+        Cookies.remove("authToken");
         setAuthStatus({ isAuthenticated: false, hasPermission: false });
       }
     });
   };
 
-  if (loading) return <div><i className="fa-solid fa-arrow-rotate-right fa-spin"></i></div>;
+  if (loading)
+    return (
+      <div>
+        <i className="fa-solid fa-arrow-rotate-right fa-spin"></i>
+      </div>
+    );
 
   if (!authStatus.isAuthenticated) {
     return <Navigate to="/" state={{ from: location }} replace />;

@@ -1,16 +1,29 @@
 import React from "react";
 import "../../Styles/NavBar/NavBar.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 function NavBar() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    Cookies.remove("authToken");
+    Cookies.remove("user");
+
+    navigate("/");
+  };
+
+  const user = JSON.parse(Cookies.get("user"));
+  const userRole = user.roles[0].name_role;
+
   return (
-    <nav class="navbar navbar-expand-lg fixed-top">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">
+    <nav className="navbar navbar-expand-lg fixed-top">
+      <div className="container-fluid">
+        <a className="navbar-brand" href="#">
           <i className="fa-solid fa-paw icon"></i> CCEP
         </a>
         <button
-          class="navbar-toggler"
+          className="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
@@ -18,31 +31,37 @@ function NavBar() {
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
-          <span class="navbar-toggler-icon"></span>
+          <span className="navbar-toggler-icon"></span>
         </button>
         <div
-          class="collapse navbar-collapse justify-content-end"
+          className="collapse navbar-collapse justify-content-end"
           id="navbarNav"
         >
-          <ul class="navbar-nav">
-            <li class="nav-item text-ccep">
-              <a class="nav-link active" aria-current="page" href="#">
+          <ul className="navbar-nav">
+            <li className="nav-item text-ccep">
+              <a className="nav-link active" aria-current="page" href="#">
                 Inicio
               </a>
             </li>
-            <li class="nav-item">
-              <div class="nav-link">
+            <li className="nav-item">
+              <div className="nav-link">
                 <NavLink to="pos">Realizar Venta</NavLink>
               </div>
             </li>
-            <li class="nav-item">
-              <div class="nav-link">
-                <NavLink to="edc">Realizar Compra</NavLink>
-              </div>
-            </li>
-            <li class="nav-item">
-              <div class="nav-link">
-                <NavLink to="/">Cerrar Sesion</NavLink>
+            {userRole === "Administrador" ? (
+              <li className="nav-item">
+                <div className="nav-link">
+                  <NavLink to="edc">Realizar Compra</NavLink>
+                </div>
+              </li>
+            ) : null}
+            <li className="nav-item">
+              <div
+                className="nav-link"
+                onClick={handleLogout}
+                style={{ cursor: "pointer" }}
+              >
+                Cerrar Sesión
               </div>
             </li>
           </ul>

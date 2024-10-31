@@ -6,23 +6,12 @@ import Cookies from "js-cookie";
 function SideBar({ isSidebarOpen, toggleSidebar }) {
   //Utiles
   const [utilsOpen, setUtilsOpen] = useState(false); // Estado para controlar si las subpestañas están abiertas o cerradas
-  const [isActiveAnimation, setIsActiveAnimation] = useState(false); //Estado para controlar el estado de la animacion
 
   //Sales
   const [salesOpen, setSalesOpen] = useState(false);
 
   //Purchases
   const [purchasesOpen, setPurchasesOpen] = useState(false);
-
-  // Función para alternar el estado de las subpestañas y activar los sublinks
-  const toggleUtils = () => {
-    setUtilsOpen(!utilsOpen);
-    setIsActiveAnimation(!isActiveAnimation);
-  };
-
-  const toggleSales = () => {
-    setSalesOpen(!salesOpen);
-  };
 
   const togglePurchases = () => {
     setPurchasesOpen(!purchasesOpen);

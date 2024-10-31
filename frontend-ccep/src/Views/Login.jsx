@@ -46,7 +46,13 @@ function Login() {
         response.headers.get("authorization");
 
       if (token) {
-        sessionStorage.setItem("authToken", token);
+
+        Cookies.set("authToken", token, {
+          secure: true,
+          sameSite: "Strict",
+          expires: 2 / 24, // 2 horas
+        });
+
         ok(response.data.message, "success");
 
         // Obtener usuario por email
@@ -57,11 +63,6 @@ function Login() {
           secure: true,
           expires: 2 / 24,
         });
-
-        // Verificar el rol del usuario
-        const userRoles = JSON.stringify(Cookies.get("user"));
-
-        console.log("Rol: " + userRoles);
 
         const from = location.state?.from?.pathname || "/dashboard/index";
         navigate(from);
