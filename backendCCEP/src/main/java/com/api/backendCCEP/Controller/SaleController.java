@@ -42,12 +42,11 @@ public class SaleController {
 	private IPaymentMethod iPaymentMethod;
 	private IInventory iInventory;
 
-	public SaleController(IProduct iProduct, ISale iSale,
-			IPaymentMethod iPaymentMethod, IInventory iInventory) {
+	public SaleController(IProduct iProduct, ISale iSale, IPaymentMethod iPaymentMethod, IInventory iInventory) {
 		this.iProduct = iProduct;
 		this.iSale = iSale;
 		this.iPaymentMethod = iPaymentMethod;
-		this.iInventory = iInventory; 
+		this.iInventory = iInventory;
 	}
 
 	private boolean isNullOrEmpty(Object[] array) {
@@ -96,17 +95,17 @@ public class SaleController {
 		return response;
 	}
 
-    // Obtener las ventas registradas por el id
+	// Obtener las ventas registradas por el id
 	@GetMapping({ "/sales/{id}" })
 	@PreAuthorize("hasRole('Administrador')")
-	public ApiResponse<Sale> getSalesById(@PathVariable int id){
-		
+	public ApiResponse<Sale> getSalesById(@PathVariable int id) {
+
 		ApiResponse<Sale> response = new ApiResponse<>();
-		
+
 		try {
-			
+
 			Sale sale = iSale.findById(id);
-			
+
 			if (sale == null) {
 				response.setSuccess(false);
 				response.setMessage("No se encontro la venta");
@@ -114,22 +113,22 @@ public class SaleController {
 				response.setCode(404);
 				return response;
 			}
-			
+
 			response.setSuccess(true);
 			response.setMessage("Consulta Exitosa");
 			response.setData(sale);
 			response.setCode(200);
-			
+
 		} catch (Exception e) {
 			response.setSuccess(false);
 			response.setMessage("Error en la consulta");
 			response.setData(null);
 			response.setCode(500);
 		}
-		
+
 		return response;
 	}
-	
+
 	// Filtrar los detalles basado en el id de la venta
 	@GetMapping("/sales/detailsbyid/{saleId}")
 	@PreAuthorize("hasRole('Administrador')")
@@ -341,9 +340,9 @@ public class SaleController {
 				detail.setDiscount_product(discount_product);
 				detail.setSubtotal(subtotal);
 				iSale.saveDetails(detail);
-				
+
 				Inventory inventory = new Inventory();
-				
+
 				inventory.setProduct_id(product);
 				inventory.setSaledetail_id(detail);
 				inventory.setStock(-quantity);
@@ -367,7 +366,7 @@ public class SaleController {
 
 		} catch (Exception e) {
 			response.setSuccess(false);
-			response.setMessage("Error al guardar la venta: " + e);
+			response.setMessage("Error al guardar la venta");
 			response.setData(null);
 			response.setCode(500);
 		}
@@ -560,36 +559,37 @@ public class SaleController {
 					newDetail.setProduct_id(product);
 					newDetail.setDiscount_product(discount_product);
 					newDetail.setSubtotal(subtotal);
-					
+
 					// Agregar el nuevo detalle a la lista de nuevos detalles
 					newDetails.add(newDetail);
 				}
 			}
 
-			// Eliminar los detalles existentes que no están presentes en los nuevos detalles
+			// Eliminar los detalles existentes que no están presentes en los nuevos
+			// detalles
 			for (Sale_Detail detail : existingDetails) {
-			    boolean existsInNewDetails = false;
-			    for (Map<String, Object> detailMap : details) {
-			        Integer detailId = (Integer) detailMap.get("id");
-			        if (detail.getId() == detailId) {
-			            existsInNewDetails = true;
-			            break;
-			        }
-			    }
-			    // Si el detalle no existe en los nuevos detalles, eliminarlo
-			    if (!existsInNewDetails) {
-			        iSale.deteteSalesDetailsUpdate(detail);
-			    }
+				boolean existsInNewDetails = false;
+				for (Map<String, Object> detailMap : details) {
+					Integer detailId = (Integer) detailMap.get("id");
+					if (detail.getId() == detailId) {
+						existsInNewDetails = true;
+						break;
+					}
+				}
+				// Si el detalle no existe en los nuevos detalles, eliminarlo
+				if (!existsInNewDetails) {
+					iSale.deteteSalesDetailsUpdate(detail);
+				}
 			}
-			
+
 			// Agregar los nuevos detalles que no existen en la venta
 			for (Sale_Detail newDetail : newDetails) {
-			    // Asignar la venta a la que pertenecen los nuevos detalles
-			    newDetail.setSale_id(saleUpdate);
-			    // Guardar los nuevos detalles
-			    iSale.saveDetails(newDetail);
+				// Asignar la venta a la que pertenecen los nuevos detalles
+				newDetail.setSale_id(saleUpdate);
+				// Guardar los nuevos detalles
+				iSale.saveDetails(newDetail);
 			}
-			
+
 			total -= discount;
 
 			// Si el total es negativo después de aplicar el descuento total, establecerlo
@@ -607,7 +607,7 @@ public class SaleController {
 
 		} catch (Exception e) {
 			response.setSuccess(false);
-			response.setMessage("Error al actualizar la venta: " + e);
+			response.setMessage("Error al actualizar la venta");
 			response.setData(null);
 			response.setCode(500);
 		}
@@ -644,7 +644,7 @@ public class SaleController {
 
 		} catch (Exception e) {
 			response.setSuccess(false);
-			response.setMessage("Error al eliminar la venta: " + e);
+			response.setMessage("Error al eliminar la venta");
 			response.setData(null);
 			response.setCode(500);
 		}
