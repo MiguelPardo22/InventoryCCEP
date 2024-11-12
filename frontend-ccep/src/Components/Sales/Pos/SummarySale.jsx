@@ -60,11 +60,11 @@ function SummarySale({
   // Función para manejar cambios en la habilitación del input de descuento
   const handleDiscountCheckboxChange = (e) => {
     const isChecked = e.target.checked;
-    setIsDiscountEnabled(isChecked); // Actualiza el estado de habilitación del input según el estado del checkbox
+    setIsDiscountEnabled(isChecked); 
 
     // Verifica si el campo de descuento tiene un valor y si el checkbox está marcado
     if (!isChecked) {
-      setDiscount(""); // Restablece el descuento a 0 si el checkbox está desmarcado y hay un valor en el campo de descuento
+      setDiscount(""); 
     }
   };
 

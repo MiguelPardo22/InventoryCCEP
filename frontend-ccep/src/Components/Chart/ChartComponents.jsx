@@ -67,15 +67,12 @@ function ChartComponents({ type, labels, data, dataLabel }) {
       },
     };
 
-    // Destruye el gráfico existente si ya está inicializado
     if (chartInstance.current) {
       chartInstance.current.destroy();
     }
 
-    // Crea un nuevo gráfico y lo asigna a la referencia
     chartInstance.current = new Chart(ctx, chartOptions);
 
-    // Limpia el gráfico al desmontarse
     return () => {
       chartInstance.current.destroy();
     };

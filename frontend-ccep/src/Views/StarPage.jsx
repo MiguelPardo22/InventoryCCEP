@@ -7,6 +7,8 @@ function StartPage() {
   const [labelsCountSales, setLabelsCountSales] = useState([]);
   const [dataCountSales, setDataCountSales] = useState([]);
   const [dataTotalRevenue, setDataTotalRevenue] = useState([]);
+  const [todayCountSales, setTodayCountSales] = useState(0); 
+  const [todayTotalRevenue, setTodayTotalRevenue] = useState(0);
 
   useEffect(() => {
     const fetchSalesSummary = async () => {
@@ -20,11 +22,11 @@ function StartPage() {
           dates.push(date);
         }
 
-        // Convertir las fechas a un formato legible para los labelsCountSales y en formato yyyy-mm-dd
+        // Convertir las fechas a un formato 'yyyy-mm-dd'
         const dateLabels = dates
           .map((date) => {
             const d = new Date(date);
-            return d.toLocaleDateString();
+            return d.toISOString().split('T')[0]; // Formato yyyy-mm-dd
           })
           .reverse();
 
@@ -42,9 +44,9 @@ function StartPage() {
           const salesByDate = {};
           const totalRevenueByDate = {};
 
-          // Agrupar las ventas por fecha
+          // Agrupar las ventas y los ingresos por fecha
           salesData.forEach((item) => {
-            const saleDate = new Date(item.saleDate).toLocaleDateString();
+            const saleDate = new Date(item.saleDate).toISOString().split('T')[0]; // Formato yyyy-mm-dd
             salesByDate[saleDate] = item.totalSales;
             totalRevenueByDate[saleDate] = item.totalRevenue;
           });
@@ -54,10 +56,14 @@ function StartPage() {
             (label) => salesByDate[label] || 0
           );
 
-          // Llenar los datos de ventas y labelsCountSales
           const totalRevenueValues = dateLabels.map(
             (label) => totalRevenueByDate[label] || 0
           );
+
+          // Obtener el conteo de ventas del día actual
+          const todayFormatted = new Date().toISOString().split('T')[0];
+          setTodayCountSales(salesByDate[todayFormatted] || 0); 
+          setTodayTotalRevenue(totalRevenueByDate[todayFormatted] || 0); 
 
           setLabelsCountSales(dateLabels);
           setDataCountSales(salesValues);
@@ -75,10 +81,8 @@ function StartPage() {
     <div>
       <h2>Inicio</h2>
       <div className="card-container-start">
-        <div className="card-start">Productos Vendidos:</div>
-        <div className="card-start">Número de Ventas:</div>
-        <div className="card-start">Valor Total Ventas:</div>
-        <div className="card-start">Número de Compras:</div>
+        <div className="card-start">Cantidad Ventas: {todayCountSales}</div>
+        <div className="card-start">Valor Total Ventas: ${todayTotalRevenue.toLocaleString()}</div>
       </div>
       <div className="additional-content row">
         <h3 className="text-center">Reporte de ventas en los días</h3>
