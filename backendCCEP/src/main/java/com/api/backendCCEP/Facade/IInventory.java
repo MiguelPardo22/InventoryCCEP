@@ -13,5 +13,5 @@ public interface IInventory {
 	public Page<Inventory> stock(Pageable pageable);
 	public Optional<Inventory> findInvetoryBySale(long id);
 	public void deleteInventoryBySale(long id);
-	
+	public void deleteInventoryByPurchase(long id);
 }

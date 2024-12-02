@@ -647,6 +647,12 @@ public class SaleController {
 
 			if (saleUpdate != null) {
 
+				List<Sale_Detail> salesDetails = iSale.listSaleDetailsById(id);
+				
+				for (Sale_Detail sale_Detail : salesDetails) {
+					iInventory.deleteInventoryBySale(sale_Detail.getId());
+				}
+				
 				iSale.deteteSalesDetails(id);
 				iSale.deleteSales(saleUpdate);
 				response.setSuccess(true);

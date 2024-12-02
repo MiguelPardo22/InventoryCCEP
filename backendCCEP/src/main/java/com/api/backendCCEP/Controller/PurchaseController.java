@@ -40,8 +40,7 @@ public class PurchaseController {
 	private ISupplier iSupplier;
 	private IInventory iInventory;
 
-	public PurchaseController(IPurchase iPurchase, IProduct iProduct, ISupplier iSupplier,
-			IInventory iInventory) {
+	public PurchaseController(IPurchase iPurchase, IProduct iProduct, ISupplier iSupplier, IInventory iInventory) {
 		this.iPurchase = iPurchase;
 		this.iProduct = iProduct;
 		this.iSupplier = iSupplier;
@@ -311,7 +310,7 @@ public class PurchaseController {
 				inventory.setPurchasedetail_id(purchase_Detail);
 				inventory.setStock(quantity);
 				iInventory.save(inventory);
-				
+
 			}
 
 			// Si el total es negativo después de aplicar el descuento total, establecerlo
@@ -502,6 +501,12 @@ public class PurchaseController {
 					existingDetail.setSubtotal(subtotal);
 					iPurchase.saveDetails(existingDetail);
 
+					Inventory existingInventory = iInventory.findInvetoryBySale(existingDetail.getId()).orElse(null);
+
+					existingInventory.setProduct_id(product);
+					existingInventory.setStock(quantity);
+					iInventory.save(existingInventory);
+
 				} else {
 
 					// Si el detalle no existe, crear uno nuevo y agregarlo a la lista de nuevos
@@ -531,6 +536,8 @@ public class PurchaseController {
 				}
 				// Si el detalle no existe en los nuevos detalles, eliminarlo
 				if (!existsInNewDetails) {
+					// Eliminar los detalles del inventario
+					iInventory.deleteInventoryBySale(detail.getId());
 					iPurchase.detetePurchasesDetailsUpdate(detail);
 				}
 			}
@@ -541,6 +548,13 @@ public class PurchaseController {
 				newDetail.setPurchase_id(updatePurchase);
 				// Guardar los nuevos detalles
 				iPurchase.saveDetails(newDetail);
+				// Instacia del inventario
+				Inventory newInventory = new Inventory();
+
+				newInventory.setProduct_id(newDetail.getProduct_id());
+				newInventory.setPurchasedetail_id(newDetail);
+				newInventory.setStock(-newDetail.getQuantity());
+				iInventory.save(newInventory);
 			}
 
 			// Si el total es negativo después de aplicar el descuento total, establecerlo
@@ -549,12 +563,12 @@ public class PurchaseController {
 
 			updatePurchase.setTotal_purchase(total);
 			iPurchase.save(updatePurchase);
-			
+
 			response.setSuccess(true);
 			response.setMessage("Compra actualizada exitosamente");
 			response.setData(updatePurchase);
 			response.setCode(201);
-			
+
 		} catch (Exception e) {
 			response.setSuccess(false);
 			response.setMessage("Error al actualizar la venta: " + e);
@@ -577,6 +591,12 @@ public class PurchaseController {
 		try {
 
 			if (purchase != null) {
+				
+				List<Purchase_Detail> purchaseDetails = iPurchase.listPurchasesDetailsById(id);
+
+				for (Purchase_Detail purchase_Detail : purchaseDetails) {
+					iInventory.deleteInventoryByPurchase(purchase_Detail.getId());
+				}
 
 				iPurchase.detetePurchaseDetails(id);
 				iPurchase.deletePurchase(purchase);

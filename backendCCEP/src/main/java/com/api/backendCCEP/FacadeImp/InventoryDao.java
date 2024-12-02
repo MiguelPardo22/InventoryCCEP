@@ -38,8 +38,16 @@ public class InventoryDao implements IInventory{
 	}
 
 	@Override
+	@Secured({"ROLE_Administrador", "ROLE_Vendedor"})
 	public void deleteInventoryBySale(long id) {
 		Inventory inventory = inventoryRepository.findBySale(id).orElse(null);
+		inventoryRepository.delete(inventory);
+	}
+
+	@Override
+	@Secured({"ROLE_Administrador"})
+	public void deleteInventoryByPurchase(long id) {
+		Inventory inventory = inventoryRepository.findByPurchase(id).orElse(null);
 		inventoryRepository.delete(inventory);
 	}
 	
