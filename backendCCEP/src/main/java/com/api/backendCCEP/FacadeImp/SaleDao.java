@@ -16,38 +16,38 @@ import com.api.backendCCEP.Repository.Sale_DetailRepository;
 import jakarta.transaction.Transactional;
 
 @Service
-public class SaleDao implements ISale{
+public class SaleDao implements ISale {
 
-    //Instancias
-    private SaleRepository saleRepository;
-    private Sale_DetailRepository detailRepository;
+	// Instancias
+	private SaleRepository saleRepository;
+	private Sale_DetailRepository detailRepository;
 
-    public SaleDao(SaleRepository saleRepository, Sale_DetailRepository detailRepository) {
-        this.saleRepository = saleRepository;
-        this.detailRepository = detailRepository;
-    }
-    
-    @Override
-    @Secured("ROLE_Administrador")
-    public Page<Sale> listSales(Pageable pageable) {
-        return saleRepository.listSalesWithPagination(pageable);
-    }
+	public SaleDao(SaleRepository saleRepository, Sale_DetailRepository detailRepository) {
+		this.saleRepository = saleRepository;
+		this.detailRepository = detailRepository;
+	}
 
-    //Guardar el objeto sale
-    @Override
-    @Secured({"ROLE_Administrador", "ROLE_Vendedor"})
-    public void save(Sale sale) {
-        saleRepository.save(sale);
-    }
+	@Override
+	@Secured("ROLE_Administrador")
+	public Page<Sale> listSales(Pageable pageable) {
+		return saleRepository.listSalesWithPagination(pageable);
+	}
 
-    //Guardar el objeto sale_Detail
-    @Override
-    @Secured({"ROLE_Administrador", "ROLE_Vendedor"})
-    public void saveDetails(Sale_Detail sale_Detail) {
-        detailRepository.save(sale_Detail);
-    }
+	// Guardar el objeto sale
+	@Override
+	@Secured({ "ROLE_Administrador", "ROLE_Vendedor" })
+	public void save(Sale sale) {
+		saleRepository.save(sale);
+	}
 
-    // Listar los detalles basado en el id de la venta
+	// Guardar el objeto sale_Detail
+	@Override
+	@Secured({ "ROLE_Administrador", "ROLE_Vendedor" })
+	public void saveDetails(Sale_Detail sale_Detail) {
+		detailRepository.save(sale_Detail);
+	}
+
+	// Listar los detalles basado en el id de la venta
 	@Override
 	@Secured("ROLE_Administrador")
 	public List<Sale_Detail> listSaleDetailsById(long saleId) {
@@ -64,7 +64,7 @@ public class SaleDao implements ISale{
 	@Override
 	@Secured("ROLE_Administrador")
 	public void deleteSales(Sale sale) {
-		saleRepository.delete(sale);		
+		saleRepository.delete(sale);
 	}
 
 	@Override
