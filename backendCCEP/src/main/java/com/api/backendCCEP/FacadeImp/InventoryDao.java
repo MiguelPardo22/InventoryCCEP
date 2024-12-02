@@ -1,5 +1,7 @@
 package com.api.backendCCEP.FacadeImp;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
@@ -28,6 +30,17 @@ public class InventoryDao implements IInventory{
 	@Secured({"ROLE_Administrador"})
 	public Page<Inventory> stock(Pageable pageable) {
 		return this.inventoryRepository.stock(pageable);
+	}
+
+	@Override
+	public Optional<Inventory> findInvetoryBySale(long id) {
+		return inventoryRepository.findBySale(id);
+	}
+
+	@Override
+	public void deleteInventoryBySale(long id) {
+		Inventory inventory = inventoryRepository.findBySale(id).orElse(null);
+		inventoryRepository.delete(inventory);
 	}
 	
 }

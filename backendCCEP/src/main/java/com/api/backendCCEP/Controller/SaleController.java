@@ -550,6 +550,13 @@ public class SaleController {
 					existingDetail.setDiscount_product(discount_product);
 					existingDetail.setSubtotal(subtotal);
 					iSale.saveDetails(existingDetail);
+					
+					//Instacia del inventario
+					Inventory existingInventory = iInventory.findInvetoryBySale(existingDetail.getId()).orElse(null);
+					
+					existingInventory.setProduct_id(product);
+					existingInventory.setStock(-quantity);
+					iInventory.save(existingInventory);
 
 				} else {
 					// Si el detalle no existe, crear uno nuevo y agregarlo a la lista de nuevos
@@ -578,7 +585,10 @@ public class SaleController {
 			    }
 			    // Si el detalle no existe en los nuevos detalles, eliminarlo
 			    if (!existsInNewDetails) {
+			    	// Eliminar los detalles del inventario
+			    	iInventory.deleteInventoryBySale(detail.getId());
 			        iSale.deteteSalesDetailsUpdate(detail);
+			        
 			    }
 			}
 			
@@ -588,6 +598,14 @@ public class SaleController {
 			    newDetail.setSale_id(saleUpdate);
 			    // Guardar los nuevos detalles
 			    iSale.saveDetails(newDetail);
+			    
+			    //Instacia del inventario
+				Inventory newInventory = new Inventory();
+				
+				newInventory.setProduct_id(newDetail.getProduct_id());
+				newInventory.setSaledetail_id(newDetail);
+				newInventory.setStock(-newDetail.getQuantity());
+				iInventory.save(newInventory);
 			}
 			
 			total -= discount;
