@@ -1,0 +1,10 @@
+package com.api.backendCCEP.Facade;
+
+import org.springframework.web.multipart.MultipartFile;
+
+public interface IFilesUpload {
+
+	public void saveFile(MultipartFile file) throws Exception;
+	public void saveCategoriesExcel(MultipartFile file)  throws Exception;
+	
+}

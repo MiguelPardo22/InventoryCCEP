@@ -1,0 +1,83 @@
+package com.api.backendCCEP.Controller;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.api.backendCCEP.Facade.IFilesUpload;
+import com.api.backendCCEP.Model.Category;
+import com.api.backendCCEP.Util.ApiResponse;
+import com.api.backendCCEP.Validations.FileValidator;
+
+@RestController
+@RequestMapping({ "/admin" })
+public class FilesUploadController {
+
+	private IFilesUpload iFilesUpload;
+
+	public FilesUploadController(IFilesUpload iFilesUpload) {
+		this.iFilesUpload = iFilesUpload;
+	}
+	
+	@PostMapping("/file/saveCategories")
+	public ApiResponse<Category> saveCategoriesExcel(@RequestParam("excel") MultipartFile file){
+		
+		ApiResponse<Category> response = new ApiResponse<>();
+		
+		try {
+			
+			// Validar si el archivo está vacío
+		    if (FileValidator.isFileEmpty(file)) {
+		        response.setMessage("El archivo está vacío");
+		        response.setSuccess(false);
+		        response.setCode(400);  
+		        return response;
+		    }
+
+		    // Validar si el archivo es demasiado grande (por ejemplo, 5MB)
+		    if (FileValidator.isFileTooLarge(file, 5000000)) {
+		        response.setMessage("El archivo es demasiado grande");
+		        response.setSuccess(false);
+		        response.setCode(400); 
+		        return response;
+		    }
+
+		    // Validar si el archivo es un archivo Excel
+		    if (!FileValidator.isExcelFile(file)) {
+		        response.setMessage("El archivo no es un archivo Excel");
+		        response.setSuccess(false);
+		        response.setCode(415);
+		        return response;
+		    }
+
+		    // Validar si el archivo Excel es válido (no está dañado)
+		    if (!FileValidator.isExcelFileValid(file)) {
+		        response.setMessage("El archivo Excel está dañado o tiene un formato incorrecto");
+		        response.setSuccess(false);
+		        response.setCode(422); 
+		        return response;
+		    }
+		    
+		    //Enviar el archivo al servicio para procesarlo
+		    this.iFilesUpload.saveCategoriesExcel(file);
+			
+		    response.setSuccess(true);
+			response.setMessage("Se guardaron las categorias Correctamente");
+			response.setData(null);
+			response.setCode(200);
+		    
+		} catch (Exception e) {
+			response.setSuccess(false);
+			response.setMessage("Error al procesar el archivo");
+			response.setData(null);
+			response.setCode(500);
+		}
+		
+		
+		return response;
+	}
+	
+	
+}
