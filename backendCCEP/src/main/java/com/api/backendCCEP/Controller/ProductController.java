@@ -37,8 +37,7 @@ public class ProductController {
 	private ISubCategory iSubCategory;
 	private ISupplier iSupplier;
 
-	public ProductController(IProduct iProduct, ISubCategory iSubCategory,
-			ISupplier iSupplier) {
+	public ProductController(IProduct iProduct, ISubCategory iSubCategory, ISupplier iSupplier) {
 		this.iProduct = iProduct;
 		this.iSubCategory = iSubCategory;
 		this.iSupplier = iSupplier;
@@ -174,7 +173,7 @@ public class ProductController {
 				response.setSuccess(false);
 				response.setMessage("Todos los campos son requeridos");
 				response.setData(null);
-				response.setCode(400); // Código de respuesta 400 para indicar una solicitud incorrecta
+				response.setCode(400);
 			} else if (existingSubCategory == null) {
 				response.setSuccess(false);
 				response.setMessage("La subcategoría asociada no existe");
@@ -189,7 +188,7 @@ public class ProductController {
 				response.setSuccess(false);
 				response.setMessage("Ya hay un producto registrado con esa referencia y nombre");
 				response.setData(null);
-				response.setCode(400); // Código de respuesta 400 para indicar una solicitud incorrecta
+				response.setCode(400);
 			} else {
 
 				// Generar la referencia automática
@@ -198,27 +197,18 @@ public class ProductController {
 				String minutes = String.format("%02d", LocalDateTime.now().getMinute());
 				String firstTwoDigits = salePrice.toString().substring(0, Math.min(2, salePrice.toString().length()));
 
-				// Asegurar que los segundos tengan 2 dígitos y que la referencia tenga 6
-				// dígitos en total
-				String reference = String.format("%02d%s%s", Integer.parseInt(seconds), minutes, firstTwoDigits);
+				String reference = String.format("%02d%s%s%s", product.getSubcategory_id().getId(),
+						product.getProvider_id().getId(), firstTwoDigits, seconds + minutes);
 
-				// Si la referencia tiene más de 6 dígitos, truncarla a 6 dígitos
-				if (reference.length() > 6) {
-					reference = reference.substring(0, 6);
-				} else if (reference.length() < 6) { // Si la referencia tiene menos de 6 dígitos, completarla con ceros
-														// a la izquierda
-					reference = String.format("%-6s", reference).replace(' ', '0');
-				}
 				// Establecer la referencia en el producto
 				product.setReference(Long.parseLong(reference));
-
 				product.setState("Activo");
 				iProduct.save(product);
 
 				response.setSuccess(true);
 				response.setMessage("Producto creado exitosamente");
 				response.setData(product);
-				response.setCode(201); // Código de respuesta 201 para indicar creación exitosa
+				response.setCode(201);
 			}
 
 		} catch (Exception e) {
@@ -436,36 +426,36 @@ public class ProductController {
 	@GetMapping("/products/filter-product-provider/{provider_id}")
 	@PreAuthorize("hasRole('Administrador')")
 	public ApiResponse<List<Product>> searchProductByReferenceOrName(@PathVariable Long provider_id) {
-		
+
 		ApiResponse<List<Product>> response = new ApiResponse<>();
-		
+
 		try {
-			
+
 			List<Product> filterProducts = iProduct.filterProductsByProviders(provider_id);
-			
-			if(filterProducts.isEmpty()) {
+
+			if (filterProducts.isEmpty()) {
 				response.setSuccess(false);
 				response.setMessage("No se encontró productos asociados a ese proveedor");
 				response.setData(null);
 				response.setCode(404);
 				return response;
 			}
-			
+
 			response.setSuccess(true);
 			response.setMessage("Consulta exitosa");
 			response.setData(filterProducts);
 			response.setCode(200);
-			
+
 		} catch (Exception e) {
-			
+
 			response.setSuccess(false);
 			response.setMessage("Error en la consulta: " + e.getMessage());
 			response.setData(null);
 			response.setCode(500);
-			
+
 		}
-		
+
 		return response;
 	}
-	
+
 }

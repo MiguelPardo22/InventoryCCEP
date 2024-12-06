@@ -95,7 +95,7 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
             <li>
               <nav id="nav">
                 <a id="a" onClick={togglePurchases}>
-                  <i className="bx bxs-sticker"></i>
+                  <i className="bx bx-wallet-alt"></i>
                   <span className="links_name">Compras</span>
                 </a>
                 <span className="tooltip">Compras</span>
