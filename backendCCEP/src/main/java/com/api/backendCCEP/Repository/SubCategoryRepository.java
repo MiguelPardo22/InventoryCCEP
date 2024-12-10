@@ -1,5 +1,7 @@
 package com.api.backendCCEP.Repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +19,6 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 			+ " sc JOIN categories c on sc.category_id = c.id ORDER BY sc.id ASC", nativeQuery = true)
 	Page<SubCategory> findAllSubCategoriesWithPagination(Pageable pageable);
 
+	//Encontrar la subcategoria por el nombre exacto
+	public Optional<SubCategory> findByName(String name);
 }
