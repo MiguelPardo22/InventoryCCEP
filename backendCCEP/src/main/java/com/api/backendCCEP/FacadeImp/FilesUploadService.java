@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Iterator;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -252,7 +253,6 @@ public class FilesUploadService implements IFilesUpload {
 		}
 	}
 
-	// Guardar Productos
 	@Override
 	public void saveProductsExcel(MultipartFile file) throws Exception {
 
@@ -261,8 +261,7 @@ public class FilesUploadService implements IFilesUpload {
 		String nameFile = "uploads/" + file.getOriginalFilename();
 		File uploadedFile = new File(nameFile);
 
-		// Procesar el archivo Excel
-		try (FileInputStream fileInput = new FileInputStream(new File(nameFile));
+		try (FileInputStream fileInput = new FileInputStream(uploadedFile);
 				XSSFWorkbook book = new XSSFWorkbook(fileInput)) {
 
 			XSSFSheet sheet = book.getSheetAt(0);
@@ -271,64 +270,82 @@ public class FilesUploadService implements IFilesUpload {
 
 			boolean isFirstRow = true;
 
-			// Iterar sobre las filas del archivo
 			while (rowIterator.hasNext()) {
 
 				Row row = rowIterator.next();
 
-				// Saltar la primera fila
+				// Saltar la primera fila (encabezado)
 				if (isFirstRow) {
 					isFirstRow = false;
 					continue;
 				}
 
-				Iterator<Cell> cellIterator = row.cellIterator();
-
-				// Verificar si hay celdas suficientes
-				if (!cellIterator.hasNext())
+				// Verificar si la fila está completamente vacía
+				if (row == null || isRowEmpty(row)) {
 					continue;
+				}
 
-				Cell cell = cellIterator.next();
+				try {
+					Product product = new Product();
+					Iterator<Cell> cellIterator = row.cellIterator();
 
-				Product product = new Product();
-				
-				product.setName(cell.getStringCellValue());
-				cell = cellIterator.next();
-				product.setDescription(cell.getStringCellValue());
-				cell = cellIterator.next();
-				product.setPurchase_price((long) cell.getNumericCellValue());
-				cell = cellIterator.next();
-				product.setSale_price((long) cell.getNumericCellValue());
-				cell = cellIterator.next();
-				//Encontrar la subcategoria basado en el nombre
-				SubCategory nameSubCategory = subCategoryRepository.findByName(cell.getStringCellValue()).orElse(null);
-				product.setSubcategory_id(nameSubCategory);
-				cell = cellIterator.next();
-				//Encontrar el Proveedor basado en el nombre
-				Supplier nameSuppliers = supplierRepository.findByName(cell.getStringCellValue()).orElse(null);
-				product.setProvider_id(nameSuppliers);
-				product.setState("Activo");
-				
-				// Generar la referencia automática
-				Long salePrice = product.getSale_price();
-				String seconds = String.format("%02d", LocalDateTime.now().getSecond());
-				String minutes = String.format("%02d", LocalDateTime.now().getMinute());
-				String firstTwoDigits = salePrice.toString().substring(0, Math.min(2, salePrice.toString().length()));
+					if (cellIterator.hasNext()) {
+						Cell cell = cellIterator.next();
+						product.setName(getStringCellValue(cell));
+					}
 
-				String reference = String.format("%02d%s%s%s", product.getSubcategory_id().getId(),
-						product.getProvider_id().getId(), firstTwoDigits, seconds + minutes);
+					if (cellIterator.hasNext()) {
+						Cell cell = cellIterator.next();
+						product.setDescription(getStringCellValue(cell));
+					}
 
-				// Establecer la referencia en el producto
-				product.setReference(Long.parseLong(reference));
+					if (cellIterator.hasNext()) {
+						Cell cell = cellIterator.next();
+						product.setPurchase_price(getLongCellValue(cell));
+					}
 
-				this.productRepository.save(product);
+					if (cellIterator.hasNext()) {
+						Cell cell = cellIterator.next();
+						product.setSale_price(getLongCellValue(cell));
+					}
+
+					if (cellIterator.hasNext()) {
+						Cell cell = cellIterator.next();
+						SubCategory subCategory = subCategoryRepository.findByName(getStringCellValue(cell))
+								.orElseThrow(() -> new IllegalArgumentException("Subcategoría no encontrada"));
+						product.setSubcategory_id(subCategory);
+					}
+
+					if (cellIterator.hasNext()) {
+						Cell cell = cellIterator.next();
+						Supplier supplier = supplierRepository.findByName(getStringCellValue(cell))
+								.orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado"));
+						product.setProvider_id(supplier);
+					}
+
+					product.setState("Activo");
+
+					// Generar referencia automática
+					Long salePrice = product.getSale_price();
+					String seconds = String.format("%02d", LocalDateTime.now().getSecond());
+					String minutes = String.format("%02d", LocalDateTime.now().getMinute());
+					String firstTwoDigits = salePrice.toString().substring(0,
+							Math.min(2, salePrice.toString().length()));
+					String reference = String.format("%02d%s%s%s", product.getSubcategory_id().getId(),
+							product.getProvider_id().getId(), firstTwoDigits, seconds + minutes);
+					product.setReference(Long.parseLong(reference));
+
+					this.productRepository.save(product);
+
+				} catch (Exception e) {
+					System.err.println("Error procesando fila: " + row.getRowNum() + ". " + e.getMessage());
+				}
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new Exception("Error al procesar el archivo Excel: " + e.getMessage());
 		} finally {
-			// Eliminar el archivo después de procesarlo
 			try {
 				if (uploadedFile.exists()) {
 					Files.delete(uploadedFile.toPath());
@@ -336,9 +353,39 @@ public class FilesUploadService implements IFilesUpload {
 				}
 			} catch (IOException e) {
 				System.err.println("No se pudo eliminar el archivo: " + uploadedFile.getAbsolutePath());
+				e.printStackTrace();
 			}
 		}
+	}
 
+	// Método para verificar si una fila está vacía
+	private boolean isRowEmpty(Row row) {
+		for (Cell cell : row) {
+			if (cell != null && cell.getCellType() != CellType.BLANK) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// Obtener valor de celda como String
+	private String getStringCellValue(Cell cell) {
+		if (cell.getCellType() == CellType.STRING) {
+			return cell.getStringCellValue();
+		} else if (cell.getCellType() == CellType.NUMERIC) {
+			return String.valueOf((long) cell.getNumericCellValue());
+		}
+		return "";
+	}
+
+	// Obtener valor de celda como Long
+	private Long getLongCellValue(Cell cell) {
+		if (cell.getCellType() == CellType.NUMERIC) {
+			return (long) cell.getNumericCellValue();
+		} else if (cell.getCellType() == CellType.STRING) {
+			return Long.valueOf(cell.getStringCellValue());
+		}
+		return 0L;
 	}
 
 }

@@ -247,7 +247,7 @@ public class FilesUploadController {
 
 		} catch (Exception e) {
 			response.setSuccess(false);
-			response.setMessage("Error al procesar el archivo");
+			response.setMessage("Error al procesar el archivo: " + e);
 			response.setData(null);
 			response.setCode(500);
 		}
