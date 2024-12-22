@@ -11,6 +11,10 @@ function CategoryForm({ categoriesList, editCategory }) {
   //Estado para saber si se esta editando o no
   const [isEditMode, setIsEditMode] = useState(false);
 
+  //Estado para saber si se quiere agregar categorias con un excel
+  const [excelMode, setExcelMode] = useState(false);
+  const [excelCategories, setExcelCategories] = useState(null);
+
   //Texto para mostrar errores de validaciones
   const [nameError, setNameError] = useState("");
   const [stateError, setStateError] = useState("");
@@ -20,6 +24,16 @@ function CategoryForm({ categoriesList, editCategory }) {
 
   const onStatusChange = (e) => {
     setState(e.target.value);
+  };
+
+  const onFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setExcelCategories(e.target.files[0]);
+    }
+  };
+
+  const onExcelModeChange = (e) => {
+    setExcelMode(e.target.checked);
   };
 
   useEffect(() => {
@@ -39,21 +53,22 @@ function CategoryForm({ categoriesList, editCategory }) {
   //Metodo para editar o crear categorias
   const saveOrUpdate = async (e) => {
     e.preventDefault();
-    
-    if (name.trim() === "") {
-      setNameError("Este campo es requerido");
-      return;
-    } else {
-      setNameError("");
-    }
 
-    if (state.trim() === "") {
-      setStateError("Este campo es requerido");
-      return;
-    } else {
-      setStateError("");
-    }
+    if (!excelMode) {
+      if (name.trim() === "") {
+        setNameError("Este campo es requerido");
+        return;
+      } else {
+        setNameError("");
+      }
 
+      if (state.trim() === "") {
+        setStateError("Este campo es requerido");
+        return;
+      } else {
+        setStateError("");
+      }
+    }
     //Campos del json para enviar al servidor
     const updatedCategory = { name, state };
 
@@ -69,7 +84,19 @@ function CategoryForm({ categoriesList, editCategory }) {
         if (response.data.code == 400) {
           swalCard("Categoria Existente", response.data.message, "error");
         }
+      } else if (excelMode) {
+        const response = await ServiceCategory.saveCategoriesExcel(
+          excelCategories
+        );
+        ok(response.data.message, "success");
 
+        if (
+          response.data.code == 400 ||
+          response.data.code == 415 ||
+          response.data.code == 422
+        ) {
+          swalCard("Error al subir el Archivo", response.data.message, "error");
+        }
       } else {
         const response = await ServiceCategory.add(updatedCategory);
         ok(response.data.message, "success");
@@ -90,20 +117,37 @@ function CategoryForm({ categoriesList, editCategory }) {
 
   return (
     <form>
-      <div className="form-group">
-        <label>Nombre:</label>
-        <input
-          id="name"
-          name="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={`form-control ${nameError && "error"}`}
-          placeholder="Nombre"
-        />
-        {nameError && <span className="error-message">{nameError}</span>}
-      </div>
-      {/* Mostrar cada vez que se quiera editar */}
-      {isEditMode && (
+      {!isEditMode && (
+        <div className="form-check form-switch">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="flexSwitchCheckDefault"
+            onChange={onExcelModeChange}
+            checked={excelMode}
+          />
+          <label className="form-check-label" htmlFor="flexSwitchCheckDefault">
+            Registrar desde Excel
+          </label>
+        </div>
+      )}
+      <hr />
+      {!excelMode && (
+        <div className="form-group">
+          <label>Nombre:</label>
+          <input
+            id="name"
+            name="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className={`form-control ${nameError && "error"}`}
+            placeholder="Nombre"
+          />
+          {nameError && <span className="error-message">{nameError}</span>}
+        </div>
+      )}
+      {isEditMode && !excelMode && (
         <div className="form-group">
           <label>Estado:</label>
           <select
@@ -117,6 +161,21 @@ function CategoryForm({ categoriesList, editCategory }) {
             <option value="Inactivo">Inactivo</option>
           </select>
           {stateError && <span className="error-message">{stateError}</span>}
+        </div>
+      )}
+
+      {/* Mostrar cuando se quiere registrar por medio de excel */}
+      {excelMode && (
+        <div className={`form-group`}>
+          <div className="mb-3">
+            <label>Subir Excel de Categorias:</label>
+            <input
+              className="form-control form-control-sm"
+              id="formFileSm"
+              type="file"
+              onChange={onFileChange}
+            />
+          </div>
         </div>
       )}
       <div className="containerButton">

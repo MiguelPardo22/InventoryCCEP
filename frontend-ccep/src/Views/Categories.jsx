@@ -44,7 +44,7 @@ function Categories() {
   const createCategory = () => {
     // Al abrir el formulario para crear una nueva categoría
     setOpenModal(true);
-    setCategoryToEdit(null); // Resetea la categoría seleccionada para evitar edición
+    setCategoryToEdit(null);
   };
 
   //Funcion para indicarle al formulario que se quiere editar una categoria
