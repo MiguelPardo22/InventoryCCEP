@@ -241,7 +241,7 @@ public class FilesUploadController {
 			this.iFilesUpload.saveProductsExcel(file);
 
 			response.setSuccess(true);
-			response.setMessage("Se guardaron los Proveedores Correctamente");
+			response.setMessage("Se guardaron los Productos Correctamente");
 			response.setData(null);
 			response.setCode(200);
 

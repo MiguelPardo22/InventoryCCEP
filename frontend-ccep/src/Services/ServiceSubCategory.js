@@ -21,6 +21,17 @@ class ServiceSubCategory {
   delete(id) {
     return axios.delete(baseUrl + "/subcategories/delete/" + id)
   }
+
+  saveSubCategoriesExcel(excel) {
+    const formData = new FormData();
+    formData.append('excel', excel);
+  
+    return axios.post(baseUrl + "/file/saveSubCategories", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  }
 }
 
 const subCategoryServiceInstance = new ServiceSubCategory();

@@ -26,6 +26,17 @@ class ServiceSupplier {
   delete(id) {
     return axios.delete(baseUrl + "/suppliers/delete/" + id)
   }
+
+  saveSuppliersExcel(excel) {
+    const formData = new FormData();
+    formData.append('excel', excel);
+  
+    return axios.post(baseUrl + "/file/saveSuppliers", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  }
 }
 
 const supplierServiceInstance = new ServiceSupplier();

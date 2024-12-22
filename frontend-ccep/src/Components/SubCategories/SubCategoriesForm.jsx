@@ -11,10 +11,15 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
   const [state, setState] = useState("Activo");
   const [isEditMode, setIsEditMode] = useState(false);
 
+  //Estado para saber si se quiere agregar Proveedores con un excel
+  const [excelMode, setExcelMode] = useState(false);
+  const [excelSubCategories, setExcelSubCategories] = useState(null);
+
   //Estados para mostrar los errores de validacion
   const [nameError, setNameError] = useState("");
   const [categoryError, setCategoryError] = useState("");
   const [stateError, setStateError] = useState("");
+  const [fileError, setFileError] = useState("");
 
   const [categories, setCategories] = useState([]);
 
@@ -23,6 +28,40 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
 
   const onStatusChange = (e) => {
     setState(e.target.value);
+  };
+
+  const onFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validar que sea un archivo Excel
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      const allowedExtensions = ["xlsx", "xls"];
+
+      if (!allowedExtensions.includes(fileExtension)) {
+        setFileError("Por favor, selecciona un archivo Excel (.xlsx o .xls).");
+        setExcelSubCategories(null);
+        return;
+      }
+
+      // Validar el tamaño del archivo
+      const maxFileSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxFileSize) {
+        setFileError(
+          "El archivo es demasiado grande. El tamaño máximo permitido es 5MB."
+        );
+        setExcelSubCategories(null);
+        return;
+      }
+
+      setFileError("");
+      setExcelSubCategories(file);
+    }
+  };
+
+  const onExcelModeChange = (e) => {
+    setExcelMode(e.target.checked);
+    setFileError("");
+    setExcelSubCategories(null);
   };
 
   const onCategoryIdChange = (e) => {
@@ -67,26 +106,28 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
     //Campos del json para enviar al servidor
     const updatedSubCategory = { name, category_id, state };
 
-    //Validacion de campos
-    if (name.trim() === "") {
-      setNameError("Este campo es requerido");
-      return;
-    } else {
-      setNameError("");
-    }
+    if (!excelMode) {
+      //Validacion de campos
+      if (name.trim() === "") {
+        setNameError("Este campo es requerido");
+        return;
+      } else {
+        setNameError("");
+      }
 
-    if (category_id.toString().trim() === "") {
-      setCategoryError("Este campo es requerido");
-      return;
-    } else {
-      setCategoryError("");
-    }
+      if (category_id.toString().trim() === "") {
+        setCategoryError("Este campo es requerido");
+        return;
+      } else {
+        setCategoryError("");
+      }
 
-    if (state.trim() === "") {
-      setStateError("Este campo es requerido");
-      return;
-    } else {
-      setStateError("");
+      if (state.trim() === "") {
+        setStateError("Este campo es requerido");
+        return;
+      } else {
+        setStateError("");
+      }
     }
 
     try {
@@ -100,6 +141,24 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
 
         if (response.data.code == 400) {
           swalCard("SubCategoria Existente", response.data.message, "error");
+        }
+      } else if (excelMode) {
+        if (!excelSubCategories) {
+          setFileError("Debes seleccionar un archivo Excel para continuar.");
+          return;
+        }
+
+        const response = await ServiceSubCategory.saveSubCategoriesExcel(
+          excelSubCategories
+        );
+        ok(response.data.message, "success");
+
+        if (
+          response.data.code == 400 ||
+          response.data.code == 415 ||
+          response.data.code == 422
+        ) {
+          swalCard("Error al subir el Archivo", response.data.message, "error");
         }
       } else {
         //Indicar que se quiere crear
@@ -122,40 +181,60 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
 
   return (
     <form>
-      <div className="form-group">
-        <label>Nombre:</label>
-        <input
-          id="name"
-          name="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={`form-control ${nameError && "error"}`}
-          placeholder="Nombre"
-        />
-        {nameError && <span className="error-message">{nameError}</span>}
-      </div>
-      <div className="form-group">
-        <label>Categoria:</label>
-        <select
-          id="category_id"
-          name="category_id"
-          value={category_id}
-          onChange={onCategoryIdChange}
-          className={`form-control ${categoryError && "error"}`}
-        >
-          <option value="">--Seleccione una Categoria--</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-        {categoryError && (
-          <span className="error-message">{categoryError}</span>
-        )}
-      </div>
+      {!isEditMode && (
+        <div className="form-check form-switch">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="flexSwitchCheckDefault"
+            onChange={onExcelModeChange}
+            checked={excelMode}
+          />
+          <label className="form-check-label" htmlFor="flexSwitchCheckDefault">
+            Registrar desde Excel
+          </label>
+        </div>
+      )}
+      <hr />
+      {!excelMode && (
+        <>
+          <div className="form-group">
+            <label>Nombre:</label>
+            <input
+              id="name"
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={`form-control ${nameError && "error"}`}
+              placeholder="Nombre"
+            />
+            {nameError && <span className="error-message">{nameError}</span>}
+          </div>
+          <div className="form-group">
+            <label>Categoria:</label>
+            <select
+              id="category_id"
+              name="category_id"
+              value={category_id}
+              onChange={onCategoryIdChange}
+              className={`form-control ${categoryError && "error"}`}
+            >
+              <option value="">--Seleccione una Categoria--</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            {categoryError && (
+              <span className="error-message">{categoryError}</span>
+            )}
+          </div>
+        </>
+      )}
       {/* Mostrar cada vez que se quiera editar */}
-      {isEditMode && (
+      {isEditMode && !excelMode && (
         <div className="form-group">
           <label>Estado:</label>
           <select
@@ -169,6 +248,22 @@ function SubCategoryForm({ subCategoriesList, editSubCategory }) {
             <option value="Inactivo">Inactivo</option>
           </select>
           {stateError && <span className="error-message">{stateError}</span>}
+        </div>
+      )}
+      {/* Mostrar cuando se quiere registrar por medio de excel */}
+      {excelMode && (
+        <div className={`form-group`}>
+          <div className="mb-3">
+            <label>Subir Excel de SubCategorias:</label>
+            <input
+              className="form-control form-control-sm"
+              id="formFileSm"
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={onFileChange}
+            />
+            {fileError && <span className="error-message">{fileError}</span>}
+          </div>
         </div>
       )}
       <div className="containerButton">

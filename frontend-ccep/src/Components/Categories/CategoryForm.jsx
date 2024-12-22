@@ -18,6 +18,7 @@ function CategoryForm({ categoriesList, editCategory }) {
   //Texto para mostrar errores de validaciones
   const [nameError, setNameError] = useState("");
   const [stateError, setStateError] = useState("");
+  const [fileError, setFileError] = useState("");
 
   //Contexto General
   const { closeModal, ok, swalCard } = useContext(GeneralContext);
@@ -27,13 +28,37 @@ function CategoryForm({ categoriesList, editCategory }) {
   };
 
   const onFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setExcelCategories(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      // Validar que sea un archivo Excel
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      const allowedExtensions = ["xlsx", "xls"];
+
+      if (!allowedExtensions.includes(fileExtension)) {
+        setFileError("Por favor, selecciona un archivo Excel (.xlsx o .xls).");
+        setExcelCategories(null);
+        return;
+      }
+
+      // Validar el tamaño del archivo
+      const maxFileSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxFileSize) {
+        setFileError(
+          "El archivo es demasiado grande. El tamaño máximo permitido es 5MB."
+        );
+        setExcelCategories(null);
+        return;
+      }
+
+      setFileError("");
+      setExcelCategories(file);
     }
   };
 
   const onExcelModeChange = (e) => {
     setExcelMode(e.target.checked);
+    setFileError("");
+    setExcelCategories(null);
   };
 
   useEffect(() => {
@@ -85,6 +110,11 @@ function CategoryForm({ categoriesList, editCategory }) {
           swalCard("Categoria Existente", response.data.message, "error");
         }
       } else if (excelMode) {
+        if (!excelCategories) {
+          setFileError("Debes seleccionar un archivo Excel para continuar.");
+          return;
+        }
+
         const response = await ServiceCategory.saveCategoriesExcel(
           excelCategories
         );
@@ -173,8 +203,10 @@ function CategoryForm({ categoriesList, editCategory }) {
               className="form-control form-control-sm"
               id="formFileSm"
               type="file"
+              accept=".xlsx,.xls"
               onChange={onFileChange}
             />
+            {fileError && <span className="error-message">{fileError}</span>}
           </div>
         </div>
       )}

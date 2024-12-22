@@ -121,139 +121,185 @@ public class FilesUploadService implements IFilesUpload {
 	@Secured("ROLE_Administrador")
 	public void saveSubCategoriesExcel(MultipartFile file) throws Exception {
 
-		this.saveFile(file);
+	    this.saveFile(file);
 
-		String nameFile = "uploads/" + file.getOriginalFilename();
-		File uploadedFile = new File(nameFile);
+	    String nameFile = "uploads/" + file.getOriginalFilename();
+	    File uploadedFile = new File(nameFile);
 
-		// Procesar el archivo Excel
-		try (FileInputStream fileInput = new FileInputStream(new File(nameFile));
-				XSSFWorkbook book = new XSSFWorkbook(fileInput)) {
+	    // Procesar el archivo Excel
+	    try (FileInputStream fileInput = new FileInputStream(new File(nameFile));
+	         XSSFWorkbook book = new XSSFWorkbook(fileInput)) {
 
-			XSSFSheet sheet = book.getSheetAt(0);
+	        XSSFSheet sheet = book.getSheetAt(0);
 
-			Iterator<Row> rowIterator = sheet.iterator();
+	        Iterator<Row> rowIterator = sheet.iterator();
 
-			boolean isFirstRow = true;
+	        boolean isFirstRow = true;
 
-			// Iterar sobre las filas del archivo
-			while (rowIterator.hasNext()) {
+	        // Iterar sobre las filas del archivo
+	        while (rowIterator.hasNext()) {
 
-				Row row = rowIterator.next();
+	            Row row = rowIterator.next();
 
-				// Saltar la primera fila
-				if (isFirstRow) {
-					isFirstRow = false;
-					continue;
-				}
+	            // Saltar la primera fila (encabezado)
+	            if (isFirstRow) {
+	                isFirstRow = false;
+	                continue;
+	            }
 
-				Iterator<Cell> cellIterator = row.cellIterator();
+	            // Verificar si la fila está completamente vacía
+	            if (row == null || isRowEmpty(row)) {
+	                continue;
+	            }
 
-				// Verificar si hay celdas suficientes
-				if (!cellIterator.hasNext())
-					continue;
+	            try {
+	                Iterator<Cell> cellIterator = row.cellIterator();
 
-				Cell cell = cellIterator.next();
+	                // Verificar si hay celdas suficientes
+	                if (!cellIterator.hasNext()) {
+	                    continue;
+	                }
 
-				SubCategory subCategory = new SubCategory();
+	                Cell cell = cellIterator.next();
 
-				subCategory.setName(cell.getStringCellValue());
+	                SubCategory subCategory = new SubCategory();
 
-				cell = cellIterator.next();
+	                subCategory.setName(cell.getStringCellValue());
 
-				// Encontrar la Categoria por el nombre exacto
-				Category nameCategory = categoryRepository.findByName(cell.getStringCellValue()).orElse(null);
-				subCategory.setCategory_id(nameCategory);
-				subCategory.setState("Activo");
+	                // Verificar si hay más celdas
+	                if (cellIterator.hasNext()) {
+	                    cell = cellIterator.next();
 
-				this.subCategoryRepository.save(subCategory);
-			}
+	                    // Encontrar la Categoria por el nombre exacto
+	                    Category category = categoryRepository.findByName(cell.getStringCellValue()).orElse(null);
 
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new Exception("Error al procesar el archivo Excel: " + e.getMessage());
-		} finally {
-			// Eliminar el archivo después de procesarlo
-			try {
-				if (uploadedFile.exists()) {
-					Files.delete(uploadedFile.toPath());
-					System.out.println("Archivo eliminado: " + uploadedFile.getAbsolutePath());
-				}
-			} catch (IOException e) {
-				System.err.println("No se pudo eliminar el archivo: " + uploadedFile.getAbsolutePath());
-			}
-		}
+	                    if (category == null) {
+	                        throw new IllegalArgumentException("Categoría no encontrada: " + cell.getStringCellValue());
+	                    }
 
+	                    subCategory.setCategory_id(category);
+	                }
+
+	                subCategory.setState("Activo");
+
+	                // Guardar la subcategoría
+	                this.subCategoryRepository.save(subCategory);
+
+	            } catch (Exception e) {
+	                // Registrar el error específico por cada fila
+	                System.err.println("Error procesando fila: " + row.getRowNum() + ". " + e.getMessage());
+	            }
+	        }
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al procesar el archivo Excel: " + e.getMessage());
+	    } finally {
+	        // Eliminar el archivo después de procesarlo
+	        try {
+	            if (uploadedFile.exists()) {
+	                Files.delete(uploadedFile.toPath());
+	                System.out.println("Archivo eliminado: " + uploadedFile.getAbsolutePath());
+	            }
+	        } catch (IOException e) {
+	            System.err.println("No se pudo eliminar el archivo: " + uploadedFile.getAbsolutePath());
+	            e.printStackTrace();
+	        }
+	    }
 	}
 
 	// Guardar Proveedores
 	@Override
+	@Secured("ROLE_Administrador")
 	public void saveSuppliersExcel(MultipartFile file) throws Exception {
-		this.saveFile(file);
+	    this.saveFile(file);
 
-		String nameFile = "uploads/" + file.getOriginalFilename();
-		File uploadedFile = new File(nameFile);
+	    String nameFile = "uploads/" + file.getOriginalFilename();
+	    File uploadedFile = new File(nameFile);
 
-		// Procesar el archivo Excel
-		try (FileInputStream fileInput = new FileInputStream(new File(nameFile));
-				XSSFWorkbook book = new XSSFWorkbook(fileInput)) {
+	    // Procesar el archivo Excel
+	    try (FileInputStream fileInput = new FileInputStream(new File(nameFile));
+	         XSSFWorkbook book = new XSSFWorkbook(fileInput)) {
 
-			XSSFSheet sheet = book.getSheetAt(0);
+	        XSSFSheet sheet = book.getSheetAt(0);
 
-			Iterator<Row> rowIterator = sheet.iterator();
+	        Iterator<Row> rowIterator = sheet.iterator();
 
-			boolean isFirstRow = true;
+	        boolean isFirstRow = true;
 
-			// Iterar sobre las filas del archivo
-			while (rowIterator.hasNext()) {
+	        // Iterar sobre las filas del archivo
+	        while (rowIterator.hasNext()) {
 
-				Row row = rowIterator.next();
+	            Row row = rowIterator.next();
 
-				// Saltar la primera fila
-				if (isFirstRow) {
-					isFirstRow = false;
-					continue;
-				}
+	            // Saltar la primera fila (encabezado)
+	            if (isFirstRow) {
+	                isFirstRow = false;
+	                continue;
+	            }
 
-				Iterator<Cell> cellIterator = row.cellIterator();
+	            // Verificar si la fila está completamente vacía
+	            if (row == null || isRowEmpty(row)) {
+	                continue;
+	            }
 
-				// Verificar si hay celdas suficientes
-				if (!cellIterator.hasNext())
-					continue;
+	            try {
+	                Supplier supplier = new Supplier();
+	                Iterator<Cell> cellIterator = row.cellIterator();
 
-				Cell cell = cellIterator.next();
+	                // Verificar si hay celdas suficientes
+	                if (!cellIterator.hasNext()) {
+	                    continue;
+	                }
 
-				Supplier supplier = new Supplier();
+	                // Leer celdas y asignar valores
+	                Cell cell = cellIterator.next();
+	                supplier.setNit((long) cell.getNumericCellValue()); // NIT
 
-				supplier.setNit((long) cell.getNumericCellValue());
-				cell = cellIterator.next();
-				supplier.setName(cell.getStringCellValue());
-				cell = cellIterator.next();
-				supplier.setPhone((long) cell.getNumericCellValue());
-				cell = cellIterator.next();
-				supplier.setMail(cell.getStringCellValue());
-				supplier.setState("Activo");
+	                if (cellIterator.hasNext()) {
+	                    cell = cellIterator.next();
+	                    supplier.setName(cell.getStringCellValue()); // Nombre
+	                }
 
-				this.supplierRepository.save(supplier);
-			}
+	                if (cellIterator.hasNext()) {
+	                    cell = cellIterator.next();
+	                    supplier.setPhone((long) cell.getNumericCellValue()); // Teléfono
+	                }
 
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new Exception("Error al procesar el archivo Excel: " + e.getMessage());
-		} finally {
-			// Eliminar el archivo después de procesarlo
-			try {
-				if (uploadedFile.exists()) {
-					Files.delete(uploadedFile.toPath());
-					System.out.println("Archivo eliminado: " + uploadedFile.getAbsolutePath());
-				}
-			} catch (IOException e) {
-				System.err.println("No se pudo eliminar el archivo: " + uploadedFile.getAbsolutePath());
-			}
-		}
+	                if (cellIterator.hasNext()) {
+	                    cell = cellIterator.next();
+	                    supplier.setMail(cell.getStringCellValue()); // Correo
+	                }
+
+	                // Estado
+	                supplier.setState("Activo");
+
+	                // Guardar proveedor
+	                this.supplierRepository.save(supplier);
+
+	            } catch (Exception e) {
+	                System.err.println("Error procesando fila: " + row.getRowNum() + ". " + e.getMessage());
+	            }
+	        }
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al procesar el archivo Excel: " + e.getMessage());
+	    } finally {
+	        try {
+	            if (uploadedFile.exists()) {
+	                Files.delete(uploadedFile.toPath());
+	                System.out.println("Archivo eliminado: " + uploadedFile.getAbsolutePath());
+	            }
+	        } catch (IOException e) {
+	            System.err.println("No se pudo eliminar el archivo: " + uploadedFile.getAbsolutePath());
+	            e.printStackTrace();
+	        }
+	    }
 	}
 
 	@Override
+	@Secured("ROLE_Administrador")
 	public void saveProductsExcel(MultipartFile file) throws Exception {
 
 		this.saveFile(file);

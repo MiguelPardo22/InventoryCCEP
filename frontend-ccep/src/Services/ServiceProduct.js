@@ -35,6 +35,17 @@ class ServiceProduct {
     return axios.get(baseUrl + "/products/filter-product-provider/" + providerId);
   }
 
+  saveProductsExcel(excel) {
+    const formData = new FormData();
+    formData.append('excel', excel);
+  
+    return axios.post(baseUrl + "/file/saveProducts", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  }
+
 }
 
 const productServiceInstance = new ServiceProduct();
