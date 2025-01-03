@@ -1,6 +1,7 @@
 package com.api.backendCCEP.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,5 +29,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	// Filtrar los productos por el proveedor
 	@Query(value = "SELECT * FROM products WHERE provider_id = :provider_id", nativeQuery = true)
 	List<Product> filterProductsByProviders(@Param("provider_id") long provider_id);
+	
+	//Encontrar el producto por el nombre exacto
+	public Optional<Product> findByName(String name);
 	
 }

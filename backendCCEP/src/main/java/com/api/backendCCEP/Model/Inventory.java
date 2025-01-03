@@ -35,6 +35,14 @@ public class Inventory {
 	@JoinColumn(name = "saledetail_id", referencedColumnName = "id")
 	private Sale_Detail saledetail_id;
 
+	@ManyToOne
+	@JoinColumn(name = "entry_id", referencedColumnName = "id")
+	private Entry entry_id;
+
+	@ManyToOne
+	@JoinColumn(name = "loss_id", referencedColumnName = "id")
+	private Loss loss_id;
+	
 	public long getId() {
 		return id;
 	}
@@ -75,16 +83,34 @@ public class Inventory {
 		this.saledetail_id = saledetail_id;
 	}
 
+	public Entry getEntry_id() {
+		return entry_id;
+	}
+
+	public void setEntry_id(Entry entry_id) {
+		this.entry_id = entry_id;
+	}
+
+	public Loss getLoss_id() {
+		return loss_id;
+	}
+
+	public void setLoss_id(Loss loss_id) {
+		this.loss_id = loss_id;
+	}
+
+	public Inventory() {
+	}
+
 	public Inventory(long id, long stock, Product product_id, Purchase_Detail purchasedetail_id,
-			Sale_Detail saledetail_id) {
+			Sale_Detail saledetail_id, Entry entry_id, Loss loss_id) {
 		this.id = id;
 		this.stock = stock;
 		this.product_id = product_id;
 		this.purchasedetail_id = purchasedetail_id;
 		this.saledetail_id = saledetail_id;
-	}
-
-	public Inventory() {
+		this.entry_id = entry_id;
+		this.loss_id = loss_id;
 	}
 	
 }

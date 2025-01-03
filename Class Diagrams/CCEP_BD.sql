@@ -1,131 +1,135 @@
-create database ccep_bd;
+CREATE TABLE categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(30) NOT NULL,
+    state VARCHAR(10)
+);
 
-create table categories(
-id bigint auto_increment,
-name varchar(30) not null,
-state varchar(10),
-primary key(id));
+CREATE TABLE subcategories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(30) NOT NULL,
+    category_id INT REFERENCES categories(id),
+    state VARCHAR(10)
+);
 
-create table subcategories(
-id bigint auto_increment,
-name varchar(30) not null,
-category_id bigint,
-state varchar(10),
-primary key(id),
-foreign key(category_id) references categories(id));
+CREATE TABLE suppliers (
+    id SERIAL PRIMARY KEY,
+    nit BIGINT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    phone BIGINT,
+    mail VARCHAR(100) NOT NULL,
+    state VARCHAR(10)
+);
 
-create table suppliers(
-id bigint auto_increment,
-nit bigint not null,
-name varchar(50) not null,
-phone bigint,
-mail varchar(100) not null,
-state varchar(10),
-primary key(id));
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    reference BIGINT NOT NULL,
+    description VARCHAR(250) NOT NULL,
+    purchase_price BIGINT NOT NULL,
+    sale_price BIGINT NOT NULL,
+    subcategory_id INT NOT NULL REFERENCES subcategories(id),
+    provider_id INT NOT NULL REFERENCES suppliers(id),
+    state VARCHAR(10)
+);
 
-create table products(
-id bigint auto_increment,
-name varchar(50) not null,
-reference bigint not null,
-description varchar(250) not null,
-purchase_price bigint not null,
-sale_price bigint not null,
-subcategory_id bigint not null,
-provider_id bigint not null,
-state varchar(10),
-primary key(id),
-foreign key(subcategory_id) references subcategories(id),
-foreign key(provider_id) references suppliers(id));
+CREATE TABLE payments_methods (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(20),
+    state VARCHAR(10)
+);
 
-create table payments_methods(
-id bigint auto_increment,
-name varchar(20),
-state varchar(10),
-primary key(id));
+CREATE TABLE sales (
+    id SERIAL PRIMARY KEY,
+    total_sale BIGINT NOT NULL,
+    sale_date DATE NOT NULL,
+    edit_date DATE,
+    discount BIGINT NOT NULL,
+    user_id INT NOT NULL,
+    paymethod_id INT NOT NULL REFERENCES payments_methods(id),
+    state VARCHAR(10)
+);
 
-create table sales(
-id bigint auto_increment,
-total_sale bigint not null,
-sale_date date not null,
-edit_date date,
-discount bigint not null,
-user_id bigint not null,
-paymethod_id bigint not null,
-state varchar(10),
-primary key(id),
-foreign key(paymethod_id) references payments_methods(id));
+CREATE TABLE sales_details (
+    id SERIAL PRIMARY KEY,
+    quantity INT NOT NULL,
+    subtotal BIGINT NOT NULL,
+    product_id INT NOT NULL REFERENCES products(id),
+    discount_product BIGINT NOT NULL,
+    sale_id INT NOT NULL REFERENCES sales(id)
+);
 
-create table sales_details(
-id bigint auto_increment,
-quantity int not null,
-subtotal bigint not null,
-product_id bigint not null,
-discount_product bigint not null,
-sale_id bigint not null,
-primary key(id),
-foreign key(product_id) references products(id),
-foreign key(sale_id) references sales(id));
+CREATE TABLE purchases (
+    id SERIAL PRIMARY KEY,
+    total_purchase BIGINT NOT NULL,
+    bill_number BIGINT NOT NULL,
+    purchase_date DATE NOT NULL,
+    edit_date DATE,
+    provider_id INT NOT NULL REFERENCES suppliers(id),
+    state VARCHAR(10)
+);
 
+CREATE TABLE purchases_details (
+    id SERIAL PRIMARY KEY,
+    quantity INT NOT NULL,
+    subtotal BIGINT NOT NULL,
+    product_id INT NOT NULL REFERENCES products(id),
+    purchase_id INT NOT NULL REFERENCES purchases(id)
+);
 
-create table purchases(
-id bigint auto_increment,
-total_purchase bigint not null,
-bill_number bigint not null,
-purchase_date date not null,
-edit_date date,
-provider_id bigint not null,
-state varchar(10),
-primary key(id),
-foreign key(provider_id) references suppliers(id));
+CREATE TABLE entries (
+    id SERIAL PRIMARY KEY,
+    product_id INT NOT NULL REFERENCES products(id),
+    quantity BIGINT NOT NULL,
+    dateEntry DATE NOT NULL,
+    edit_date DATE
+);
 
-create table purchases_details(
-id bigint auto_increment,
-quantity int not null,
-subtotal bigint not null,
-product_id bigint not null,
-purchase_id bigint not null,
-primary key(id),
-foreign key(product_id) references products(id),
-foreign key(purchase_id) references purchases(id));
+CREATE TABLE losses (
+    id SERIAL PRIMARY KEY,
+    product_id INT NOT NULL REFERENCES products(id),
+    quantity BIGINT NOT NULL,
+    description TEXT NOT NULL,
+    dateLoss DATE NOT NULL,
+    edit_date DATE
+);
 
-create table inventories(
-id bigint auto_increment,
-stock bigint not null,
-product_id bigint not null,
-saledetail_id bigint,
-purchasedetail_id bigint,
-primary key(id),
-foreign key(purchasedetail_id) references purchases_details(id),
-foreign key(saledetail_id) references sales_details(id));
+CREATE TABLE inventories (
+    id SERIAL PRIMARY KEY,
+    stock BIGINT NOT NULL,
+    product_id INT NOT NULL REFERENCES products(id),
+    saledetail_id INT REFERENCES sales_details(id),
+    purchasedetail_id INT REFERENCES purchases_details(id),
+	entry_id INT REFERENCES entries(id),
+	loss_id INT REFERENCES losses(id)
+);
 
-create table roles(
-id int auto_increment,
-name_role varchar(100),
-primary key(id));
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name_role VARCHAR(100)
+);
 
-create table persons(
-id bigint auto_increment,
-first_name varchar(255),
-second_name varchar(255),
-first_last_name varchar(255),
-second_last_name varchar(255),
-email varchar(255),
-phone bigint,
-identification bigint,
-type_identification varchar(255),
-primary key(id));
+CREATE TABLE persons (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(255),
+    second_name VARCHAR(255),
+    first_last_name VARCHAR(255),
+    second_last_name VARCHAR(255),
+    email VARCHAR(255),
+    phone BIGINT,
+    identification BIGINT,
+    type_identification VARCHAR(255)
+);
 
-create table users(
-id bigint auto_increment,
-email varchar(255),
-password_encrypted varchar(255),
-person_id bigint,
-state varchar(10),
-primary key(id),
-foreign key(person_id) references persons(id));
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255),
+    password_encrypted VARCHAR(255),
+    person_id INT REFERENCES persons(id),
+    state VARCHAR(10)
+);
 
-create table users_roles(
-user_id bigint,
-rol_id int,
-foreign key(user_id) references users(id),
-foreign key(rol_id) references roles(id));
+CREATE TABLE users_roles (
+    user_id INT REFERENCES users(id),
+    rol_id INT REFERENCES roles(id),
+    PRIMARY KEY (user_id, rol_id)
+);

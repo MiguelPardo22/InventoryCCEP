@@ -191,16 +191,15 @@ public class ProductController {
 				response.setCode(400);
 			} else {
 
-				// Generar la referencia automática
+				// Generar referencia automática
 				Long salePrice = product.getSale_price();
 				String seconds = String.format("%02d", LocalDateTime.now().getSecond());
 				String minutes = String.format("%02d", LocalDateTime.now().getMinute());
-				String firstTwoDigits = salePrice.toString().substring(0, Math.min(2, salePrice.toString().length()));
-
+				String firstTwoDigits = salePrice.toString().substring(0,
+						Math.min(2, salePrice.toString().length()));
 				String reference = String.format("%02d%s%s%s", product.getSubcategory_id().getId(),
 						product.getProvider_id().getId(), firstTwoDigits, seconds + minutes);
-
-				// Establecer la referencia en el producto
+				
 				product.setReference(Long.parseLong(reference));
 				product.setState("Activo");
 				iProduct.save(product);

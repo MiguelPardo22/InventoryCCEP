@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Iterator;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -20,10 +21,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.api.backendCCEP.Facade.IFilesUpload;
 import com.api.backendCCEP.Model.Category;
+import com.api.backendCCEP.Model.Entry;
 import com.api.backendCCEP.Model.Product;
 import com.api.backendCCEP.Model.SubCategory;
 import com.api.backendCCEP.Model.Supplier;
 import com.api.backendCCEP.Repository.CategoryRepository;
+import com.api.backendCCEP.Repository.EntryRepository;
 import com.api.backendCCEP.Repository.ProductRepository;
 import com.api.backendCCEP.Repository.SubCategoryRepository;
 import com.api.backendCCEP.Repository.SupplierRepository;
@@ -35,13 +38,16 @@ public class FilesUploadService implements IFilesUpload {
 	private SubCategoryRepository subCategoryRepository;
 	private SupplierRepository supplierRepository;
 	private ProductRepository productRepository;
+	private EntryRepository entryRepository;
 
 	public FilesUploadService(CategoryRepository categoryRepository, SubCategoryRepository subCategoryRepository,
-			SupplierRepository supplierRepository, ProductRepository productRepository) {
+			SupplierRepository supplierRepository, ProductRepository productRepository,
+			EntryRepository entryRepository) {
 		this.categoryRepository = categoryRepository;
 		this.subCategoryRepository = subCategoryRepository;
 		this.supplierRepository = supplierRepository;
 		this.productRepository = productRepository;
+		this.entryRepository = entryRepository;
 	}
 
 	private final Path rootFolder = Paths.get("uploads");
@@ -402,6 +408,90 @@ public class FilesUploadService implements IFilesUpload {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	@Override
+	public void saveEntriesExcel(MultipartFile file) throws Exception {
+		
+		this.saveFile(file);
+
+	    String nameFile = "uploads/" + file.getOriginalFilename();
+	    File uploadedFile = new File(nameFile);
+
+	    // Procesar el archivo Excel
+	    try (FileInputStream fileInput = new FileInputStream(new File(nameFile));
+	         XSSFWorkbook book = new XSSFWorkbook(fileInput)) {
+
+	        XSSFSheet sheet = book.getSheetAt(0);
+
+	        Iterator<Row> rowIterator = sheet.iterator();
+
+	        boolean isFirstRow = true;
+
+	        // Iterar sobre las filas del archivo
+	        while (rowIterator.hasNext()) {
+
+	            Row row = rowIterator.next();
+
+	            // Saltar la primera fila (encabezado)
+	            if (isFirstRow) {
+	                isFirstRow = false;
+	                continue;
+	            }
+
+	            // Verificar si la fila está completamente vacía
+	            if (row == null || isRowEmpty(row)) {
+	                continue;
+	            }
+
+	            try {
+	                Entry entry = new Entry();
+	                Iterator<Cell> cellIterator = row.cellIterator();
+
+	                // Verificar si hay celdas suficientes
+	                if (!cellIterator.hasNext()) {
+	                    continue;
+	                }
+
+	                // Leer celdas y asignar valores
+	                if (cellIterator.hasNext()) {
+						Cell cell = cellIterator.next();
+						Product product = productRepository.findByName(getStringCellValue(cell))
+								.orElseThrow(() -> new IllegalArgumentException("Producto no entonctrado"));
+						entry.setProduct_id(product); // Producto
+					}
+
+	                if (cellIterator.hasNext()) {
+	                    Cell cell = cellIterator.next();
+	                    entry.setQuantity(getLongCellValue(cell)); // Cantidad
+	                }
+	                
+	                //Registrar la fecha de ingreso
+	                entry.setDateEntry(new Date());
+
+	                // Guardar proveedor
+	                this.entryRepository.save(entry);
+
+	            } catch (Exception e) {
+	                System.err.println("Error procesando fila: " + row.getRowNum() + ". " + e.getMessage());
+	            }
+	        }
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al procesar el archivo Excel: " + e.getMessage());
+	    } finally {
+	        try {
+	            if (uploadedFile.exists()) {
+	                Files.delete(uploadedFile.toPath());
+	                System.out.println("Archivo eliminado: " + uploadedFile.getAbsolutePath());
+	            }
+	        } catch (IOException e) {
+	            System.err.println("No se pudo eliminar el archivo: " + uploadedFile.getAbsolutePath());
+	            e.printStackTrace();
+	        }
+	    }
+		
 	}
 
 	// Método para verificar si una fila está vacía

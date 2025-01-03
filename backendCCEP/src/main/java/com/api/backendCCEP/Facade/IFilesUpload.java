@@ -9,5 +9,6 @@ public interface IFilesUpload {
 	public void saveSubCategoriesExcel(MultipartFile file) throws Exception;
 	public void saveSuppliersExcel(MultipartFile file) throws Exception;
 	public void saveProductsExcel(MultipartFile file) throws Exception;
+	public void saveEntriesExcel(MultipartFile file) throws Exception;
 	
 }
