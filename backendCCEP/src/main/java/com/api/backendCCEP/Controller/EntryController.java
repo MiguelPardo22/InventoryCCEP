@@ -152,6 +152,15 @@ public class EntryController {
 				// Guardar la Entrada actualizada
 				iEntry.save(existingEntry);
 
+				// Encontrar el inventario basado en el id de la Entrada
+				Inventory existingInventory = iInventory.findInvetoryByEntry(id).orElse(null);
+
+				existingInventory.setProduct_id(existingEntry.getProduct_id());
+				existingInventory.setStock(existingEntry.getQuantity());
+				
+				// Guardar el inventario Actualizado
+				iInventory.save(existingInventory);
+				
 				response.setSuccess(true);
 				response.setMessage("Entrada actualizada exitosamente");
 				response.setData(existingEntry);
@@ -186,6 +195,10 @@ public class EntryController {
 
 			if (existingEntry != null) {
 
+				// Eliminar primero el inventario con el id de la entrada
+				iInventory.deleteInventoryByEntry(id);
+				
+				// Eliminar la entrada
 				iEntry.delete(existingEntry);
 
 				response.setSuccess(true);

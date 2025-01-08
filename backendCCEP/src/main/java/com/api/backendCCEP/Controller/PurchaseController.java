@@ -501,7 +501,7 @@ public class PurchaseController {
 					existingDetail.setSubtotal(subtotal);
 					iPurchase.saveDetails(existingDetail);
 
-					Inventory existingInventory = iInventory.findInvetoryBySale(existingDetail.getId()).orElse(null);
+					Inventory existingInventory = iInventory.findInvetoryByPurchase(existingDetail.getId()).orElse(null);
 
 					existingInventory.setProduct_id(product);
 					existingInventory.setStock(quantity);
@@ -537,7 +537,7 @@ public class PurchaseController {
 				// Si el detalle no existe en los nuevos detalles, eliminarlo
 				if (!existsInNewDetails) {
 					// Eliminar los detalles del inventario
-					iInventory.deleteInventoryBySale(detail.getId());
+					iInventory.deleteInventoryByPurchase(detail.getId());
 					iPurchase.detetePurchasesDetailsUpdate(detail);
 				}
 			}
@@ -553,7 +553,7 @@ public class PurchaseController {
 
 				newInventory.setProduct_id(newDetail.getProduct_id());
 				newInventory.setPurchasedetail_id(newDetail);
-				newInventory.setStock(-newDetail.getQuantity());
+				newInventory.setStock(newDetail.getQuantity());
 				iInventory.save(newInventory);
 			}
 

@@ -36,6 +36,16 @@ public class InventoryDao implements IInventory{
 	public Optional<Inventory> findInvetoryBySale(long id) {
 		return inventoryRepository.findBySale(id);
 	}
+	
+	@Override
+	public Optional<Inventory> findInvetoryByPurchase(long id) {
+		return inventoryRepository.findByPurchase(id);
+	}
+	
+	@Override
+	public Optional<Inventory> findInvetoryByEntry(long id) {
+		return inventoryRepository.findByEntry(id);
+	}
 
 	@Override
 	@Secured({"ROLE_Administrador", "ROLE_Vendedor"})
@@ -48,6 +58,13 @@ public class InventoryDao implements IInventory{
 	@Secured({"ROLE_Administrador"})
 	public void deleteInventoryByPurchase(long id) {
 		Inventory inventory = inventoryRepository.findByPurchase(id).orElse(null);
+		inventoryRepository.delete(inventory);
+	}
+	
+	@Override
+	@Secured({"ROLE_Administrador"})
+	public void deleteInventoryByEntry(long id) {
+		Inventory inventory = inventoryRepository.findByEntry(id).orElse(null);
 		inventoryRepository.delete(inventory);
 	}
 	

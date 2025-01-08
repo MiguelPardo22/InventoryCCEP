@@ -22,11 +22,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.api.backendCCEP.Facade.IFilesUpload;
 import com.api.backendCCEP.Model.Category;
 import com.api.backendCCEP.Model.Entry;
+import com.api.backendCCEP.Model.Inventory;
 import com.api.backendCCEP.Model.Product;
 import com.api.backendCCEP.Model.SubCategory;
 import com.api.backendCCEP.Model.Supplier;
 import com.api.backendCCEP.Repository.CategoryRepository;
 import com.api.backendCCEP.Repository.EntryRepository;
+import com.api.backendCCEP.Repository.InventoryRepository;
 import com.api.backendCCEP.Repository.ProductRepository;
 import com.api.backendCCEP.Repository.SubCategoryRepository;
 import com.api.backendCCEP.Repository.SupplierRepository;
@@ -39,15 +41,17 @@ public class FilesUploadService implements IFilesUpload {
 	private SupplierRepository supplierRepository;
 	private ProductRepository productRepository;
 	private EntryRepository entryRepository;
+	private InventoryRepository inventoryRepository;
 
 	public FilesUploadService(CategoryRepository categoryRepository, SubCategoryRepository subCategoryRepository,
 			SupplierRepository supplierRepository, ProductRepository productRepository,
-			EntryRepository entryRepository) {
+			EntryRepository entryRepository, InventoryRepository inventoryRepository) {
 		this.categoryRepository = categoryRepository;
 		this.subCategoryRepository = subCategoryRepository;
 		this.supplierRepository = supplierRepository;
 		this.productRepository = productRepository;
 		this.entryRepository = entryRepository;
+		this.inventoryRepository = inventoryRepository;
 	}
 
 	private final Path rootFolder = Paths.get("uploads");
@@ -446,6 +450,7 @@ public class FilesUploadService implements IFilesUpload {
 
 	            try {
 	                Entry entry = new Entry();
+	                Inventory inventory = new Inventory();
 	                Iterator<Cell> cellIterator = row.cellIterator();
 
 	                // Verificar si hay celdas suficientes
@@ -459,11 +464,13 @@ public class FilesUploadService implements IFilesUpload {
 						Product product = productRepository.findByName(getStringCellValue(cell))
 								.orElseThrow(() -> new IllegalArgumentException("Producto no entonctrado"));
 						entry.setProduct_id(product); // Producto
+						inventory.setProduct_id(product);						
 					}
 
 	                if (cellIterator.hasNext()) {
 	                    Cell cell = cellIterator.next();
 	                    entry.setQuantity(getLongCellValue(cell)); // Cantidad
+	                    inventory.setStock(getLongCellValue(cell));
 	                }
 	                
 	                //Registrar la fecha de ingreso
@@ -471,6 +478,12 @@ public class FilesUploadService implements IFilesUpload {
 
 	                // Guardar proveedor
 	                this.entryRepository.save(entry);
+	                
+	                // Asignar el inventario con el id de la entrada
+	                inventory.setEntry_id(entry);
+	                
+	                // Guardar inventario 
+	                this.inventoryRepository.save(inventory);
 
 	            } catch (Exception e) {
 	                System.err.println("Error procesando fila: " + row.getRowNum() + ". " + e.getMessage());
