@@ -19,6 +19,7 @@ import { Purchases } from "../Views/Purchases";
 import { UpdatePurchase } from "../Components/Purchases/UpdatePurchase";
 import { Inventories } from "../Views/Inventories";
 import { ProtectedRoute } from "../Components/Security/ProtectedRoute";
+import { Entries } from "../Views/Entries";
 
 const RouteContext = React.createContext();
 
@@ -159,6 +160,16 @@ function RouteProvider(props) {
           element: (
             <ProtectedRoute
               element={<Inventories />}
+              requiresAuth={true}
+              allowedRoles={["Administrador"]}
+            />
+          ),
+        },
+        {
+          path: "entries",
+          element: (
+            <ProtectedRoute
+              element={<Entries />}
               requiresAuth={true}
               allowedRoles={["Administrador"]}
             />

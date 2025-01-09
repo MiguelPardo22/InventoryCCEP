@@ -14,7 +14,8 @@ import com.api.backendCCEP.Model.Inventory;
 @Repository
 public interface InventoryRepository extends JpaRepository<Inventory, Long>{
 
-	@Query(value = "SELECT MIN(inven.id) AS id, MIN(inven.purchasedetail_id) AS purchasedetail_id, MIN(inven.saledetail_id) AS saledetail_id, SUM(inven.stock) AS stock, inven.product_id \r\n"
+	@Query(value = "SELECT MIN(inven.id) AS id, MIN(inven.entry_id) AS entry_id, MIN(inven.loss_id) AS loss_id, MIN(inven.purchasedetail_id) AS purchasedetail_id, "
+			+ "MIN(inven.saledetail_id) AS saledetail_id, SUM(inven.stock) AS stock, inven.product_id \r\n"
 	        + "FROM inventories inven \r\n"
 	        + "GROUP BY inven.product_id \r\n"
 	        + "ORDER BY stock DESC;", nativeQuery = true)

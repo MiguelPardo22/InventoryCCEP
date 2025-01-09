@@ -17,6 +17,13 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
     setPurchasesOpen(!purchasesOpen);
   };
 
+  //Purchases
+  const [inventoryOpen, setInventoryOpen] = useState(false);
+
+  const toggleInventory = () => {
+    setInventoryOpen(!inventoryOpen);
+  };
+
   const user = JSON.parse(Cookies.get("user"));
   const userRole = user.roles[0].name_role;
   const userEmail = user.email;
@@ -49,12 +56,36 @@ function SideBar({ isSidebarOpen, toggleSidebar }) {
 
           {userRole === "Administrador" ? (
             <li>
-              <SideBarLink
-                to="inventories"
-                text="Inventario"
-                icon="bx bx-data"
-              />
+              <nav id="nav">
+                <a id="a" onClick={toggleInventory}>
+                  <i className="bx bx-store-alt"></i>
+                  <span className="links_name">Gestión de Inventario</span>
+                </a>
+                <span className="tooltip">Gestión de Inventario</span>
+              </nav>
             </li>
+          ) : null}
+
+          {inventoryOpen && userRole === "Administrador" ? (
+            <>
+              <li>
+                <SideBarLink
+                  to="entries"
+                  text="Entradas"
+                  icon="bx bx-archive-in"
+                />
+              </li>
+              <li>
+                <SideBarLink to="----" text="Perdidas" icon="bx bx-trash" />
+              </li>
+              <li>
+                <SideBarLink
+                  to="inventories"
+                  text="Inventario"
+                  icon="bx bx-data"
+                />
+              </li>
+            </>
           ) : null}
 
           {userRole === "Administrador" || userRole === "Vendedor" ? (
