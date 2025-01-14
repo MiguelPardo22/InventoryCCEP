@@ -32,7 +32,7 @@ function EntryForm({ EntriesList, editEntry }) {
     const file = e.target.files[0];
     if (file) {
       // Validar que sea un archivo Excel
-      const fileExtension = file.quantity.split(".").pop().toLowerCase();
+      const fileExtension = file.name.split(".").pop().toLowerCase();
       const allowedExtensions = ["xlsx", "xls"];
 
       if (!allowedExtensions.includes(fileExtension)) {

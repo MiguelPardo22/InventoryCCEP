@@ -30,7 +30,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>{
 	public Optional<Inventory> findByPurchase(@Param("purchaseId") long purchaseId);
 	
 	@Query(value = "SELECT i.id, i.product_id, i.saledetail_id, i.stock, i.purchasedetail_id,"
-			+ " i.entry_id"
+			+ " i.entry_id, i.loss_id"
 			+ " FROM inventories i WHERE i.entry_id = :entryId", nativeQuery = true)
 	public Optional<Inventory> findByEntry(@Param("entryId") long entryId);
 }
