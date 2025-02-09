@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = "http://localhost:8080/user";
+const baseUrl = "http://3.144.9.233:8080/backendCCEP-0.0.1-SNAPSHOT/user";
 
 class ServiceUser {
   findByEmail(email) {
