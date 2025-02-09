@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = "https://fuji-bargains-kilometers-indie.trycloudflare.com/backendCCEP-0.0.1-SNAPSHOT/auth";
+const baseUrl = "https://gmt-jan-profit-worlds.trycloudflare.com/backendCCEP-0.0.1-SNAPSHOT/auth";
 
 class ServiceAuth {
 
