@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = "http://3.144.9.233:8080/backendCCEP-0.0.1-SNAPSHOT/admin";
+const baseUrl = "https://fuji-bargains-kilometers-indie.trycloudflare.com/backendCCEP-0.0.1-SNAPSHOT/admin";
 
 class ServiceReport {
   getSalesSummary(startDate, endDate) {
