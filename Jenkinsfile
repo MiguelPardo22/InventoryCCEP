@@ -75,39 +75,6 @@ pipeline {
             }
         }
         
-        stage('Docker Build') {
-            parallel {
-                stage('Build Backend Image') {
-                    steps {
-                        echo 'Building backend Docker image...'
-                        dir('backendCCEP') {
-                            script {
-                                def backendImage = docker.build("${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER}")
-                                docker.withRegistry('', '') {
-                                    backendImage.push()
-                                    backendImage.push('latest')
-                                }
-                            }
-                        }
-                    }
-                }
-                stage('Build Frontend Image') {
-                    steps {
-                        echo 'Building frontend Docker image...'
-                        dir('frontend-ccep') {
-                            script {
-                                def frontendImage = docker.build("${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER}")
-                                docker.withRegistry('', '') {
-                                    frontendImage.push()
-                                    frontendImage.push('latest')
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
         stage('Security Scan') {
             steps {
                 echo 'Running security scans...'
