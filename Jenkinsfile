@@ -187,42 +187,11 @@ pipeline {
         }
         success {
             echo 'Pipeline completed successfully!'
-            script {
-                // Send success notification
-                emailext (
-                    subject: "✅ Jenkins Build Success: ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
-                    body: """
-                        <h2>Build Successful!</h2>
-                        <p><strong>Project:</strong> ${env.JOB_NAME}</p>
-                        <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
-                        <p><strong>Build URL:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                        <p><strong>Branch:</strong> ${env.BRANCH_NAME}</p>
-                        <p><strong>Commit:</strong> ${env.GIT_COMMIT}</p>
-                    """,
-                    to: "${env.CHANGE_AUTHOR_EMAIL}",
-                    mimeType: 'text/html'
-                )
-            }
+            
         }
         failure {
             echo 'Pipeline failed!'
-            script {
-                // Send failure notification
-                emailext (
-                    subject: "❌ Jenkins Build Failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
-                    body: """
-                        <h2>Build Failed!</h2>
-                        <p><strong>Project:</strong> ${env.JOB_NAME}</p>
-                        <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
-                        <p><strong>Build URL:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                        <p><strong>Branch:</strong> ${env.BRANCH_NAME}</p>
-                        <p><strong>Commit:</strong> ${env.GIT_COMMIT}</p>
-                        <p><strong>Error:</strong> Check the build logs for details</p>
-                    """,
-                    to: "${env.CHANGE_AUTHOR_EMAIL}",
-                    mimeType: 'text/html'
-                )
-            }
+            
         }
         unstable {
             echo 'Pipeline is unstable!'
