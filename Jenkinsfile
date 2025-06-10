@@ -41,8 +41,8 @@ pipeline {
                 dir('backendCCEP') {
                     script {
                         if (isUnix()) {
-                            sh 'chmod +x mvnw'
-                            sh './mvnw clean package -DskipTests'
+                            bat 'chmod +x mvnw'
+                            bat './mvnw clean package -DskipTests'
                         } else {
                             bat 'mvnw.cmd clean package -DskipTests'
                         }
@@ -57,8 +57,8 @@ pipeline {
                 dir('frontend-ccep') {
                     script {
                         if (isUnix()) {
-                            sh 'npm ci'
-                            sh 'npm run build'
+                            bat 'npm ci'
+                            bat 'npm run build'
                         } else {
                             bat 'npm ci'
                             bat 'npm run build'
@@ -83,7 +83,7 @@ pipeline {
                     // Example: OWASP Dependency Check
                     dir('backendCCEP') {
                         if (isUnix()) {
-                            sh './mvnw org.owasp:dependency-check-maven:check || true'
+                            bat './mvnw org.owasp:dependency-check-maven:check || true'
                         } else {
                             bat 'mvnw.cmd org.owasp:dependency-check-maven:check || exit 0'
                         }
@@ -100,8 +100,8 @@ pipeline {
                 echo 'Deploying to development environment...'
                 script {
                     if (isUnix()) {
-                        sh 'docker-compose -f docker-compose.dev.yml down || true'
-                        sh 'docker-compose -f docker-compose.dev.yml up -d'
+                        bat 'docker-compose -f docker-compose.dev.yml down || true'
+                        bat 'docker-compose -f docker-compose.dev.yml up -d'
                     } else {
                         bat 'docker-compose -f docker-compose.dev.yml down || exit 0'
                         bat 'docker-compose -f docker-compose.dev.yml up -d'
@@ -118,8 +118,8 @@ pipeline {
                 echo 'Deploying to staging environment...'
                 script {
                     if (isUnix()) {
-                        sh 'docker-compose -f docker-compose.staging.yml down || true'
-                        sh 'docker-compose -f docker-compose.staging.yml up -d'
+                        bat 'docker-compose -f docker-compose.staging.yml down || true'
+                        bat 'docker-compose -f docker-compose.staging.yml up -d'
                     } else {
                         bat 'docker-compose -f docker-compose.staging.yml down || exit 0'
                         bat 'docker-compose -f docker-compose.staging.yml up -d'
@@ -138,8 +138,8 @@ pipeline {
                       submitterParameter: 'DEPLOYER'
                 script {
                     if (isUnix()) {
-                        sh 'docker-compose -f docker-compose.prod.yml down || true'
-                        sh 'docker-compose -f docker-compose.prod.yml up -d'
+                        bat 'docker-compose -f docker-compose.prod.yml down || true'
+                        bat 'docker-compose -f docker-compose.prod.yml up -d'
                     } else {
                         bat 'docker-compose -f docker-compose.prod.yml down || exit 0'
                         bat 'docker-compose -f docker-compose.prod.yml up -d'
@@ -155,7 +155,7 @@ pipeline {
                     sleep(30) // Wait for services to start
                     
                     // Check backend health
-                    def backendHealth = sh(
+                    def backendHealth = bat(
                         script: 'curl -f http://localhost:8080/actuator/health || echo "FAILED"',
                         returnStdout: true
                     ).trim()
@@ -165,7 +165,7 @@ pipeline {
                     }
                     
                     // Check frontend availability
-                    def frontendHealth = sh(
+                    def frontendHealth = bat(
                         script: 'curl -f http://localhost:3000 || echo "FAILED"',
                         returnStdout: true
                     ).trim()
