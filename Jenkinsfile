@@ -155,7 +155,7 @@ pipeline {
                     sleep(30) // Wait for services to start
                     
                     // Check backend health
-                    def backendHealth = bat(
+                    def backendHealth = sh(
                         script: 'curl -f http://localhost:8080/actuator/health || echo "FAILED"',
                         returnStdout: true
                     ).trim()
@@ -165,7 +165,7 @@ pipeline {
                     }
                     
                     // Check frontend availability
-                    def frontendHealth = bat(
+                    def frontendHealth = sh(
                         script: 'curl -f http://localhost:3000 || echo "FAILED"',
                         returnStdout: true
                     ).trim()
