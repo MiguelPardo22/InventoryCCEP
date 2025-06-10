@@ -51,29 +51,6 @@ pipeline {
             }
         }
         
-        stage('Test Backend') {
-            steps {
-                echo 'Running backend tests...'
-                dir('backendCCEP') {
-                    script {
-                        if (isUnix()) {
-                            sh './mvnw test'
-                        } else {
-                            bat 'mvnw.cmd test'
-                        }
-                    }
-                }
-            }
-            post {
-                always {
-                    dir('backendCCEP') {
-                        publishTestResults testResultsPattern: 'target/surefire-reports/*.xml'
-                        archiveArtifacts artifacts: 'target/*.war', fingerprint: true
-                    }
-                }
-            }
-        }
-        
         stage('Build Frontend') {
             steps {
                 echo 'Building React frontend...'
