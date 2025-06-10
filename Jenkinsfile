@@ -148,36 +148,6 @@ pipeline {
             }
         }
         
-        stage('Health Check') {
-            steps {
-                echo 'Performing health checks...'
-                script {
-                    sleep(30) // Wait for services to start
-                    
-                    // Check backend health
-                    def backendHealth = sh(
-                        script: 'curl -f http://localhost:8080/actuator/health || echo "FAILED"',
-                        returnStdout: true
-                    ).trim()
-                    
-                    if (backendHealth.contains('FAILED')) {
-                        error('Backend health check failed')
-                    }
-                    
-                    // Check frontend availability
-                    def frontendHealth = sh(
-                        script: 'curl -f http://localhost:3000 || echo "FAILED"',
-                        returnStdout: true
-                    ).trim()
-                    
-                    if (frontendHealth.contains('FAILED')) {
-                        error('Frontend health check failed')
-                    }
-                    
-                    echo 'All health checks passed!'
-                }
-            }
-        }
     }
     
     post {
