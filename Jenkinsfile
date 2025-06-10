@@ -35,41 +35,35 @@ pipeline {
             }
         }
         
-        stage('Build Backend') {
+        stages {
+        stage('Run Backend') {
             steps {
-                echo 'Building Spring Boot backend...'
+                echo 'Starting Spring Boot backend...'
                 dir('backendCCEP') {
                     script {
                         if (isUnix()) {
                             bat 'chmod +x mvnw'
-                            bat './mvnw clean package -DskipTests'
+                            bat './mvnw spring-boot:run'
                         } else {
-                            bat 'mvnw.cmd clean package -DskipTests'
+                            bat 'mvnw.cmd spring-boot:run'
                         }
                     }
                 }
             }
         }
-        
-        stage('Build Frontend') {
+
+        stage('Run Frontend') {
             steps {
-                echo 'Building React frontend...'
+                echo 'Starting React frontend...'
                 dir('frontend-ccep') {
                     script {
                         if (isUnix()) {
-                            bat 'npm ci'
-                            bat 'npm run build'
+                            bat 'npm install'
+                            bat 'npm run dev'
                         } else {
-                            bat 'npm ci'
-                            bat 'npm run build'
+                            bat 'npm install'
+                            bat 'npm run dev'
                         }
-                    }
-                }
-            }
-            post {
-                always {
-                    dir('frontend-ccep') {
-                        archiveArtifacts artifacts: 'dist/*/', fingerprint: true
                     }
                 }
             }
