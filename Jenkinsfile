@@ -35,40 +35,39 @@ pipeline {
             }
         }
         
-        stages {
+
         stage('Run Backend') {
             steps {
                 echo 'Starting Spring Boot backend...'
                 dir('backendCCEP') {
                     script {
                         if (isUnix()) {
-                            bat 'chmod +x mvnw'
-                            bat './mvnw spring-boot:run'
+                            sh "docker build -t ${env.DOCKER_IMAGE_BACKEND} ."
                         } else {
-                            bat 'mvnw.cmd spring-boot:run'
+                            bat "docker build -t ${env.DOCKER_IMAGE_BACKEND} ."
                         }
                     }
                 }
             }
         }
 
-        stage('Run Frontend') {
+        stage('Build Frontend') {
             steps {
                 echo 'Starting React frontend...'
                 dir('frontend-ccep') {
                     script {
                         if (isUnix()) {
-                            bat 'npm install'
-                            bat 'npm run dev'
+                            sh 'npm install'
+                            sh 'npm run build'
                         } else {
                             bat 'npm install'
-                            bat 'npm run dev'
+                            bat 'npm run build'
                         }
                     }
                 }
             }
         }
-        
+
         stage('Security Scan') {
             steps {
                 echo 'Running security scans...'
@@ -77,7 +76,7 @@ pipeline {
                     // Example: OWASP Dependency Check
                     dir('backendCCEP') {
                         if (isUnix()) {
-                            bat './mvnw org.owasp:dependency-check-maven:check || true'
+                            sh './mvnw org.owasp:dependency-check-maven:check || true'
                         } else {
                             bat 'mvnw.cmd org.owasp:dependency-check-maven:check || exit 0'
                         }
@@ -85,7 +84,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy to Development') {
             when {
                 branch 'develop'
@@ -94,8 +93,8 @@ pipeline {
                 echo 'Deploying to development environment...'
                 script {
                     if (isUnix()) {
-                        bat 'docker-compose -f docker-compose.dev.yml down || true'
-                        bat 'docker-compose -f docker-compose.dev.yml up -d'
+                        sh 'docker-compose -f docker-compose.dev.yml down || true'
+                        sh 'docker-compose -f docker-compose.dev.yml up -d'
                     } else {
                         bat 'docker-compose -f docker-compose.dev.yml down || exit 0'
                         bat 'docker-compose -f docker-compose.dev.yml up -d'
@@ -103,7 +102,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy to Staging') {
             when {
                 branch 'staging'
@@ -112,8 +111,8 @@ pipeline {
                 echo 'Deploying to staging environment...'
                 script {
                     if (isUnix()) {
-                        bat 'docker-compose -f docker-compose.staging.yml down || true'
-                        bat 'docker-compose -f docker-compose.staging.yml up -d'
+                        sh 'docker-compose -f docker-compose.staging.yml down || true'
+                        sh 'docker-compose -f docker-compose.staging.yml up -d'
                     } else {
                         bat 'docker-compose -f docker-compose.staging.yml down || exit 0'
                         bat 'docker-compose -f docker-compose.staging.yml up -d'
@@ -121,7 +120,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy to Production') {
             when {
                 branch 'main'
@@ -132,8 +131,8 @@ pipeline {
                       submitterParameter: 'DEPLOYER'
                 script {
                     if (isUnix()) {
-                        bat 'docker-compose -f docker-compose.prod.yml down || true'
-                        bat 'docker-compose -f docker-compose.prod.yml up -d'
+                        sh 'docker-compose -f docker-compose.prod.yml down || true'
+                        sh 'docker-compose -f docker-compose.prod.yml up -d'
                     } else {
                         bat 'docker-compose -f docker-compose.prod.yml down || exit 0'
                         bat 'docker-compose -f docker-compose.prod.yml up -d'
