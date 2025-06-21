@@ -1,4 +1,4 @@
- services:
+services:
   postgresql-db:
     image: postgres
     container_name: postgresql-db
