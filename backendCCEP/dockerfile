@@ -9,5 +9,5 @@ FROM eclipse-temurin:21
 WORKDIR /opt/app
 COPY --from=builder /app/target/backendCCEP.jar backendCCEP.jar
 
-EXPOSE 8080
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "backendCCEP.jar"]

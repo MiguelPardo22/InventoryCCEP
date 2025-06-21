@@ -1,3 +1,4 @@
+// Jenkinsfile 
 pipeline {
     agent any
     
@@ -42,9 +43,9 @@ pipeline {
                 dir('backendCCEP') {
                     script {
                         if (isUnix()) {
-                            sh "docker build -t ${env.DOCKER_IMAGE_BACKEND} ."
+                            sh "docker-compose up -d --build"
                         } else {
-                            bat "docker build -t ${env.DOCKER_IMAGE_BACKEND} ."
+                            bat "docker-compose up -d --build"
                         }
                     }
                 }
