@@ -39,4 +39,4 @@
       DB_PASSWORD: ${DB_PASSWORD}
 
 volumes:
-  pgdata:
+  pgdata:
